@@ -81,7 +81,7 @@ The same hop-2 triple `⟨BRCA2, participates_in, HR-repair⟩` is:
 - **Diagnostically essential** when hop 1 retained `⟨FANCD1, causal_mutation, BRCA2⟩`,
 - **Irrelevant noise** when hop 1 retained only `⟨FANCD1, has_phenotype, bone-marrow-failure⟩`.
 
-A depth-stratified filter sees only `(Q, participates_in, ℓ=2)` and assigns **the same score in both cases**. It cannot distinguish the two evidential trajectories — it commits the **Context Blindness Error**.
+A depth-stratified filter sees only `(Q, participates_in, ℓ=2)` and assigns **the same score in both cases**. It cannot distinguish the two evidential trajectories  it commits the **Context Blindness Error**.
 
 Formally, for a context-agnostic filter `f ∈ F_agn` and any threshold `τ`:
 
