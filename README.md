@@ -208,7 +208,7 @@ L  =  L_BCE  +  λ_D · L_DC  +  λ_C · L_HC3      (λ_D = 0.40,  λ_C = 0.35)
 | **Theorem 1** | Under positive CMI `I(Y; Z \| X) > 0`, every context-agnostic filter incurs an irreducible Bayes error floor `ε* > 0` with `ε* ≥ ½ · 𝔼_X[Var_{Z\|X}(π(X,Z))]`. | §4.2 |
 | **Lemma 1** | CBE forces label indistinguishability: there exist `(X, z₁, y=1)` and `(X, z₂, y=0)` receiving identical agnostic scores. | §3.3 |
 | **Lemma 2** | The CSV is injective on the simplex of retained-context distributions whenever the relation-embedding matrix has full row rank. | §5.2 |
-| **Proposition 1** | CSV noise stability: `𝔼[‖z̃ − z‖²] = σ²d / \|S_{ℓ-1}\|` — context summaries are **most stable in the regime where they carry the most information**. | §5.2 |
+| **Proposition 1** | CSV noise stability: `𝔼[‖z̃ − z‖²] = σ²d / \|S_{ℓ-1}\|`  context summaries are **most stable in the regime where they carry the most information**. | §5.2 |
 | **Proposition 2** | DBM rank sufficiency: with `ρ ≥ rank(Δ*)`, DBM can exactly represent any context-induced perturbation (Eckart–Young). | §6 |
 | **Proposition 3** | Minimizing `L_HC3` maximizes a variational lower bound on `I(Y; S \| z)`. | §5.4 |
 | **Proposition 4** | `ε*` is monotone non-decreasing in `I(Y; Z \| X)` (via Pinsker). | §4.2 |
