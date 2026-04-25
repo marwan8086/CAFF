@@ -61,11 +61,11 @@
 
 ## TL;DR
 
-> Existing triple filters for multi-hop KG-RAG score each candidate from `(Query, relation, BFS_depth)` alone — they are **blind** to which triples were retained at the previous hop. We prove this blindness incurs an **irreducible** Bayes error floor `ε* > 0` (Theorem 1, via the Data Processing Inequality). **CAFF** closes this gap with a three-piece, filtering-layer-only feedback loop:
+> Existing triple filters for multi-hop KG-RAG score each candidate from `(Query, relation, BFS_depth)` alone , they are **blind** to which triples were retained at the previous hop. We prove this blindness incurs an **irreducible** Bayes error floor `ε* > 0` (Theorem 1, via the Data Processing Inequality). **CAFF** closes this gap with a three-piece, filtering-layer-only feedback loop:
 >
-> - **CSV** — a parameter-free, permutation-invariant summary of the previously retained set.
-> - **DBM** — a low-rank, sigmoid-gated perturbation of the bilinear scoring matrix, *generated dynamically* from the CSV.
-> - **HC3** — a contrastive loss that provably maximizes a variational lower bound on the conditional mutual information `I(Y; S | z)`.
+> - **CSV**  a parameter-free, permutation-invariant summary of the previously retained set.
+> - **DBM**  a low-rank, sigmoid-gated perturbation of the bilinear scoring matrix, *generated dynamically* from the CSV.
+> - **HC3**  a contrastive loss that provably maximizes a variational lower bound on the conditional mutual information `I(Y; S | z)`.
 >
 > CAFF lifts PubMedQA accuracy from **76.9 → 79.6** (+2.7 pts) and BioASQ 7b macro-F1 from **71.1 → 74.3** (+3.2 pts) over the strongest depth-stratified baseline, with gains concentrated at the deepest hops (**+6.9** pts at hop 2, **+9.3** pts at hop 3) — exactly where CBE is most severe.
 
@@ -359,13 +359,13 @@ python train.py --config configs/caff_full.yaml
 
 ```bash
 # 1. Strongest baseline (depth-stratified bilinear, no context)
-python train.py --config configs/depthbilinear.yaml --seed 42
+python train.py --config configs/depthbilinear.yaml -seed 42
 
 # 2. CAFF without HC3 loss (CSV + DBM only — ablates the CMI bound)
-python train.py --config configs/caff_no_hc3.yaml --seed 42
+python train.py --config configs/caff_no_hc3.yaml -seed 42
 
 # 3. Full CAFF
-python train.py --config configs/caff_full.yaml --seed 42
+python train.py --config configs/caff_full.yaml -seed 42
 
 # 4. Repeat across the three reported seeds
 for s in 42 1337 2024; do
@@ -427,7 +427,7 @@ python context_swap_diagnostic.py \
     --report-bits
 ```
 
-> Every context-agnostic baseline yields **JSD = 0.00 bits** (the empirical signature of CBE). CAFF achieves **JSD = 1.84 bits** — concrete proof that the architectural fix is doing what the theory predicts.
+> Every context-agnostic baseline yields **JSD = 0.00 bits** (the empirical signature of CBE). CAFF achieves **JSD = 1.84 bits**  concrete proof that the architectural fix is doing what the theory predicts.
 
 ---
 
@@ -456,7 +456,7 @@ All gains over DepthBilinear are statistically significant at `p < 0.01` (paired
 | **CAFF (Full)** | **62.4** | **61.2** | **58.1** | **60.6** |
 | **Δ_ℓ** | **+0.7** | **+6.9** | **+9.3** | **+5.7** |
 
-> The gain at hop 1 is **near zero** by design — with no prior retained set, `z₀ = 0` and CAFF reduces exactly to DepthBilinear. Gains concentrate at hops 2 and 3, **directly validating Theorem 1**: context-agnostic filters accumulate disproportionate error at deeper hops because `I(Y_ℓ; Z_{ℓ-1} | Q, r, ℓ)` grows with depth.
+> The gain at hop 1 is **near zero** by design , with no prior retained set, `z₀ = 0` and CAFF reduces exactly to DepthBilinear. Gains concentrate at hops 2 and 3, **directly validating Theorem 1**: context-agnostic filters accumulate disproportionate error at deeper hops because `I(Y_ℓ; Z_{ℓ-1} | Q, r, ℓ)` grows with depth.
 
 ### Path-survival rate (PSR)
 
@@ -502,7 +502,7 @@ A filter that maximizes edge-level F1 independently per hop can still drive mult
 | `ρ = 32` (double rank) | 79.5 | 70.4 | −0.1 |
 
 **Take-aways.**
-1. Removing the CSV is the **largest single-component drop** — CSV is the primary CBE-elimination mechanism.
+1. Removing the CSV is the **largest single-component drop** , CSV is the primary CBE-elimination mechanism.
 2. HC3 contributes an independent **+1.4 pts** by maximizing the CMI bound.
 3. `ρ = 16` is near-optimal; `ρ = 32` yields only a marginal `−0.1` improvement.
 
