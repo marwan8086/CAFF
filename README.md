@@ -140,11 +140,11 @@ This floor is **architectural**, not representational  no parameter scaling of `
                                                                        (next hop ℓ+1)
 ```
 
-### Stage 1 — BFS Candidate Stratification
+### Stage 1  BFS Candidate Stratification
 
 For each head entity at depth `ℓ-1`, retain at most `K_r = 20` triples per relation type, ranked by descending tail degree. This **frequency cap** prevents hub-entity relation embeddings from saturating the CSV.
 
-### Stage 2 — Contextual Summary Vector (CSV)
+### Stage 2  Contextual Summary Vector (CSV)
 
 Parameter-free, permutation-invariant, formally faithful:
 
@@ -158,7 +158,7 @@ with `z_{ℓ-1} = 0` when `S_{ℓ-1} = ∅` (so CAFF reduces *gracefully* to the
 
 **Lemma (CSV faithfulness).** If the relation-embedding matrix `E` has full row rank, the map `Z ↦ EᵀZ` is **injective** on the simplex — distinct retained-context distributions produce distinct CSVs.
 
-### Stage 3 — Dynamic Bilinear Modulation (DBM)
+### Stage 3  Dynamic Bilinear Modulation (DBM)
 
 A low-rank, sigmoid-gated, **runtime-generated** increment to the scoring matrix:
 
@@ -183,7 +183,7 @@ s_ℓ  =  σ( qᵀ W^ctx_ℓ e_r  +  vᵀ(q ⊙ e_r)  +  β_ℓ )
 
 > **DBM vs. LoRA / Adapters.** LoRA learns a *fixed* low-rank increment during fine-tuning. DBM **generates** its rank-ρ increment *dynamically at inference time* from the CSV  context-specific modulation without a separate parameter set per context.
 
-### Stage 4 — Hop-Conditioned Context Contrast (HC3) Loss
+### Stage 4  Hop-Conditioned Context Contrast (HC3) Loss
 
 For each anchor `(Q, r, ℓ)`, mine a positive context `z^(a)` (where the triple was labeled 1) and up to 8 negative contexts `z^(b)` (where it was labeled 0):
 
