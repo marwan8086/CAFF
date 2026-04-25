@@ -104,9 +104,9 @@ This floor is **architectural**, not representational  no parameter scaling of `
 | # | Contribution | Paper Section |
 |---|---|---|
 | **C1** | Formal definition of the Context Blindness Error (CBE) and a proof that it induces an irreducible Bayes error floor `ε* > 0`, with a closed-form variance lower bound. | §4 |
-| **C2** | **Contextual Summary Vector (CSV)** — a parameter-free, permutation-invariant encoder of the previously retained set, with a formal injectivity guarantee under linearly independent relation embeddings. | §5.2 |
-| **C3** | **Dynamic Bilinear Modulation (DBM)** — a low-rank, sigmoid-gated, *dynamically generated* perturbation of the scoring matrix, with **zero per-candidate overhead** after one-time precomputation. | §5.3 |
-| **C4** | **HC3 loss** — an InfoNCE-derived contrastive objective formally equivalent to maximizing a variational lower bound on the conditional mutual information `I(Y; S \| z)`. | §5.4 |
+| **C2** | **Contextual Summary Vector (CSV)**  a parameter-free, permutation-invariant encoder of the previously retained set, with a formal injectivity guarantee under linearly independent relation embeddings. | §5.2 |
+| **C3** | **Dynamic Bilinear Modulation (DBM)**  a low-rank, sigmoid-gated, *dynamically generated* perturbation of the scoring matrix, with **zero per-candidate overhead** after one-time precomputation. | §5.3 |
+| **C4** | **HC3 loss**  an InfoNCE-derived contrastive objective formally equivalent to maximizing a variational lower bound on the conditional mutual information `I(Y; S \| z)`. | §5.4 |
 | **C5** | State-of-the-art results on PubMedQA and BioASQ 7b, with hop-stratified ablations and a diagnostic context-swap experiment showing **1.84 bits** of context separation vs. **0.00 bits** for every context-agnostic baseline. | §7–§8 |
 
 ---
