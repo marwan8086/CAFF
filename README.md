@@ -95,7 +95,7 @@ with the closed-form lower bound
 ε*  ≥  ½ · 𝔼_X [ Var_{Z|X} ( P(Y=1 | X, Z) ) ].
 ```
 
-This floor is **architectural**, not representational — no parameter scaling of `f(Q, r, ℓ)` can recover information about `S_{ℓ-1}` that was never given to it as input.
+This floor is **architectural**, not representational  no parameter scaling of `f(Q, r, ℓ)` can recover information about `S_{ℓ-1}` that was never given to it as input.
 
 ---
 
@@ -181,7 +181,7 @@ s_ℓ  =  σ( qᵀ W^ctx_ℓ e_r  +  vᵀ(q ⊙ e_r)  +  β_ℓ )
 - candidate scoring: `O(N_ℓ d²)`,
 - total CAFF surcharge ≈ **9.4 × 10⁶ FLOPs / hop**, **zero per candidate**.
 
-> **DBM vs. LoRA / Adapters.** LoRA learns a *fixed* low-rank increment during fine-tuning. DBM **generates** its rank-ρ increment *dynamically at inference time* from the CSV — context-specific modulation without a separate parameter set per context.
+> **DBM vs. LoRA / Adapters.** LoRA learns a *fixed* low-rank increment during fine-tuning. DBM **generates** its rank-ρ increment *dynamically at inference time* from the CSV  context-specific modulation without a separate parameter set per context.
 
 ### Stage 4 — Hop-Conditioned Context Contrast (HC3) Loss
 
