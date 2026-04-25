@@ -67,7 +67,7 @@
 > - **DBM**  a low-rank, sigmoid-gated perturbation of the bilinear scoring matrix, *generated dynamically* from the CSV.
 > - **HC3**  a contrastive loss that provably maximizes a variational lower bound on the conditional mutual information `I(Y; S | z)`.
 >
-> CAFF lifts PubMedQA accuracy from **76.9 → 79.6** (+2.7 pts) and BioASQ 7b macro-F1 from **71.1 → 74.3** (+3.2 pts) over the strongest depth-stratified baseline, with gains concentrated at the deepest hops (**+6.9** pts at hop 2, **+9.3** pts at hop 3) — exactly where CBE is most severe.
+> CAFF lifts PubMedQA accuracy from **76.9 → 79.6** (+2.7 pts) and BioASQ 7b macro-F1 from **71.1 → 74.3** (+3.2 pts) over the strongest depth-stratified baseline, with gains concentrated at the deepest hops (**+6.9** pts at hop 2, **+9.3** pts at hop 3) exactly where CBE is most severe.
 
 ---
 
