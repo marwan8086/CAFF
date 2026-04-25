@@ -1,0 +1,53 @@
+# CAFF configuration for training and evaluation
+
+# Data paths
+train_json: "./data/train.json"
+dev_json: "./data/dev.json"
+merged_kg_path: "./data/merged_kg.tsv"
+
+# Model configuration
+encoder_name: "michiyasunaga/BioLinkBERT-large"
+encoder_dim: 1024
+max_relation_length: 128
+max_query_length: 512
+
+# CAFF architecture
+L: 3
+Kr: 20
+rho: 16
+theta: 0.5
+
+# Training configuration
+batch_size: 2
+epochs: 1
+lr: 1e-5
+weight_decay: 1e-4
+warmup_epochs: 0
+gamma_C: 0.25
+lambda_C: 0.35
+
+# Other
+seed: 42
+device: "cpu"
+save_dir: "./checkpoints/"
+
+# Training configuration
+batch_size: 2
+lr: 3.0e-4
+weight_decay: 1.0e-2
+epochs: 1
+warmup_epochs: 0
+grad_clip: 1.0
+gamma_D: 0.2
+gamma_C: 0.25
+lambda_D: 0.4
+lambda_C: 0.35
+num_workers: 0
+seed: 42
+
+# Runtime
+device: "cpu"
+
+# Logging
+save_dir: "./checkpoints"
+log_interval: 50

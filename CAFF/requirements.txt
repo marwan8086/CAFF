@@ -1,0 +1,11 @@
+torch>=2.0.1
+transformers>=4.30.2
+datasets>=2.14.0
+networkx
+numpy
+pandas
+scipy
+scikit-learn
+tqdm
+pyyaml
+wandb
