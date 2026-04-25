@@ -156,7 +156,7 @@ z_{ℓ-1}  =  ──── · Σ_{(h,r,t) ∈ S_{ℓ-1}}  e_r        (mean of fr
 
 with `z_{ℓ-1} = 0` when `S_{ℓ-1} = ∅` (so CAFF reduces *gracefully* to the depth-stratified baseline at hop 1).
 
-**Lemma (CSV faithfulness).** If the relation-embedding matrix `E` has full row rank, the map `Z ↦ EᵀZ` is **injective** on the simplex — distinct retained-context distributions produce distinct CSVs.
+**Lemma (CSV faithfulness).** If the relation-embedding matrix `E` has full row rank, the map `Z ↦ EᵀZ` is **injective** on the simplex  distinct retained-context distributions produce distinct CSVs.
 
 ### Stage 3  Dynamic Bilinear Modulation (DBM)
 
