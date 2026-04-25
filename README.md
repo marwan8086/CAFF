@@ -591,7 +591,7 @@ If you use CAFF, the merged KG construction, or the context-swap diagnostic in y
 
 ## License
 
-This project is released under the **MIT License** — see [`LICENSE`](LICENSE) for the full text.
+This project is released under the **MIT License**  see [`LICENSE`](LICENSE) for the full text.
 
 > The merged KG **derived from** Orphanet, DisGeNET, and OMIM is **not redistributed**; users must obtain the source data directly under each provider's terms.
 
