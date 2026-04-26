@@ -465,7 +465,7 @@ A filter that maximizes edge-level F1 independently per hop can still drive mult
 | Method | F1 | PSR | End-to-end Acc. |
 |---|---:|---:|---:|
 | DepthBilinear | 66.6 | 63.3 | 76.9 |
-| CAFF — NoHC3 | 68.8 | 71.2 | 78.2 |
+| CAFF - NoHC3 | 68.8 | 71.2 | 78.2 |
 | **CAFF (Full)** | **70.5** | **75.7** | **79.6** |
 
 > The **+12.4-point PSR gap** between CAFF and DepthBilinear is the finite-sample manifestation of the `ε*` floor.
@@ -479,7 +479,7 @@ A filter that maximizes edge-level F1 independently per hop can still drive mult
 | BioRAG | 0.621 | 0.621 | 0.00 |
 | SubgraphRAG | 0.634 | 0.634 | 0.00 |
 | DepthBilinear | 0.620 | 0.620 | 0.00 |
-| CAFF — NoHC3 | 0.741 | 0.301 | **1.41** |
+| CAFF - NoHC3 | 0.741 | 0.301 | **1.41** |
 | **CAFF (Full)** | **0.792** | **0.238** | **1.84** |
 
 > Every context-agnostic baseline yields exactly **0.00 bits** of context separation — direct empirical confirmation of CBE.
