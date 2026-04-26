@@ -1,5 +1,5 @@
 <!-- ============================================================ -->
-<!--  CAFF — Context-Aware Feedback Filtering                     -->
+<!--  CAFF - Context-Aware Feedback Filtering                     -->
 <!--  Official repository README                                  -->
 <!-- ============================================================ -->
 
@@ -18,14 +18,14 @@
 
 <p align="center">
   <b>Marwan Dhifallah</b><sup>*</sup> &nbsp;·&nbsp; <b>Yu Liu</b><br>
-  <i>School of Computer Science and Technology, Dalian University of Technology, Dalian, China</i><br>
+  <i>Dalian University of Technology, Dalian, China</i><br>
   <code>marwan@mail.dlut.edu.cn</code> &nbsp;·&nbsp; <code>yuliu@dlut.edu.cn</code>
 </p>
 
 <p align="center">
   <i>Official PyTorch implementation of the paper</i><br>
   <b>"CAFF: Context-Aware Feedback Filtering for Multi-Hop Biomedical Knowledge Graph Evidence Selection"</b><br>
-  <i>(under review, IEEE Transactions on Knowledge and Data Engineering, 2025).</i>
+  <i>(under review, IEEE Transactions on Knowledge and Data Engineering, 2026).</i>
 </p>
 
 ---
