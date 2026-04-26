@@ -216,42 +216,7 @@ L  =  L_BCE  +  λ_D · L_DC  +  λ_C · L_HC3      (λ_D = 0.40,  λ_C = 0.35)
 
 ---
 
-## Repository Structure
 
-> The layout below reflects the intended organization of this repository. Adjust paths to match your local checkout if needed.
-
-```
-caff/
-├── configs/                      # YAML configs for every experiment in the paper
-│   ├── caff_full.yaml
-│   ├── caff_no_hc3.yaml
-│   ├── depthbilinear.yaml
-│   └── ablations/
-├── data/
-│   ├── raw/                      # Orphanet / DisGeNET / OMIM dumps (not redistributed)
-│   ├── processed/                # Merged KG, BFS subgraphs, gold labels
-│   └── benchmarks/               # PubMedQA, BioASQ 7b splits
-├── scripts/
-│   ├── build_kg.py               # Merge Orphanet + DisGeNET + OMIM on UMLS CUIs
-│   ├── annotate_triples.py       # Shortest-path gold relevance labeling
-│   ├── mine_hc3_triplets.py      # HC3 contrastive triplet mining
-│   └── prepare_pubmedqa.py
-├── caff/
-│   ├── __init__.py
-│   ├── encoders.py               # Frozen BioLinkBERT-Large query/relation encoder
-│   ├── csv.py                    # Contextual Summary Vector (Eq. 14)
-│   ├── dbm.py                    # Dynamic Bilinear Modulation (Eqs. 16–18)
-│   ├── scorer.py                 # Full CAFF scorer (Eq. 19)
-│   ├── losses.py                 # BCE + DC + HC3
-│   ├── inference.py              # Algorithm 1 (Sec. 5.5)
-│   └── utils/
-├── train.py                      # End-to-end training entry point
-├── evaluate.py                   # Filtering + downstream QA evaluation
-├── context_swap_diagnostic.py    # Diagnostic from Appendix C / Table 11
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
 
 ---
 
