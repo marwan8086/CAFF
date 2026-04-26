@@ -503,7 +503,7 @@ a wider basin than reported for SubgraphRAG or BioRAG.
 - Standard deviations exceeding `0.3` points are noted in the paper text.
 - Statistical significance is assessed via **paired bootstrap resampling** (`B = 10,000`).
 - The frozen relation encoder (`BioLinkBERT-Large`, 340 M params) is **never updated**, confining all learnable capacity to **< 12 M parameters** (≈ 3.5% of the backbone).
-- Code, preprocessing scripts, trained checkpoints, and the merged-KG construction pipeline will be released **upon publication** under the MIT License.
+- Code, preprocessing scripts, trained checkpoints, and the merged-KG construction pipeline released under the MIT License.
 
 ---
 
@@ -547,7 +547,7 @@ If you use CAFF, the merged KG construction, or the context-swap diagnostic in y
              Biomedical Knowledge Graph Evidence Selection},
   author  = {Dhifallah, Marwan and Liu, Yu},
   journal = {IEEE Transactions on Knowledge and Data Engineering},
-  year    = {2025},
+  year    = {2026},
   note    = {Under review}
 }
 ```
