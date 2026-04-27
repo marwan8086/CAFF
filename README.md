@@ -515,7 +515,7 @@ a wider basin than reported for SubgraphRAG or BioRAG.
 | GPU memory | ≥ 40 GB for default batch size (256) |
 | System RAM | ≥ 64 GB (KG fits in memory) |
 | Disk | ≈ 25 GB (raw + processed data + checkpoints) |
-| Framework | PyTorch 1.13 · CUDA 11.8 |
+| Framework | PyTorch 2.0+ · CUDA 11.8 |
 
 | Stage | Wall-clock (single A100) |
 |---|---:|
