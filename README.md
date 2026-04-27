@@ -240,7 +240,7 @@ python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
 # 3. Install PyTorch (matched to your CUDA toolkit)
-pip install torch==1.13.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+pip install torch>=2.0 --index-url https://download.pytorch.org/whl/cu118
 
 # 4. Install remaining dependencies
 pip install -r requirements.txt
