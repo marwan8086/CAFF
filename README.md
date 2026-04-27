@@ -542,7 +542,7 @@ a wider basin than reported for SubgraphRAG or BioRAG.
 If you use CAFF, the merged KG construction, or the context-swap diagnostic in your work, please cite:
 
 ```bibtex
-@article{dhifallah2025caff,
+@article{dhifallah2026caff,
   title   = {{CAFF}: Context-Aware Feedback Filtering for Multi-Hop
              Biomedical Knowledge Graph Evidence Selection},
   author  = {Dhifallah, Marwan and Liu, Yu},
