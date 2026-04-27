@@ -314,7 +314,7 @@ python scripts/annotate_triples.py \
 
 ## Training
 
-### Quick start — full CAFF on PubMedQA
+### Quick start - full CAFF on PubMedQA
 
 ```bash
 python train.py --config configs/caff_full.yaml
