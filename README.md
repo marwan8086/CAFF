@@ -252,7 +252,7 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('michiy
 ### Core Dependencies
 
 ```
-torch==1.13.1
+torch>=2.0
 transformers>=4.30
 scispacy>=0.5
 networkx>=3.0
