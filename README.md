@@ -564,7 +564,7 @@ This project is released under the **MIT License**  see [`LICENSE`](LICENSE) for
 
 ## Acknowledgements
 
-This research was conducted at the **School of Computer Science and Technology, Dalian University of Technology (DUT)**, with support from the **CSC Type-B Scholarship**. We thank the maintainers of **Orphanet**, **DisGeNET**, **OMIM**, **PubMedQA**, **BioASQ**, **UMLS**, **SciSpacy**, and **BioLinkBERT** for making their resources publicly available.
+This research was conducted at the **School of Software Engineering, Dalian University of Technology (DUT)**, with support from the **CSC Type-B Scholarship**. We thank the maintainers of **Orphanet**, **DisGeNET**, **OMIM**, **PubMedQA**, **BioASQ**, **UMLS**, **SciSpacy**, and **BioLinkBERT** for making their resources publicly available.
 
 ---
 
