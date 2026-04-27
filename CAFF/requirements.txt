@@ -1,11 +1,27 @@
-torch>=2.0.1
-transformers>=4.30.2
-datasets>=2.14.0
-networkx
-numpy
-pandas
-scipy
-scikit-learn
-tqdm
-pyyaml
-wandb
+# Core scientific stack
+torch>=2.0,<2.4
+transformers>=4.30,<4.45
+numpy>=1.24,<2.0
+pandas>=2.0,<3.0
+scipy>=1.10,<1.14
+
+# Graph operations (BFS, shortest paths)
+networkx>=3.0,<4.0
+
+# Data utilities
+PyYAML>=6.0
+tqdm>=4.65
+
+# Optional — biomedical NER for entity linking
+scispacy>=0.5,<0.6
+spacy>=3.5,<3.8
+
+# Optional — LLM backbone for end-to-end QA (paper §8.3)
+openai>=1.0,<2.0
+
+# Optional — experiment tracking
+wandb>=0.15
+
+# Testing
+pytest>=7.4
+pytest-cov>=4.1
