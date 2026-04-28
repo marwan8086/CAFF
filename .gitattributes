@@ -1,0 +1,16 @@
+# Force consistent line endings across platforms.
+# Python files always use LF (Unix-style).
+*.py        text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.tsv       text eol=lf
+*.txt       text eol=lf
+*.cfg       text eol=lf
+*.toml      text eol=lf
+# Binary files (no normalization).
+*.pt        binary
+*.png       binary
+*.jpg       binary
+*.pdf       binary

@@ -1,12 +1,12 @@
-"""
+﻿"""
 tests/test_miners.py
 ====================
-Verify HC3 mining (paper §6.4):
+Verify HC3 mining (paper Â§6.4):
 
-  • Buffer capacity = 1000                       (paper §6.4)
-  • Refresh policy = every 500 steps             (paper §6.4)
-  • Negatives drawn from same (Q,r,ℓ) but opposite label
-  • k = 8 negatives per anchor                   (paper §6.4)
+  â€¢ Buffer capacity = 1000                       (paper Â§6.4)
+  â€¢ Refresh policy = every 500 steps             (paper Â§6.4)
+  â€¢ Negatives drawn from same (Q,r,â„“) but opposite label
+  â€¢ k = 8 negatives per anchor                   (paper Â§6.4)
 
 This guards Failure Mode F4 (mining in-batch instead of from buffer).
 """
@@ -22,7 +22,7 @@ from caff.miners import HC3Buffer, HC3Miner, TrainingInstance
 
 def _make_inst(qid: str, rel: str, hop: int, label: int) -> TrainingInstance:
     return TrainingInstance(
-        query_id=qid, head="h", relation=rel, tail="t",
+        query_id=qid, question="dummy", head="h", relation=rel, tail="t",
         hop=hop, label=label, z_prev=torch.zeros(8),
     )
 
@@ -40,7 +40,7 @@ def test_buffer_capacity():
 
 def test_negative_mining_same_anchor_different_label():
     buf = HC3Buffer(capacity=100)
-    # Same (Q, r, ℓ) but opposite labels
+    # Same (Q, r, â„“) but opposite labels
     pos = _make_inst("q1", "r1", 2, label=1)
     neg1 = _make_inst("q1", "r1", 2, label=0)
     neg2 = _make_inst("q1", "r1", 2, label=0)
@@ -59,7 +59,7 @@ def test_negative_mining_respects_k():
     buf = HC3Buffer(capacity=100)
     pos = _make_inst("q1", "r1", 2, label=1)
     buf.add(pos)
-    # Add 20 negatives — miner must return only 8
+    # Add 20 negatives â€” miner must return only 8
     for i in range(20):
         buf.add(_make_inst("q1", "r1", 2, label=0))
 
@@ -69,7 +69,7 @@ def test_negative_mining_respects_k():
 
 
 def test_miner_refresh_schedule():
-    """Paper §6.4: refresh every 500 gradient steps."""
+    """Paper Â§6.4: refresh every 500 gradient steps."""
     miner = HC3Miner(buffer_capacity=10, refresh_every=500)
     for _ in range(499):
         miner.step()
@@ -79,8 +79,9 @@ def test_miner_refresh_schedule():
 
 
 def test_miner_paper_invariants():
-    """k = 8 and capacity = 1000 are paper §6.4 defaults."""
+    """k = 8 and capacity = 1000 are paper Â§6.4 defaults."""
     miner = HC3Miner()
     assert miner.negatives_per_anchor == 8
     assert miner.buffer.capacity == 1000
     assert miner.refresh_every == 500
+

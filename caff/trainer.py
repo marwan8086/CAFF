@@ -56,8 +56,6 @@ from .encoders import FrozenBioEncoder
 from .losses import CAFFCombinedLoss
 from .miners import HC3Miner, TrainingInstance
 from .model import CAFFModel
-from .utils.seeding import set_global_seed
-
 logger = logging.getLogger(__name__)
 
 
@@ -655,6 +653,7 @@ class CAFFTrainer:
                     break
 
         return self.history
+
 
 
 
