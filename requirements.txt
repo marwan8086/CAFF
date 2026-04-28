@@ -1,0 +1,18 @@
+# ============================================================
+# CAFF -- Core dependencies (training + evaluation)
+# ============================================================
+# Install with:  pip install -r requirements.txt
+# Core scientific stack
+torch>=2.0,<2.4
+transformers>=4.30,<4.45
+numpy>=1.24,<2.0
+pandas>=2.0,<3.0
+scipy>=1.10,<1.14
+# Graph operations (BFS, shortest paths)
+networkx>=3.0,<4.0
+# Data utilities
+PyYAML>=6.0
+tqdm>=4.65
+# Testing (used by tests/)
+pytest>=7.4
+pytest-cov>=4.1

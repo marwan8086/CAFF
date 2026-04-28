@@ -1,0 +1,1352 @@
+[
+  {
+    "query_id": "synth_579",
+    "question": "What is associated with Entity9087?",
+    "seeds": [
+      "C1090866"
+    ],
+    "gold_answer": "C1090867",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_786",
+    "question": "What is associated with Entity2632?",
+    "seeds": [
+      "C1026314"
+    ],
+    "gold_answer": "C1026315",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_329",
+    "question": "What is associated with Entity9917?",
+    "seeds": [
+      "C1099164"
+    ],
+    "gold_answer": "C1099165",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_176",
+    "question": "What is associated with Entity579?",
+    "seeds": [
+      "C1005796"
+    ],
+    "gold_answer": "C1005797",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_655",
+    "question": "What is associated with Entity6200?",
+    "seeds": [
+      "C1062000"
+    ],
+    "gold_answer": "C1062001",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_436",
+    "question": "What is associated with Entity156?",
+    "seeds": [
+      "C1001566"
+    ],
+    "gold_answer": "C1001567",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_654",
+    "question": "What is associated with Entity3663?",
+    "seeds": [
+      "C1036628"
+    ],
+    "gold_answer": "C1036629",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_190",
+    "question": "What is associated with Entity9623?",
+    "seeds": [
+      "C1096226"
+    ],
+    "gold_answer": "C1096227",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_835",
+    "question": "What is associated with Entity2338?",
+    "seeds": [
+      "C1023382"
+    ],
+    "gold_answer": "C1023383",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_503",
+    "question": "What is associated with Entity3590?",
+    "seeds": [
+      "C1035902"
+    ],
+    "gold_answer": "C1035903",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_249",
+    "question": "What is associated with Entity236?",
+    "seeds": [
+      "C1002368"
+    ],
+    "gold_answer": "C1002369",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_928",
+    "question": "What is associated with Entity5092?",
+    "seeds": [
+      "C1050922"
+    ],
+    "gold_answer": "C1050923",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_384",
+    "question": "What is associated with Entity1914?",
+    "seeds": [
+      "C1019142"
+    ],
+    "gold_answer": "C1019143",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_980",
+    "question": "What is associated with Entity832?",
+    "seeds": [
+      "C1008322"
+    ],
+    "gold_answer": "C1008323",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_995",
+    "question": "What is associated with Entity4340?",
+    "seeds": [
+      "C1043400"
+    ],
+    "gold_answer": "C1043401",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_105",
+    "question": "What is associated with Entity783?",
+    "seeds": [
+      "C1007830"
+    ],
+    "gold_answer": "C1007831",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_253",
+    "question": "What is associated with Entity9363?",
+    "seeds": [
+      "C1093628"
+    ],
+    "gold_answer": "C1093629",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_255",
+    "question": "What is associated with Entity3543?",
+    "seeds": [
+      "C1035428"
+    ],
+    "gold_answer": "C1035429",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_877",
+    "question": "What is associated with Entity5364?",
+    "seeds": [
+      "C1053640"
+    ],
+    "gold_answer": "C1053641",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_869",
+    "question": "What is associated with Entity3127?",
+    "seeds": [
+      "C1031270"
+    ],
+    "gold_answer": "C1031271",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_777",
+    "question": "What is associated with Entity7465?",
+    "seeds": [
+      "C1074644"
+    ],
+    "gold_answer": "C1074645",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_925",
+    "question": "What is associated with Entity9111?",
+    "seeds": [
+      "C1091108"
+    ],
+    "gold_answer": "C1091109",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_948",
+    "question": "What is associated with Entity3471?",
+    "seeds": [
+      "C1034712"
+    ],
+    "gold_answer": "C1034713",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_234",
+    "question": "What is associated with Entity8360?",
+    "seeds": [
+      "C1083596"
+    ],
+    "gold_answer": "C1083597",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_41",
+    "question": "What is associated with Entity2955?",
+    "seeds": [
+      "C1029548"
+    ],
+    "gold_answer": "C1029549",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_162",
+    "question": "What is associated with Entity9394?",
+    "seeds": [
+      "C1093938"
+    ],
+    "gold_answer": "C1093939",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_163",
+    "question": "What is associated with Entity283?",
+    "seeds": [
+      "C1002832"
+    ],
+    "gold_answer": "C1002833",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_369",
+    "question": "What is associated with Entity6248?",
+    "seeds": [
+      "C1062474"
+    ],
+    "gold_answer": "C1062475",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_970",
+    "question": "What is associated with Entity5963?",
+    "seeds": [
+      "C1059628"
+    ],
+    "gold_answer": "C1059629",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_429",
+    "question": "What is associated with Entity2596?",
+    "seeds": [
+      "C1025954"
+    ],
+    "gold_answer": "C1025955",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_982",
+    "question": "What is associated with Entity2352?",
+    "seeds": [
+      "C1023516"
+    ],
+    "gold_answer": "C1023517",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_787",
+    "question": "What is associated with Entity9111?",
+    "seeds": [
+      "C1091100"
+    ],
+    "gold_answer": "C1091101",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_759",
+    "question": "What is associated with Entity1970?",
+    "seeds": [
+      "C1019698"
+    ],
+    "gold_answer": "C1019699",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_669",
+    "question": "What is associated with Entity5829?",
+    "seeds": [
+      "C1058292"
+    ],
+    "gold_answer": "C1058293",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_250",
+    "question": "What is associated with Entity6849?",
+    "seeds": [
+      "C1068486"
+    ],
+    "gold_answer": "C1068487",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_303",
+    "question": "What is associated with Entity8419?",
+    "seeds": [
+      "C1084182"
+    ],
+    "gold_answer": "C1084183",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_307",
+    "question": "What is associated with Entity8855?",
+    "seeds": [
+      "C1088540"
+    ],
+    "gold_answer": "C1088541",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_933",
+    "question": "What is associated with Entity4745?",
+    "seeds": [
+      "C1047444"
+    ],
+    "gold_answer": "C1047445",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_243",
+    "question": "What is associated with Entity9846?",
+    "seeds": [
+      "C1098456"
+    ],
+    "gold_answer": "C1098457",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_287",
+    "question": "What is associated with Entity4312?",
+    "seeds": [
+      "C1043114"
+    ],
+    "gold_answer": "C1043115",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_532",
+    "question": "What is associated with Entity6311?",
+    "seeds": [
+      "C1063104"
+    ],
+    "gold_answer": "C1063105",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_137",
+    "question": "What is associated with Entity956?",
+    "seeds": [
+      "C1009560"
+    ],
+    "gold_answer": "C1009561",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_706",
+    "question": "What is associated with Entity9115?",
+    "seeds": [
+      "C1091142"
+    ],
+    "gold_answer": "C1091143",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_931",
+    "question": "What is associated with Entity1861?",
+    "seeds": [
+      "C1018616"
+    ],
+    "gold_answer": "C1018617",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_15",
+    "question": "What is associated with Entity4515?",
+    "seeds": [
+      "C1045144"
+    ],
+    "gold_answer": "C1045145",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_374",
+    "question": "What is associated with Entity7699?",
+    "seeds": [
+      "C1076982"
+    ],
+    "gold_answer": "C1076983",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_858",
+    "question": "What is associated with Entity7354?",
+    "seeds": [
+      "C1073532"
+    ],
+    "gold_answer": "C1073533",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_421",
+    "question": "What is associated with Entity9382?",
+    "seeds": [
+      "C1093812"
+    ],
+    "gold_answer": "C1093813",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_367",
+    "question": "What is associated with Entity9517?",
+    "seeds": [
+      "C1095166"
+    ],
+    "gold_answer": "C1095167",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_526",
+    "question": "What is associated with Entity7768?",
+    "seeds": [
+      "C1077674"
+    ],
+    "gold_answer": "C1077675",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_444",
+    "question": "What is associated with Entity6036?",
+    "seeds": [
+      "C1060352"
+    ],
+    "gold_answer": "C1060353",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_181",
+    "question": "What is associated with Entity9553?",
+    "seeds": [
+      "C1095528"
+    ],
+    "gold_answer": "C1095529",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_961",
+    "question": "What is associated with Entity153?",
+    "seeds": [
+      "C1001530"
+    ],
+    "gold_answer": "C1001531",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_510",
+    "question": "What is associated with Entity2458?",
+    "seeds": [
+      "C1024582"
+    ],
+    "gold_answer": "C1024583",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_929",
+    "question": "What is associated with Entity9864?",
+    "seeds": [
+      "C1098638"
+    ],
+    "gold_answer": "C1098639",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_800",
+    "question": "What is associated with Entity2549?",
+    "seeds": [
+      "C1025484"
+    ],
+    "gold_answer": "C1025485",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_495",
+    "question": "What is associated with Entity1722?",
+    "seeds": [
+      "C1017222"
+    ],
+    "gold_answer": "C1017223",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_596",
+    "question": "What is associated with Entity4848?",
+    "seeds": [
+      "C1048480"
+    ],
+    "gold_answer": "C1048481",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_310",
+    "question": "What is associated with Entity5126?",
+    "seeds": [
+      "C1051256"
+    ],
+    "gold_answer": "C1051257",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_267",
+    "question": "What is associated with Entity1336?",
+    "seeds": [
+      "C1013366"
+    ],
+    "gold_answer": "C1013367",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_151",
+    "question": "What is associated with Entity3975?",
+    "seeds": [
+      "C1039752"
+    ],
+    "gold_answer": "C1039753",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_101",
+    "question": "What is associated with Entity5784?",
+    "seeds": [
+      "C1057842"
+    ],
+    "gold_answer": "C1057843",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_991",
+    "question": "What is associated with Entity1724?",
+    "seeds": [
+      "C1017246"
+    ],
+    "gold_answer": "C1017247",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_454",
+    "question": "What is associated with Entity7323?",
+    "seeds": [
+      "C1073224"
+    ],
+    "gold_answer": "C1073225",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_794",
+    "question": "What is associated with Entity8369?",
+    "seeds": [
+      "C1083684"
+    ],
+    "gold_answer": "C1083685",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_567",
+    "question": "What is associated with Entity2079?",
+    "seeds": [
+      "C1020788"
+    ],
+    "gold_answer": "C1020789",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_815",
+    "question": "What is associated with Entity1922?",
+    "seeds": [
+      "C1019218"
+    ],
+    "gold_answer": "C1019219",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_256",
+    "question": "What is associated with Entity7243?",
+    "seeds": [
+      "C1072422"
+    ],
+    "gold_answer": "C1072423",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_148",
+    "question": "What is associated with Entity4277?",
+    "seeds": [
+      "C1042770"
+    ],
+    "gold_answer": "C1042771",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_377",
+    "question": "What is associated with Entity3868?",
+    "seeds": [
+      "C1038682"
+    ],
+    "gold_answer": "C1038683",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_241",
+    "question": "What is associated with Entity9728?",
+    "seeds": [
+      "C1097272"
+    ],
+    "gold_answer": "C1097273",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_909",
+    "question": "What is associated with Entity618?",
+    "seeds": [
+      "C1006188"
+    ],
+    "gold_answer": "C1006189",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_351",
+    "question": "What is associated with Entity9633?",
+    "seeds": [
+      "C1096328"
+    ],
+    "gold_answer": "C1096329",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_160",
+    "question": "What is associated with Entity1093?",
+    "seeds": [
+      "C1010932"
+    ],
+    "gold_answer": "C1010933",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_2",
+    "question": "What is associated with Entity8487?",
+    "seeds": [
+      "C1084862"
+    ],
+    "gold_answer": "C1084863",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_568",
+    "question": "What is associated with Entity8396?",
+    "seeds": [
+      "C1083960"
+    ],
+    "gold_answer": "C1083961",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_575",
+    "question": "What is associated with Entity3776?",
+    "seeds": [
+      "C1037754"
+    ],
+    "gold_answer": "C1037755",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_582",
+    "question": "What is associated with Entity2518?",
+    "seeds": [
+      "C1025182"
+    ],
+    "gold_answer": "C1025183",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_36",
+    "question": "What is associated with Entity6536?",
+    "seeds": [
+      "C1065358"
+    ],
+    "gold_answer": "C1065359",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_992",
+    "question": "What is associated with Entity7736?",
+    "seeds": [
+      "C1077358"
+    ],
+    "gold_answer": "C1077359",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_600",
+    "question": "What is associated with Entity3349?",
+    "seeds": [
+      "C1033484"
+    ],
+    "gold_answer": "C1033485",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_235",
+    "question": "What is associated with Entity9190?",
+    "seeds": [
+      "C1091898"
+    ],
+    "gold_answer": "C1091899",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_42",
+    "question": "What is associated with Entity3976?",
+    "seeds": [
+      "C1039758"
+    ],
+    "gold_answer": "C1039759",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_541",
+    "question": "What is associated with Entity5489?",
+    "seeds": [
+      "C1054884"
+    ],
+    "gold_answer": "C1054885",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_130",
+    "question": "What is associated with Entity8030?",
+    "seeds": [
+      "C1080300"
+    ],
+    "gold_answer": "C1080301",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_665",
+    "question": "What is associated with Entity3176?",
+    "seeds": [
+      "C1031760"
+    ],
+    "gold_answer": "C1031761",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_154",
+    "question": "What is associated with Entity2574?",
+    "seeds": [
+      "C1025738"
+    ],
+    "gold_answer": "C1025739",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_691",
+    "question": "What is associated with Entity110?",
+    "seeds": [
+      "C1001100"
+    ],
+    "gold_answer": "C1001101",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_361",
+    "question": "What is associated with Entity4430?",
+    "seeds": [
+      "C1044298"
+    ],
+    "gold_answer": "C1044299",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_139",
+    "question": "What is associated with Entity9509?",
+    "seeds": [
+      "C1095088"
+    ],
+    "gold_answer": "C1095089",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_640",
+    "question": "What is associated with Entity2016?",
+    "seeds": [
+      "C1020166"
+    ],
+    "gold_answer": "C1020167",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_32",
+    "question": "What is associated with Entity6933?",
+    "seeds": [
+      "C1069322"
+    ],
+    "gold_answer": "C1069323",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_934",
+    "question": "What is associated with Entity5843?",
+    "seeds": [
+      "C1058424"
+    ],
+    "gold_answer": "C1058425",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_292",
+    "question": "What is associated with Entity2948?",
+    "seeds": [
+      "C1029478"
+    ],
+    "gold_answer": "C1029479",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_290",
+    "question": "What is associated with Entity8345?",
+    "seeds": [
+      "C1083450"
+    ],
+    "gold_answer": "C1083451",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_976",
+    "question": "What is associated with Entity5274?",
+    "seeds": [
+      "C1052736"
+    ],
+    "gold_answer": "C1052737",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_388",
+    "question": "What is associated with Entity3480?",
+    "seeds": [
+      "C1034798"
+    ],
+    "gold_answer": "C1034799",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_187",
+    "question": "What is associated with Entity9184?",
+    "seeds": [
+      "C1091832"
+    ],
+    "gold_answer": "C1091833",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_911",
+    "question": "What is associated with Entity2785?",
+    "seeds": [
+      "C1027850"
+    ],
+    "gold_answer": "C1027851",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_757",
+    "question": "What is associated with Entity4347?",
+    "seeds": [
+      "C1043468"
+    ],
+    "gold_answer": "C1043469",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_338",
+    "question": "What is associated with Entity6511?",
+    "seeds": [
+      "C1065104"
+    ],
+    "gold_answer": "C1065105",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_145",
+    "question": "What is associated with Entity3307?",
+    "seeds": [
+      "C1033070"
+    ],
+    "gold_answer": "C1033071",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_246",
+    "question": "What is associated with Entity6812?",
+    "seeds": [
+      "C1068112"
+    ],
+    "gold_answer": "C1068113",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_675",
+    "question": "What is associated with Entity6825?",
+    "seeds": [
+      "C1068250"
+    ],
+    "gold_answer": "C1068251",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_868",
+    "question": "What is associated with Entity5360?",
+    "seeds": [
+      "C1053594"
+    ],
+    "gold_answer": "C1053595",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_400",
+    "question": "What is associated with Entity8734?",
+    "seeds": [
+      "C1087340"
+    ],
+    "gold_answer": "C1087341",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_915",
+    "question": "What is associated with Entity6758?",
+    "seeds": [
+      "C1067578"
+    ],
+    "gold_answer": "C1067579",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_320",
+    "question": "What is associated with Entity7829?",
+    "seeds": [
+      "C1078286"
+    ],
+    "gold_answer": "C1078287",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_621",
+    "question": "What is associated with Entity7351?",
+    "seeds": [
+      "C1073506"
+    ],
+    "gold_answer": "C1073507",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_762",
+    "question": "What is associated with Entity1135?",
+    "seeds": [
+      "C1011354"
+    ],
+    "gold_answer": "C1011355",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_842",
+    "question": "What is associated with Entity1761?",
+    "seeds": [
+      "C1017610"
+    ],
+    "gold_answer": "C1017611",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_737",
+    "question": "What is associated with Entity9239?",
+    "seeds": [
+      "C1092388"
+    ],
+    "gold_answer": "C1092389",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_461",
+    "question": "What is associated with Entity5484?",
+    "seeds": [
+      "C1054838"
+    ],
+    "gold_answer": "C1054839",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_898",
+    "question": "What is associated with Entity5682?",
+    "seeds": [
+      "C1056816"
+    ],
+    "gold_answer": "C1056817",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_316",
+    "question": "What is associated with Entity1072?",
+    "seeds": [
+      "C1010720"
+    ],
+    "gold_answer": "C1010721",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_276",
+    "question": "What is associated with Entity4754?",
+    "seeds": [
+      "C1047542"
+    ],
+    "gold_answer": "C1047543",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_77",
+    "question": "What is associated with Entity7585?",
+    "seeds": [
+      "C1075842"
+    ],
+    "gold_answer": "C1075843",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_761",
+    "question": "What is associated with Entity2061?",
+    "seeds": [
+      "C1020612"
+    ],
+    "gold_answer": "C1020613",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_690",
+    "question": "What is associated with Entity4792?",
+    "seeds": [
+      "C1047914"
+    ],
+    "gold_answer": "C1047915",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_212",
+    "question": "What is associated with Entity2347?",
+    "seeds": [
+      "C1023472"
+    ],
+    "gold_answer": "C1023473",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_620",
+    "question": "What is associated with Entity5318?",
+    "seeds": [
+      "C1053182"
+    ],
+    "gold_answer": "C1053183",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_172",
+    "question": "What is associated with Entity9655?",
+    "seeds": [
+      "C1096546"
+    ],
+    "gold_answer": "C1096547",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_533",
+    "question": "What is associated with Entity6770?",
+    "seeds": [
+      "C1067696"
+    ],
+    "gold_answer": "C1067697",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_517",
+    "question": "What is associated with Entity3653?",
+    "seeds": [
+      "C1036524"
+    ],
+    "gold_answer": "C1036525",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_478",
+    "question": "What is associated with Entity3992?",
+    "seeds": [
+      "C1039920"
+    ],
+    "gold_answer": "C1039921",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_127",
+    "question": "What is associated with Entity7865?",
+    "seeds": [
+      "C1078644"
+    ],
+    "gold_answer": "C1078645",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_763",
+    "question": "What is associated with Entity6468?",
+    "seeds": [
+      "C1064676"
+    ],
+    "gold_answer": "C1064677",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_974",
+    "question": "What is associated with Entity7724?",
+    "seeds": [
+      "C1077232"
+    ],
+    "gold_answer": "C1077233",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_401",
+    "question": "What is associated with Entity5769?",
+    "seeds": [
+      "C1057692"
+    ],
+    "gold_answer": "C1057693",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_144",
+    "question": "What is associated with Entity3496?",
+    "seeds": [
+      "C1034960"
+    ],
+    "gold_answer": "C1034961",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_489",
+    "question": "What is associated with Entity7981?",
+    "seeds": [
+      "C1079808"
+    ],
+    "gold_answer": "C1079809",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_542",
+    "question": "What is associated with Entity4610?",
+    "seeds": [
+      "C1046096"
+    ],
+    "gold_answer": "C1046097",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_200",
+    "question": "What is associated with Entity5671?",
+    "seeds": [
+      "C1056706"
+    ],
+    "gold_answer": "C1056707",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_48",
+    "question": "What is associated with Entity5860?",
+    "seeds": [
+      "C1058602"
+    ],
+    "gold_answer": "C1058603",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_714",
+    "question": "What is associated with Entity4710?",
+    "seeds": [
+      "C1047098"
+    ],
+    "gold_answer": "C1047099",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_509",
+    "question": "What is associated with Entity323?",
+    "seeds": [
+      "C1003230"
+    ],
+    "gold_answer": "C1003231",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_237",
+    "question": "What is associated with Entity3397?",
+    "seeds": [
+      "C1033972"
+    ],
+    "gold_answer": "C1033973",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_584",
+    "question": "What is associated with Entity5380?",
+    "seeds": [
+      "C1053800"
+    ],
+    "gold_answer": "C1053801",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_603",
+    "question": "What is associated with Entity5414?",
+    "seeds": [
+      "C1054138"
+    ],
+    "gold_answer": "C1054139",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_549",
+    "question": "What is associated with Entity6739?",
+    "seeds": [
+      "C1067384"
+    ],
+    "gold_answer": "C1067385",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_774",
+    "question": "What is associated with Entity9890?",
+    "seeds": [
+      "C1098890"
+    ],
+    "gold_answer": "C1098891",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_883",
+    "question": "What is associated with Entity9276?",
+    "seeds": [
+      "C1092752"
+    ],
+    "gold_answer": "C1092753",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_997",
+    "question": "What is associated with Entity5495?",
+    "seeds": [
+      "C1054944"
+    ],
+    "gold_answer": "C1054945",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_325",
+    "question": "What is associated with Entity5532?",
+    "seeds": [
+      "C1055316"
+    ],
+    "gold_answer": "C1055317",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_76",
+    "question": "What is associated with Entity2848?",
+    "seeds": [
+      "C1028476"
+    ],
+    "gold_answer": "C1028477",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_464",
+    "question": "What is associated with Entity4916?",
+    "seeds": [
+      "C1049160"
+    ],
+    "gold_answer": "C1049161",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_717",
+    "question": "What is associated with Entity9875?",
+    "seeds": [
+      "C1098746"
+    ],
+    "gold_answer": "C1098747",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_460",
+    "question": "What is associated with Entity4012?",
+    "seeds": [
+      "C1040120"
+    ],
+    "gold_answer": "C1040121",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_205",
+    "question": "What is associated with Entity6839?",
+    "seeds": [
+      "C1068382"
+    ],
+    "gold_answer": "C1068383",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "synth_266",
+    "question": "What is associated with Entity4120?",
+    "seeds": [
+      "C1041198"
+    ],
+    "gold_answer": "C1041199",
+    "answer_label": "yes"
+  }
+]

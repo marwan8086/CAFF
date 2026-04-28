@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────────
+# CAFF Orphanet — Configuration for real Orphanet data training
+# ─────────────────────────────────────────────────────────────────
+
+config:
+  # Architecture (same as paper)
+  d: 768
+  rho: 16
+  L: 3
+  theta: 0.50
+  K_r: 20
+
+  # Loss weights (same as paper)
+  gamma_C: 0.25
+  gamma_D: 0.20
+  lambda_C: 0.35
+  lambda_D: 0.40
+
+  # HC3 mining
+  hc3_buffer_size: 1000
+  hc3_negatives_per_anchor: 8
+  hc3_buffer_refresh_steps: 500
+
+  # Optimization
+  lr: 3.0e-4
+  lr_min: 1.0e-5
+  weight_decay: 1.0e-2
+  batch_size: 256
+  epochs: 10  # Shorter for initial testing
+  warmup_epochs: 1
+  grad_clip: 1.0
+  early_stop_patience: 3
+  early_stop_metric: f1
+
+  # Encoder (use BERT-base for biomedical)
+  encoder_name: bert-base-uncased
+  encoder_frozen: true
+
+  # Real Orphanet KG + synthetic QA for now
+  kg_path:    data/processed/orphanet_only_kg.tsv
+  train_path: data/processed/orphanet_qa.json
+  dev_path:   data/processed/orphanet_qa.json
+  test_path:  data/processed/orphanet_qa.json
+
+  seed: 42
+  deterministic: true
+
+  # Hardware (CPU training)
+  micro_batch_size: 32
+  grad_accum_steps: 8
+  mixed_precision: "no"
+
+ablation:
+  use_hc3: true
+  use_dc: true
