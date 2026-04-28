@@ -1,7 +1,0 @@
-[
-  {
-    "query": "What role does TP53 play in tumor suppression?",
-    "seed_entities": ["TP53"],
-    "answer_entities": ["tumor suppression"]
-  }
-]
