@@ -1,1352 +1,1352 @@
 [
   {
-    "query_id": "smoke_0121",
-    "question": "What is associated with C1003000?",
+    "query_id": "smoke_0661",
+    "question": "What is associated with C1002706?",
     "seeds": [
-      "C1003000"
+      "C1002706"
     ],
-    "gold_answer": "C1002267",
+    "gold_answer": "C1001304",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0075",
-    "question": "What is associated with C1003159?",
+    "query_id": "smoke_0649",
+    "question": "What is associated with C1002861?",
     "seeds": [
-      "C1003159"
+      "C1002861"
     ],
-    "gold_answer": "C1004024",
+    "gold_answer": "C1002954",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0529",
-    "question": "What is associated with C1004146?",
+    "query_id": "smoke_0071",
+    "question": "What is associated with C1003089?",
     "seeds": [
-      "C1004146"
+      "C1003089"
     ],
-    "gold_answer": "C1000252",
+    "gold_answer": "C1004056",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0504",
-    "question": "What is associated with C1004496?",
+    "query_id": "smoke_0405",
+    "question": "What is associated with C1000134?",
     "seeds": [
-      "C1004496"
+      "C1000134"
     ],
-    "gold_answer": "C1002050",
+    "gold_answer": "C1003624",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0322",
-    "question": "What is associated with C1002720?",
+    "query_id": "smoke_0555",
+    "question": "What is associated with C1000172?",
     "seeds": [
-      "C1002720"
+      "C1000172"
     ],
-    "gold_answer": "C1003302",
+    "gold_answer": "C1002777",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0937",
-    "question": "What is associated with C1002144?",
+    "query_id": "smoke_0433",
+    "question": "What is associated with C1004048?",
     "seeds": [
-      "C1002144"
+      "C1004048"
     ],
-    "gold_answer": "C1001462",
+    "gold_answer": "C1002502",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0441",
-    "question": "What is associated with C1004216?",
+    "query_id": "smoke_0534",
+    "question": "What is associated with C1003038?",
     "seeds": [
-      "C1004216"
+      "C1003038"
     ],
-    "gold_answer": "C1002931",
+    "gold_answer": "C1000823",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0085",
-    "question": "What is associated with C1002967?",
+    "query_id": "smoke_0224",
+    "question": "What is associated with C1002664?",
     "seeds": [
-      "C1002967"
+      "C1002664"
     ],
-    "gold_answer": "C1004610",
+    "gold_answer": "C1004854",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0358",
-    "question": "What is associated with C1003125?",
+    "query_id": "smoke_0120",
+    "question": "What is associated with C1001950?",
     "seeds": [
-      "C1003125"
+      "C1001950"
     ],
-    "gold_answer": "C1000158",
+    "gold_answer": "C1002594",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0539",
-    "question": "What is associated with C1003928?",
+    "query_id": "smoke_0129",
+    "question": "What is associated with C1000697?",
     "seeds": [
-      "C1003928"
+      "C1000697"
     ],
-    "gold_answer": "C1001571",
+    "gold_answer": "C1004677",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0215",
-    "question": "What is associated with C1001266?",
+    "query_id": "smoke_0031",
+    "question": "What is associated with C1003566?",
     "seeds": [
-      "C1001266"
+      "C1003566"
     ],
-    "gold_answer": "C1004628",
+    "gold_answer": "C1001163",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0871",
-    "question": "What is associated with C1004518?",
+    "query_id": "smoke_0623",
+    "question": "What is associated with C1001336?",
     "seeds": [
-      "C1004518"
+      "C1001336"
     ],
-    "gold_answer": "C1000648",
+    "gold_answer": "C1004660",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0368",
-    "question": "What is associated with C1002109?",
+    "query_id": "smoke_0842",
+    "question": "What is associated with C1004386?",
     "seeds": [
-      "C1002109"
+      "C1004386"
     ],
-    "gold_answer": "C1002410",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0131",
-    "question": "What is associated with C1004237?",
-    "seeds": [
-      "C1004237"
-    ],
-    "gold_answer": "C1003418",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0334",
-    "question": "What is associated with C1000795?",
-    "seeds": [
-      "C1000795"
-    ],
-    "gold_answer": "C1002911",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0125",
-    "question": "What is associated with C1004158?",
-    "seeds": [
-      "C1004158"
-    ],
-    "gold_answer": "C1001339",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0274",
-    "question": "What is associated with C1004735?",
-    "seeds": [
-      "C1004735"
-    ],
-    "gold_answer": "C1002366",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0615",
-    "question": "What is associated with C1003111?",
-    "seeds": [
-      "C1003111"
-    ],
-    "gold_answer": "C1004922",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0342",
-    "question": "What is associated with C1001038?",
-    "seeds": [
-      "C1001038"
-    ],
-    "gold_answer": "C1002140",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0424",
-    "question": "What is associated with C1003391?",
-    "seeds": [
-      "C1003391"
-    ],
-    "gold_answer": "C1000273",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0179",
-    "question": "What is associated with C1001155?",
-    "seeds": [
-      "C1001155"
-    ],
-    "gold_answer": "C1001657",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0162",
-    "question": "What is associated with C1002798?",
-    "seeds": [
-      "C1002798"
-    ],
-    "gold_answer": "C1003443",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0789",
-    "question": "What is associated with C1004891?",
-    "seeds": [
-      "C1004891"
-    ],
-    "gold_answer": "C1000708",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0487",
-    "question": "What is associated with C1000505?",
-    "seeds": [
-      "C1000505"
-    ],
-    "gold_answer": "C1000875",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0909",
-    "question": "What is associated with C1000783?",
-    "seeds": [
-      "C1000783"
-    ],
-    "gold_answer": "C1002261",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0038",
-    "question": "What is associated with C1001521?",
-    "seeds": [
-      "C1001521"
-    ],
-    "gold_answer": "C1004342",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0078",
-    "question": "What is associated with C1003407?",
-    "seeds": [
-      "C1003407"
-    ],
-    "gold_answer": "C1001542",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0301",
-    "question": "What is associated with C1001697?",
-    "seeds": [
-      "C1001697"
-    ],
-    "gold_answer": "C1004278",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0680",
-    "question": "What is associated with C1001503?",
-    "seeds": [
-      "C1001503"
-    ],
-    "gold_answer": "C1002089",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0729",
-    "question": "What is associated with C1002499?",
-    "seeds": [
-      "C1002499"
-    ],
-    "gold_answer": "C1004866",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0957",
-    "question": "What is associated with C1002900?",
-    "seeds": [
-      "C1002900"
-    ],
-    "gold_answer": "C1002402",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0327",
-    "question": "What is associated with C1004874?",
-    "seeds": [
-      "C1004874"
-    ],
-    "gold_answer": "C1004137",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0014",
-    "question": "What is associated with C1004615?",
-    "seeds": [
-      "C1004615"
-    ],
-    "gold_answer": "C1000408",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0501",
-    "question": "What is associated with C1003256?",
-    "seeds": [
-      "C1003256"
-    ],
-    "gold_answer": "C1001983",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0200",
-    "question": "What is associated with C1000198?",
-    "seeds": [
-      "C1000198"
-    ],
-    "gold_answer": "C1004948",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0929",
-    "question": "What is associated with C1000208?",
-    "seeds": [
-      "C1000208"
-    ],
-    "gold_answer": "C1004997",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0518",
-    "question": "What is associated with C1003319?",
-    "seeds": [
-      "C1003319"
-    ],
-    "gold_answer": "C1003066",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0926",
-    "question": "What is associated with C1001555?",
-    "seeds": [
-      "C1001555"
-    ],
-    "gold_answer": "C1002500",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0135",
-    "question": "What is associated with C1003225?",
-    "seeds": [
-      "C1003225"
-    ],
-    "gold_answer": "C1003098",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0238",
-    "question": "What is associated with C1002187?",
-    "seeds": [
-      "C1002187"
-    ],
-    "gold_answer": "C1003769",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0438",
-    "question": "What is associated with C1000469?",
-    "seeds": [
-      "C1000469"
-    ],
-    "gold_answer": "C1000588",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0667",
-    "question": "What is associated with C1001939?",
-    "seeds": [
-      "C1001939"
-    ],
-    "gold_answer": "C1004494",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0670",
-    "question": "What is associated with C1001098?",
-    "seeds": [
-      "C1001098"
-    ],
-    "gold_answer": "C1002705",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0117",
-    "question": "What is associated with C1004928?",
-    "seeds": [
-      "C1004928"
-    ],
-    "gold_answer": "C1002736",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0928",
-    "question": "What is associated with C1003447?",
-    "seeds": [
-      "C1003447"
-    ],
-    "gold_answer": "C1000485",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0538",
-    "question": "What is associated with C1004686?",
-    "seeds": [
-      "C1004686"
-    ],
-    "gold_answer": "C1004696",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0762",
-    "question": "What is associated with C1001254?",
-    "seeds": [
-      "C1001254"
-    ],
-    "gold_answer": "C1003867",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0059",
-    "question": "What is associated with C1000537?",
-    "seeds": [
-      "C1000537"
-    ],
-    "gold_answer": "C1003828",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0279",
-    "question": "What is associated with C1000404?",
-    "seeds": [
-      "C1000404"
-    ],
-    "gold_answer": "C1001261",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0183",
-    "question": "What is associated with C1000865?",
-    "seeds": [
-      "C1000865"
-    ],
-    "gold_answer": "C1000006",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0418",
-    "question": "What is associated with C1000644?",
-    "seeds": [
-      "C1000644"
-    ],
-    "gold_answer": "C1003560",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0700",
-    "question": "What is associated with C1004844?",
-    "seeds": [
-      "C1004844"
-    ],
-    "gold_answer": "C1002180",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0218",
-    "question": "What is associated with C1004748?",
-    "seeds": [
-      "C1004748"
-    ],
-    "gold_answer": "C1004454",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0920",
-    "question": "What is associated with C1003093?",
-    "seeds": [
-      "C1003093"
-    ],
-    "gold_answer": "C1001959",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0386",
-    "question": "What is associated with C1003258?",
-    "seeds": [
-      "C1003258"
-    ],
-    "gold_answer": "C1002933",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0690",
-    "question": "What is associated with C1004190?",
-    "seeds": [
-      "C1004190"
-    ],
-    "gold_answer": "C1000876",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0088",
-    "question": "What is associated with C1002389?",
-    "seeds": [
-      "C1002389"
-    ],
-    "gold_answer": "C1002556",
+    "gold_answer": "C1001667",
     "answer_label": "yes"
   },
   {
     "query_id": "smoke_0419",
-    "question": "What is associated with C1001605?",
+    "question": "What is associated with C1001775?",
     "seeds": [
-      "C1001605"
+      "C1001775"
     ],
-    "gold_answer": "C1001521",
+    "gold_answer": "C1002171",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0114",
-    "question": "What is associated with C1002650?",
+    "query_id": "smoke_0637",
+    "question": "What is associated with C1000682?",
     "seeds": [
-      "C1002650"
-    ],
-    "gold_answer": "C1004784",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0270",
-    "question": "What is associated with C1004149?",
-    "seeds": [
-      "C1004149"
-    ],
-    "gold_answer": "C1004028",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0993",
-    "question": "What is associated with C1002836?",
-    "seeds": [
-      "C1002836"
-    ],
-    "gold_answer": "C1001027",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0287",
-    "question": "What is associated with C1001765?",
-    "seeds": [
-      "C1001765"
-    ],
-    "gold_answer": "C1003079",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0532",
-    "question": "What is associated with C1003967?",
-    "seeds": [
-      "C1003967"
-    ],
-    "gold_answer": "C1001470",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0723",
-    "question": "What is associated with C1001690?",
-    "seeds": [
-      "C1001690"
-    ],
-    "gold_answer": "C1001067",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0145",
-    "question": "What is associated with C1003289?",
-    "seeds": [
-      "C1003289"
-    ],
-    "gold_answer": "C1000189",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0006",
-    "question": "What is associated with C1000198?",
-    "seeds": [
-      "C1000198"
-    ],
-    "gold_answer": "C1003395",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0940",
-    "question": "What is associated with C1004619?",
-    "seeds": [
-      "C1004619"
-    ],
-    "gold_answer": "C1004149",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0571",
-    "question": "What is associated with C1002955?",
-    "seeds": [
-      "C1002955"
-    ],
-    "gold_answer": "C1004051",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0584",
-    "question": "What is associated with C1000082?",
-    "seeds": [
-      "C1000082"
-    ],
-    "gold_answer": "C1004974",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0170",
-    "question": "What is associated with C1004854?",
-    "seeds": [
-      "C1004854"
-    ],
-    "gold_answer": "C1000174",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0816",
-    "question": "What is associated with C1003334?",
-    "seeds": [
-      "C1003334"
-    ],
-    "gold_answer": "C1003063",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0924",
-    "question": "What is associated with C1004793?",
-    "seeds": [
-      "C1004793"
-    ],
-    "gold_answer": "C1000393",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0451",
-    "question": "What is associated with C1003986?",
-    "seeds": [
-      "C1003986"
-    ],
-    "gold_answer": "C1002161",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0174",
-    "question": "What is associated with C1001260?",
-    "seeds": [
-      "C1001260"
-    ],
-    "gold_answer": "C1003216",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0244",
-    "question": "What is associated with C1000288?",
-    "seeds": [
-      "C1000288"
-    ],
-    "gold_answer": "C1002694",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0855",
-    "question": "What is associated with C1003826?",
-    "seeds": [
-      "C1003826"
-    ],
-    "gold_answer": "C1003301",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0289",
-    "question": "What is associated with C1004894?",
-    "seeds": [
-      "C1004894"
-    ],
-    "gold_answer": "C1000440",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0054",
-    "question": "What is associated with C1003788?",
-    "seeds": [
-      "C1003788"
-    ],
-    "gold_answer": "C1002042",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0347",
-    "question": "What is associated with C1000974?",
-    "seeds": [
-      "C1000974"
-    ],
-    "gold_answer": "C1003917",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0585",
-    "question": "What is associated with C1001134?",
-    "seeds": [
-      "C1001134"
-    ],
-    "gold_answer": "C1004269",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0286",
-    "question": "What is associated with C1004402?",
-    "seeds": [
-      "C1004402"
-    ],
-    "gold_answer": "C1004883",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0771",
-    "question": "What is associated with C1004223?",
-    "seeds": [
-      "C1004223"
-    ],
-    "gold_answer": "C1003586",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0465",
-    "question": "What is associated with C1001738?",
-    "seeds": [
-      "C1001738"
-    ],
-    "gold_answer": "C1000915",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0001",
-    "question": "What is associated with C1003790?",
-    "seeds": [
-      "C1003790"
-    ],
-    "gold_answer": "C1001360",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0984",
-    "question": "What is associated with C1002660?",
-    "seeds": [
-      "C1002660"
-    ],
-    "gold_answer": "C1001382",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0934",
-    "question": "What is associated with C1004606?",
-    "seeds": [
-      "C1004606"
-    ],
-    "gold_answer": "C1004630",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0021",
-    "question": "What is associated with C1003206?",
-    "seeds": [
-      "C1003206"
-    ],
-    "gold_answer": "C1001306",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0199",
-    "question": "What is associated with C1004280?",
-    "seeds": [
-      "C1004280"
-    ],
-    "gold_answer": "C1003956",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0255",
-    "question": "What is associated with C1003029?",
-    "seeds": [
-      "C1003029"
-    ],
-    "gold_answer": "C1004229",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0420",
-    "question": "What is associated with C1002398?",
-    "seeds": [
-      "C1002398"
-    ],
-    "gold_answer": "C1000538",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0605",
-    "question": "What is associated with C1001077?",
-    "seeds": [
-      "C1001077"
-    ],
-    "gold_answer": "C1004893",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0872",
-    "question": "What is associated with C1004810?",
-    "seeds": [
-      "C1004810"
-    ],
-    "gold_answer": "C1000340",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0648",
-    "question": "What is associated with C1002359?",
-    "seeds": [
-      "C1002359"
-    ],
-    "gold_answer": "C1003889",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0717",
-    "question": "What is associated with C1004874?",
-    "seeds": [
-      "C1004874"
-    ],
-    "gold_answer": "C1003198",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0077",
-    "question": "What is associated with C1000575?",
-    "seeds": [
-      "C1000575"
-    ],
-    "gold_answer": "C1003929",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0772",
-    "question": "What is associated with C1000242?",
-    "seeds": [
-      "C1000242"
-    ],
-    "gold_answer": "C1000032",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0118",
-    "question": "What is associated with C1004249?",
-    "seeds": [
-      "C1004249"
-    ],
-    "gold_answer": "C1003303",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0562",
-    "question": "What is associated with C1002113?",
-    "seeds": [
-      "C1002113"
-    ],
-    "gold_answer": "C1001061",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0722",
-    "question": "What is associated with C1001258?",
-    "seeds": [
-      "C1001258"
-    ],
-    "gold_answer": "C1000019",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0593",
-    "question": "What is associated with C1003579?",
-    "seeds": [
-      "C1003579"
-    ],
-    "gold_answer": "C1004362",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0086",
-    "question": "What is associated with C1001131?",
-    "seeds": [
-      "C1001131"
-    ],
-    "gold_answer": "C1004992",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0296",
-    "question": "What is associated with C1000785?",
-    "seeds": [
-      "C1000785"
-    ],
-    "gold_answer": "C1002276",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0936",
-    "question": "What is associated with C1003507?",
-    "seeds": [
-      "C1003507"
-    ],
-    "gold_answer": "C1004017",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0599",
-    "question": "What is associated with C1002553?",
-    "seeds": [
-      "C1002553"
-    ],
-    "gold_answer": "C1004077",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0223",
-    "question": "What is associated with C1001267?",
-    "seeds": [
-      "C1001267"
-    ],
-    "gold_answer": "C1004576",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0662",
-    "question": "What is associated with C1001368?",
-    "seeds": [
-      "C1001368"
-    ],
-    "gold_answer": "C1002996",
-    "answer_label": "yes"
-  },
-  {
-    "query_id": "smoke_0243",
-    "question": "What is associated with C1002139?",
-    "seeds": [
-      "C1002139"
+      "C1000682"
     ],
     "gold_answer": "C1003319",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0278",
-    "question": "What is associated with C1002784?",
+    "query_id": "smoke_0091",
+    "question": "What is associated with C1003799?",
     "seeds": [
-      "C1002784"
+      "C1003799"
     ],
-    "gold_answer": "C1004847",
+    "gold_answer": "C1002425",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0530",
-    "question": "What is associated with C1002152?",
+    "query_id": "smoke_0990",
+    "question": "What is associated with C1003476?",
     "seeds": [
-      "C1002152"
+      "C1003476"
     ],
-    "gold_answer": "C1000159",
+    "gold_answer": "C1000947",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0004",
-    "question": "What is associated with C1002526?",
+    "query_id": "smoke_0898",
+    "question": "What is associated with C1001324?",
     "seeds": [
-      "C1002526"
+      "C1001324"
     ],
-    "gold_answer": "C1001455",
+    "gold_answer": "C1003959",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0777",
-    "question": "What is associated with C1000478?",
+    "query_id": "smoke_0535",
+    "question": "What is associated with C1000411?",
     "seeds": [
-      "C1000478"
+      "C1000411"
     ],
-    "gold_answer": "C1001530",
+    "gold_answer": "C1002529",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0010",
-    "question": "What is associated with C1001081?",
+    "query_id": "smoke_0875",
+    "question": "What is associated with C1003932?",
     "seeds": [
-      "C1001081"
+      "C1003932"
     ],
-    "gold_answer": "C1002666",
+    "gold_answer": "C1003868",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0213",
-    "question": "What is associated with C1004956?",
+    "query_id": "smoke_0363",
+    "question": "What is associated with C1002927?",
     "seeds": [
-      "C1004956"
+      "C1002927"
     ],
-    "gold_answer": "C1003187",
+    "gold_answer": "C1002778",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0064",
-    "question": "What is associated with C1000662?",
+    "query_id": "smoke_0593",
+    "question": "What is associated with C1004216?",
     "seeds": [
-      "C1000662"
+      "C1004216"
     ],
-    "gold_answer": "C1003291",
+    "gold_answer": "C1003814",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0081",
-    "question": "What is associated with C1001996?",
+    "query_id": "smoke_0747",
+    "question": "What is associated with C1004530?",
     "seeds": [
-      "C1001996"
+      "C1004530"
     ],
-    "gold_answer": "C1002020",
+    "gold_answer": "C1001610",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0526",
-    "question": "What is associated with C1001446?",
+    "query_id": "smoke_0290",
+    "question": "What is associated with C1003278?",
     "seeds": [
-      "C1001446"
+      "C1003278"
     ],
-    "gold_answer": "C1004086",
+    "gold_answer": "C1001060",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0604",
-    "question": "What is associated with C1000785?",
+    "query_id": "smoke_0369",
+    "question": "What is associated with C1001051?",
     "seeds": [
-      "C1000785"
+      "C1001051"
     ],
-    "gold_answer": "C1002405",
+    "gold_answer": "C1002961",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0525",
+    "question": "What is associated with C1000409?",
+    "seeds": [
+      "C1000409"
+    ],
+    "gold_answer": "C1000345",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0162",
+    "question": "What is associated with C1002435?",
+    "seeds": [
+      "C1002435"
+    ],
+    "gold_answer": "C1000237",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0648",
+    "question": "What is associated with C1000574?",
+    "seeds": [
+      "C1000574"
+    ],
+    "gold_answer": "C1001552",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0345",
+    "question": "What is associated with C1000200?",
+    "seeds": [
+      "C1000200"
+    ],
+    "gold_answer": "C1002018",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0095",
+    "question": "What is associated with C1002771?",
+    "seeds": [
+      "C1002771"
+    ],
+    "gold_answer": "C1001564",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0326",
+    "question": "What is associated with C1000920?",
+    "seeds": [
+      "C1000920"
+    ],
+    "gold_answer": "C1001611",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0122",
+    "question": "What is associated with C1003516?",
+    "seeds": [
+      "C1003516"
+    ],
+    "gold_answer": "C1001639",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0717",
+    "question": "What is associated with C1002756?",
+    "seeds": [
+      "C1002756"
+    ],
+    "gold_answer": "C1004434",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0333",
+    "question": "What is associated with C1002759?",
+    "seeds": [
+      "C1002759"
+    ],
+    "gold_answer": "C1002521",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0670",
+    "question": "What is associated with C1004959?",
+    "seeds": [
+      "C1004959"
+    ],
+    "gold_answer": "C1002709",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0356",
+    "question": "What is associated with C1004873?",
+    "seeds": [
+      "C1004873"
+    ],
+    "gold_answer": "C1003983",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0085",
+    "question": "What is associated with C1003293?",
+    "seeds": [
+      "C1003293"
+    ],
+    "gold_answer": "C1000626",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0946",
+    "question": "What is associated with C1002029?",
+    "seeds": [
+      "C1002029"
+    ],
+    "gold_answer": "C1003309",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0303",
+    "question": "What is associated with C1000308?",
+    "seeds": [
+      "C1000308"
+    ],
+    "gold_answer": "C1003425",
     "answer_label": "yes"
   },
   {
     "query_id": "smoke_0177",
-    "question": "What is associated with C1001657?",
+    "question": "What is associated with C1001734?",
     "seeds": [
-      "C1001657"
+      "C1001734"
     ],
-    "gold_answer": "C1003556",
+    "gold_answer": "C1001344",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0051",
-    "question": "What is associated with C1002175?",
+    "query_id": "smoke_0155",
+    "question": "What is associated with C1002912?",
     "seeds": [
-      "C1002175"
+      "C1002912"
     ],
-    "gold_answer": "C1000515",
+    "gold_answer": "C1001254",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0144",
-    "question": "What is associated with C1002133?",
+    "query_id": "smoke_0176",
+    "question": "What is associated with C1003918?",
     "seeds": [
-      "C1002133"
+      "C1003918"
     ],
-    "gold_answer": "C1000424",
+    "gold_answer": "C1004401",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0876",
-    "question": "What is associated with C1001562?",
+    "query_id": "smoke_0545",
+    "question": "What is associated with C1000636?",
     "seeds": [
-      "C1001562"
+      "C1000636"
     ],
-    "gold_answer": "C1000203",
+    "gold_answer": "C1000947",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0927",
-    "question": "What is associated with C1001595?",
+    "query_id": "smoke_0285",
+    "question": "What is associated with C1000651?",
     "seeds": [
-      "C1001595"
+      "C1000651"
     ],
-    "gold_answer": "C1002840",
+    "gold_answer": "C1001654",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0517",
-    "question": "What is associated with C1000579?",
+    "query_id": "smoke_0244",
+    "question": "What is associated with C1001456?",
     "seeds": [
-      "C1000579"
+      "C1001456"
     ],
-    "gold_answer": "C1004521",
+    "gold_answer": "C1004710",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0601",
-    "question": "What is associated with C1004593?",
+    "query_id": "smoke_0160",
+    "question": "What is associated with C1000064?",
     "seeds": [
-      "C1004593"
+      "C1000064"
     ],
-    "gold_answer": "C1003332",
+    "gold_answer": "C1001892",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0126",
-    "question": "What is associated with C1000193?",
+    "query_id": "smoke_0632",
+    "question": "What is associated with C1000696?",
     "seeds": [
-      "C1000193"
+      "C1000696"
     ],
-    "gold_answer": "C1004826",
+    "gold_answer": "C1004012",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0892",
-    "question": "What is associated with C1000758?",
+    "query_id": "smoke_0571",
+    "question": "What is associated with C1004438?",
     "seeds": [
-      "C1000758"
+      "C1004438"
     ],
-    "gold_answer": "C1002572",
+    "gold_answer": "C1003248",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0991",
-    "question": "What is associated with C1004976?",
+    "query_id": "smoke_0125",
+    "question": "What is associated with C1000206?",
     "seeds": [
-      "C1004976"
+      "C1000206"
     ],
-    "gold_answer": "C1004064",
+    "gold_answer": "C1001985",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0999",
-    "question": "What is associated with C1000693?",
+    "query_id": "smoke_0284",
+    "question": "What is associated with C1003674?",
     "seeds": [
-      "C1000693"
+      "C1003674"
     ],
-    "gold_answer": "C1000088",
+    "gold_answer": "C1004495",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0305",
-    "question": "What is associated with C1001565?",
+    "query_id": "smoke_0846",
+    "question": "What is associated with C1000495?",
     "seeds": [
-      "C1001565"
+      "C1000495"
     ],
-    "gold_answer": "C1000114",
+    "gold_answer": "C1001688",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0651",
-    "question": "What is associated with C1001320?",
+    "query_id": "smoke_0306",
+    "question": "What is associated with C1000680?",
     "seeds": [
-      "C1001320"
+      "C1000680"
     ],
-    "gold_answer": "C1001922",
+    "gold_answer": "C1003062",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0570",
-    "question": "What is associated with C1001204?",
+    "query_id": "smoke_0184",
+    "question": "What is associated with C1002814?",
     "seeds": [
-      "C1001204"
+      "C1002814"
     ],
-    "gold_answer": "C1002550",
+    "gold_answer": "C1004914",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0832",
-    "question": "What is associated with C1003856?",
+    "query_id": "smoke_0616",
+    "question": "What is associated with C1000025?",
     "seeds": [
-      "C1003856"
+      "C1000025"
     ],
-    "gold_answer": "C1000209",
+    "gold_answer": "C1004148",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0692",
-    "question": "What is associated with C1001300?",
+    "query_id": "smoke_0925",
+    "question": "What is associated with C1004996?",
     "seeds": [
-      "C1001300"
+      "C1004996"
     ],
-    "gold_answer": "C1002321",
+    "gold_answer": "C1002046",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0316",
-    "question": "What is associated with C1002308?",
+    "query_id": "smoke_0963",
+    "question": "What is associated with C1003952?",
     "seeds": [
-      "C1002308"
+      "C1003952"
     ],
-    "gold_answer": "C1001337",
+    "gold_answer": "C1001068",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0066",
-    "question": "What is associated with C1001321?",
+    "query_id": "smoke_0204",
+    "question": "What is associated with C1004292?",
     "seeds": [
-      "C1001321"
+      "C1004292"
     ],
-    "gold_answer": "C1003992",
+    "gold_answer": "C1000629",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0998",
-    "question": "What is associated with C1003755?",
+    "query_id": "smoke_0485",
+    "question": "What is associated with C1000309?",
     "seeds": [
-      "C1003755"
+      "C1000309"
     ],
-    "gold_answer": "C1004639",
+    "gold_answer": "C1001785",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0996",
-    "question": "What is associated with C1000988?",
+    "query_id": "smoke_0697",
+    "question": "What is associated with C1002703?",
     "seeds": [
-      "C1000988"
+      "C1002703"
     ],
-    "gold_answer": "C1004939",
+    "gold_answer": "C1001063",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0023",
-    "question": "What is associated with C1000028?",
+    "query_id": "smoke_0512",
+    "question": "What is associated with C1003906?",
     "seeds": [
-      "C1000028"
+      "C1003906"
     ],
-    "gold_answer": "C1002106",
+    "gold_answer": "C1001168",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0158",
-    "question": "What is associated with C1000003?",
+    "query_id": "smoke_0882",
+    "question": "What is associated with C1001480?",
     "seeds": [
-      "C1000003"
+      "C1001480"
     ],
-    "gold_answer": "C1000989",
+    "gold_answer": "C1001578",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0412",
-    "question": "What is associated with C1001083?",
+    "query_id": "smoke_0830",
+    "question": "What is associated with C1004236?",
     "seeds": [
-      "C1001083"
+      "C1004236"
     ],
-    "gold_answer": "C1003379",
+    "gold_answer": "C1003735",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0024",
-    "question": "What is associated with C1004552?",
+    "query_id": "smoke_0965",
+    "question": "What is associated with C1000860?",
     "seeds": [
-      "C1004552"
+      "C1000860"
     ],
-    "gold_answer": "C1003982",
+    "gold_answer": "C1004983",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0097",
+    "question": "What is associated with C1001135?",
+    "seeds": [
+      "C1001135"
+    ],
+    "gold_answer": "C1004297",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0408",
+    "question": "What is associated with C1000307?",
+    "seeds": [
+      "C1000307"
+    ],
+    "gold_answer": "C1000075",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0918",
+    "question": "What is associated with C1001697?",
+    "seeds": [
+      "C1001697"
+    ],
+    "gold_answer": "C1003905",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0791",
+    "question": "What is associated with C1001552?",
+    "seeds": [
+      "C1001552"
+    ],
+    "gold_answer": "C1000882",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0531",
+    "question": "What is associated with C1002026?",
+    "seeds": [
+      "C1002026"
+    ],
+    "gold_answer": "C1003062",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0214",
+    "question": "What is associated with C1004445?",
+    "seeds": [
+      "C1004445"
+    ],
+    "gold_answer": "C1002327",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0033",
+    "question": "What is associated with C1004089?",
+    "seeds": [
+      "C1004089"
+    ],
+    "gold_answer": "C1002596",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0093",
+    "question": "What is associated with C1002715?",
+    "seeds": [
+      "C1002715"
+    ],
+    "gold_answer": "C1004473",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0961",
+    "question": "What is associated with C1002230?",
+    "seeds": [
+      "C1002230"
+    ],
+    "gold_answer": "C1002027",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0325",
+    "question": "What is associated with C1001192?",
+    "seeds": [
+      "C1001192"
+    ],
+    "gold_answer": "C1002624",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0223",
+    "question": "What is associated with C1004038?",
+    "seeds": [
+      "C1004038"
+    ],
+    "gold_answer": "C1003114",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0901",
+    "question": "What is associated with C1001540?",
+    "seeds": [
+      "C1001540"
+    ],
+    "gold_answer": "C1003327",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0820",
+    "question": "What is associated with C1001941?",
+    "seeds": [
+      "C1001941"
+    ],
+    "gold_answer": "C1002643",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0634",
+    "question": "What is associated with C1004365?",
+    "seeds": [
+      "C1004365"
+    ],
+    "gold_answer": "C1001730",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0355",
+    "question": "What is associated with C1001397?",
+    "seeds": [
+      "C1001397"
+    ],
+    "gold_answer": "C1003100",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0399",
+    "question": "What is associated with C1004455?",
+    "seeds": [
+      "C1004455"
+    ],
+    "gold_answer": "C1001709",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0935",
+    "question": "What is associated with C1003754?",
+    "seeds": [
+      "C1003754"
+    ],
+    "gold_answer": "C1001646",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0079",
+    "question": "What is associated with C1002336?",
+    "seeds": [
+      "C1002336"
+    ],
+    "gold_answer": "C1004329",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0746",
+    "question": "What is associated with C1003836?",
+    "seeds": [
+      "C1003836"
+    ],
+    "gold_answer": "C1002923",
     "answer_label": "yes"
   },
   {
     "query_id": "smoke_0202",
-    "question": "What is associated with C1001458?",
+    "question": "What is associated with C1003862?",
     "seeds": [
-      "C1001458"
+      "C1003862"
     ],
-    "gold_answer": "C1000545",
+    "gold_answer": "C1001006",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0277",
-    "question": "What is associated with C1001090?",
+    "query_id": "smoke_0248",
+    "question": "What is associated with C1001403?",
     "seeds": [
-      "C1001090"
+      "C1001403"
     ],
-    "gold_answer": "C1001341",
+    "gold_answer": "C1003953",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0470",
-    "question": "What is associated with C1002837?",
+    "query_id": "smoke_0413",
+    "question": "What is associated with C1001771?",
     "seeds": [
-      "C1002837"
+      "C1001771"
     ],
-    "gold_answer": "C1000211",
+    "gold_answer": "C1001245",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0346",
-    "question": "What is associated with C1004616?",
+    "query_id": "smoke_0889",
+    "question": "What is associated with C1003926?",
     "seeds": [
-      "C1004616"
+      "C1003926"
     ],
-    "gold_answer": "C1000766",
+    "gold_answer": "C1004067",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0385",
-    "question": "What is associated with C1002021?",
+    "query_id": "smoke_0740",
+    "question": "What is associated with C1001326?",
     "seeds": [
-      "C1002021"
+      "C1001326"
     ],
-    "gold_answer": "C1004956",
+    "gold_answer": "C1003004",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0521",
-    "question": "What is associated with C1002751?",
+    "query_id": "smoke_0544",
+    "question": "What is associated with C1004341?",
     "seeds": [
-      "C1002751"
+      "C1004341"
     ],
-    "gold_answer": "C1001954",
+    "gold_answer": "C1004201",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0973",
-    "question": "What is associated with C1002596?",
+    "query_id": "smoke_0586",
+    "question": "What is associated with C1002425?",
     "seeds": [
-      "C1002596"
+      "C1002425"
     ],
-    "gold_answer": "C1001016",
+    "gold_answer": "C1004856",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0266",
-    "question": "What is associated with C1003855?",
+    "query_id": "smoke_0032",
+    "question": "What is associated with C1000913?",
     "seeds": [
-      "C1003855"
+      "C1000913"
     ],
-    "gold_answer": "C1001259",
+    "gold_answer": "C1000149",
     "answer_label": "yes"
   },
   {
-    "query_id": "smoke_0702",
-    "question": "What is associated with C1004333?",
+    "query_id": "smoke_0997",
+    "question": "What is associated with C1002253?",
     "seeds": [
-      "C1004333"
+      "C1002253"
     ],
-    "gold_answer": "C1002166",
+    "gold_answer": "C1003656",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0042",
+    "question": "What is associated with C1002166?",
+    "seeds": [
+      "C1002166"
+    ],
+    "gold_answer": "C1000170",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0538",
+    "question": "What is associated with C1003801?",
+    "seeds": [
+      "C1003801"
+    ],
+    "gold_answer": "C1003047",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0087",
+    "question": "What is associated with C1003203?",
+    "seeds": [
+      "C1003203"
+    ],
+    "gold_answer": "C1002121",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0198",
+    "question": "What is associated with C1004920?",
+    "seeds": [
+      "C1004920"
+    ],
+    "gold_answer": "C1004198",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0443",
+    "question": "What is associated with C1003325?",
+    "seeds": [
+      "C1003325"
+    ],
+    "gold_answer": "C1003163",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0580",
+    "question": "What is associated with C1004883?",
+    "seeds": [
+      "C1004883"
+    ],
+    "gold_answer": "C1000767",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0026",
+    "question": "What is associated with C1002346?",
+    "seeds": [
+      "C1002346"
+    ],
+    "gold_answer": "C1000645",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0053",
+    "question": "What is associated with C1004378?",
+    "seeds": [
+      "C1004378"
+    ],
+    "gold_answer": "C1004265",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0062",
+    "question": "What is associated with C1002796?",
+    "seeds": [
+      "C1002796"
+    ],
+    "gold_answer": "C1004594",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0513",
+    "question": "What is associated with C1004925?",
+    "seeds": [
+      "C1004925"
+    ],
+    "gold_answer": "C1000035",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0331",
+    "question": "What is associated with C1004788?",
+    "seeds": [
+      "C1004788"
+    ],
+    "gold_answer": "C1000237",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0136",
+    "question": "What is associated with C1002836?",
+    "seeds": [
+      "C1002836"
+    ],
+    "gold_answer": "C1000238",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0335",
+    "question": "What is associated with C1000281?",
+    "seeds": [
+      "C1000281"
+    ],
+    "gold_answer": "C1003251",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0629",
+    "question": "What is associated with C1003043?",
+    "seeds": [
+      "C1003043"
+    ],
+    "gold_answer": "C1004094",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0628",
+    "question": "What is associated with C1000413?",
+    "seeds": [
+      "C1000413"
+    ],
+    "gold_answer": "C1003636",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0241",
+    "question": "What is associated with C1002948?",
+    "seeds": [
+      "C1002948"
+    ],
+    "gold_answer": "C1003684",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0575",
+    "question": "What is associated with C1002085?",
+    "seeds": [
+      "C1002085"
+    ],
+    "gold_answer": "C1002107",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0365",
+    "question": "What is associated with C1004022?",
+    "seeds": [
+      "C1004022"
+    ],
+    "gold_answer": "C1004762",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0216",
+    "question": "What is associated with C1000498?",
+    "seeds": [
+      "C1000498"
+    ],
+    "gold_answer": "C1003410",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0362",
+    "question": "What is associated with C1004892?",
+    "seeds": [
+      "C1004892"
+    ],
+    "gold_answer": "C1002357",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0205",
+    "question": "What is associated with C1002447?",
+    "seeds": [
+      "C1002447"
+    ],
+    "gold_answer": "C1000458",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0690",
+    "question": "What is associated with C1002537?",
+    "seeds": [
+      "C1002537"
+    ],
+    "gold_answer": "C1000491",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0001",
+    "question": "What is associated with C1002070?",
+    "seeds": [
+      "C1002070"
+    ],
+    "gold_answer": "C1000726",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0078",
+    "question": "What is associated with C1004834?",
+    "seeds": [
+      "C1004834"
+    ],
+    "gold_answer": "C1002257",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0790",
+    "question": "What is associated with C1002264?",
+    "seeds": [
+      "C1002264"
+    ],
+    "gold_answer": "C1000868",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0107",
+    "question": "What is associated with C1000848?",
+    "seeds": [
+      "C1000848"
+    ],
+    "gold_answer": "C1000967",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0372",
+    "question": "What is associated with C1000483?",
+    "seeds": [
+      "C1000483"
+    ],
+    "gold_answer": "C1001985",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0028",
+    "question": "What is associated with C1004832?",
+    "seeds": [
+      "C1004832"
+    ],
+    "gold_answer": "C1001814",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0442",
+    "question": "What is associated with C1002343?",
+    "seeds": [
+      "C1002343"
+    ],
+    "gold_answer": "C1004023",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0230",
+    "question": "What is associated with C1002910?",
+    "seeds": [
+      "C1002910"
+    ],
+    "gold_answer": "C1004647",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0785",
+    "question": "What is associated with C1000219?",
+    "seeds": [
+      "C1000219"
+    ],
+    "gold_answer": "C1000259",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0467",
+    "question": "What is associated with C1004870?",
+    "seeds": [
+      "C1004870"
+    ],
+    "gold_answer": "C1003311",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0546",
+    "question": "What is associated with C1001272?",
+    "seeds": [
+      "C1001272"
+    ],
+    "gold_answer": "C1004165",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0560",
+    "question": "What is associated with C1000790?",
+    "seeds": [
+      "C1000790"
+    ],
+    "gold_answer": "C1001448",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0773",
+    "question": "What is associated with C1002217?",
+    "seeds": [
+      "C1002217"
+    ],
+    "gold_answer": "C1001746",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0152",
+    "question": "What is associated with C1004713?",
+    "seeds": [
+      "C1004713"
+    ],
+    "gold_answer": "C1003382",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0691",
+    "question": "What is associated with C1000309?",
+    "seeds": [
+      "C1000309"
+    ],
+    "gold_answer": "C1003096",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0488",
+    "question": "What is associated with C1000731?",
+    "seeds": [
+      "C1000731"
+    ],
+    "gold_answer": "C1002599",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0497",
+    "question": "What is associated with C1004948?",
+    "seeds": [
+      "C1004948"
+    ],
+    "gold_answer": "C1002745",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0611",
+    "question": "What is associated with C1003648?",
+    "seeds": [
+      "C1003648"
+    ],
+    "gold_answer": "C1001397",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0410",
+    "question": "What is associated with C1004969?",
+    "seeds": [
+      "C1004969"
+    ],
+    "gold_answer": "C1000328",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0870",
+    "question": "What is associated with C1000686?",
+    "seeds": [
+      "C1000686"
+    ],
+    "gold_answer": "C1000943",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0716",
+    "question": "What is associated with C1002270?",
+    "seeds": [
+      "C1002270"
+    ],
+    "gold_answer": "C1002952",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0507",
+    "question": "What is associated with C1001248?",
+    "seeds": [
+      "C1001248"
+    ],
+    "gold_answer": "C1004152",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0775",
+    "question": "What is associated with C1000358?",
+    "seeds": [
+      "C1000358"
+    ],
+    "gold_answer": "C1003615",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0073",
+    "question": "What is associated with C1002552?",
+    "seeds": [
+      "C1002552"
+    ],
+    "gold_answer": "C1003274",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0524",
+    "question": "What is associated with C1004779?",
+    "seeds": [
+      "C1004779"
+    ],
+    "gold_answer": "C1000548",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0833",
+    "question": "What is associated with C1003850?",
+    "seeds": [
+      "C1003850"
+    ],
+    "gold_answer": "C1001632",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0806",
+    "question": "What is associated with C1003646?",
+    "seeds": [
+      "C1003646"
+    ],
+    "gold_answer": "C1000688",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0057",
+    "question": "What is associated with C1001668?",
+    "seeds": [
+      "C1001668"
+    ],
+    "gold_answer": "C1001727",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0566",
+    "question": "What is associated with C1001763?",
+    "seeds": [
+      "C1001763"
+    ],
+    "gold_answer": "C1003849",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0923",
+    "question": "What is associated with C1001403?",
+    "seeds": [
+      "C1001403"
+    ],
+    "gold_answer": "C1000016",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0368",
+    "question": "What is associated with C1003616?",
+    "seeds": [
+      "C1003616"
+    ],
+    "gold_answer": "C1000541",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0853",
+    "question": "What is associated with C1004208?",
+    "seeds": [
+      "C1004208"
+    ],
+    "gold_answer": "C1003822",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0189",
+    "question": "What is associated with C1003412?",
+    "seeds": [
+      "C1003412"
+    ],
+    "gold_answer": "C1001499",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0675",
+    "question": "What is associated with C1004819?",
+    "seeds": [
+      "C1004819"
+    ],
+    "gold_answer": "C1001805",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0845",
+    "question": "What is associated with C1000596?",
+    "seeds": [
+      "C1000596"
+    ],
+    "gold_answer": "C1003833",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0411",
+    "question": "What is associated with C1004771?",
+    "seeds": [
+      "C1004771"
+    ],
+    "gold_answer": "C1000443",
+    "answer_label": "yes"
+  },
+  {
+    "query_id": "smoke_0080",
+    "question": "What is associated with C1002238?",
+    "seeds": [
+      "C1002238"
+    ],
+    "gold_answer": "C1002689",
     "answer_label": "yes"
   }
 ]
