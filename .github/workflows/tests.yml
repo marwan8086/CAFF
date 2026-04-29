@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles(''requirements.txt'') }}
+          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-py${{ matrix.python-version }}-pip-
       - name: Install dependencies
@@ -41,5 +41,6 @@ jobs:
           python -c "from caff.model import CAFFModel; print(''model OK'')"
           python -c "from caff.evaluator import CAFFEvaluator; print(''evaluator OK'')"
           python -c "from caff.config import CAFFConfig, AblationFlags; print(''config OK'')"
+
 
 
