@@ -1,17 +1,17 @@
-"""
+﻿"""
 caff/data.py
 ============
 Data pipeline for CAFF: KG loading, BFS extraction with frequency
 capping, gold-relevance annotation, and PyTorch Datasets.
 
 Implements:
-  • Eq. 1   — BFS candidate sets C_ℓ
-  • Eq. 13  — Frequency cap K_r=20 per (head, relation)
-  • Paper §8.1 — Gold annotation via shortest-path reachability
-  • Paper §8.4 — Train/dev/test splits
+  â€¢ Eq. 1   â€” BFS candidate sets C_â„“
+  â€¢ Eq. 13  â€” Frequency cap K_r=20 per (head, relation)
+  â€¢ Paper Â§8.1 â€” Gold annotation via shortest-path reachability
+  â€¢ Paper Â§8.4 â€” Train/dev/test splits
 
 Smart Engineering:
-  • S2 — Pre-computed BFS subgraphs cached to disk (deterministic
+  â€¢ S2 â€” Pre-computed BFS subgraphs cached to disk (deterministic
          given G and S(Q), so we never recompute across seeds).
 
 Data formats expected
@@ -27,7 +27,7 @@ train.json / dev.json / test.json :
         "question": str,           # natural-language query
         "seeds": [str, ...],       # entities linked from the question
         "gold_answer": str | null, # answer entity (for shortest-path
-                                   # annotation) — used at training only
+                                   # annotation) â€” used at training only
         "answer_label": str | null # for end-to-end QA (yes/no/maybe)
       }
 """
@@ -49,9 +49,9 @@ from torch.utils.data import Dataset
 logger = logging.getLogger(__name__)
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Knowledge Graph container
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
@@ -66,18 +66,18 @@ class Triple:
 
 
 class KnowledgeGraph:
-    """Biomedical KG (paper §8.1).
+    """Biomedical KG (paper Â§8.1).
 
     After construction:
-      |V|  ≈ 148,423  (entities)
-      |E|  ≈ 2,318,941 (triples)
+      |V|  â‰ˆ 148,423  (entities)
+      |E|  â‰ˆ 2,318,941 (triples)
       |R|  = 42       (after singleton removal: relations with <50 triples dropped)
 
     Stores both:
-      • A list of Triple objects (canonical)
-      • An adjacency dict   adj[h] -> list[(r, t)]   for fast BFS
-      • A reverse adjacency rev[t] -> list[(r, h)]   for tail-degree lookups
-      • A NetworkX MultiDiGraph for shortest-path queries
+      â€¢ A list of Triple objects (canonical)
+      â€¢ An adjacency dict   adj[h] -> list[(r, t)]   for fast BFS
+      â€¢ A reverse adjacency rev[t] -> list[(r, h)]   for tail-degree lookups
+      â€¢ A NetworkX MultiDiGraph for shortest-path queries
     """
 
     def __init__(
@@ -85,7 +85,7 @@ class KnowledgeGraph:
         triples: list[Triple],
         min_relation_freq: int = 50,
     ) -> None:
-        # Singleton-relation removal (paper §8.1: "Singleton relations
+        # Singleton-relation removal (paper Â§8.1: "Singleton relations
         # (<50 triples) are removed, retaining |R|=42").
         if min_relation_freq > 0:
             rel_counts: dict[str, int] = defaultdict(int)
@@ -147,7 +147,7 @@ class KnowledgeGraph:
     def to_networkx(self) -> nx.MultiDiGraph:
         """Build a NetworkX graph for shortest-path annotation.
 
-        Built lazily and cached — the graph is large (~2.3M edges)
+        Built lazily and cached â€” the graph is large (~2.3M edges)
         and only needed for gold annotation, not for training.
         """
         if not hasattr(self, "_nx_graph"):
@@ -185,9 +185,9 @@ class KnowledgeGraph:
         return cls(triples, min_relation_freq=min_relation_freq)
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # BFS candidate extraction (Eq. 1) and Frequency Cap (Eq. 13)
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def bfs_candidate_sets(
@@ -195,25 +195,25 @@ def bfs_candidate_sets(
     seeds: list[str],
     L: int,
 ) -> list[list[Triple]]:
-    """Eq. 1 — extract BFS candidate sets up to depth L.
+    """Eq. 1 â€” extract BFS candidate sets up to depth L.
 
-        C_ℓ = { (h, r, t) ∈ E : d_G(S(Q), h) = ℓ - 1 }
+        C_â„“ = { (h, r, t) âˆˆ E : d_G(S(Q), h) = â„“ - 1 }
 
     where d_G is the (undirected) shortest-path distance from any
-    seed in S(Q). We expand BFS forward only (h → t) since the
+    seed in S(Q). We expand BFS forward only (h â†’ t) since the
     paper's reasoning chains follow directed semantics.
 
     Parameters
     ----------
     kg : KnowledgeGraph
-    seeds : list of entity names — S(Q)
+    seeds : list of entity names â€” S(Q)
     L : max hop depth (paper default: 3)
 
     Returns
     -------
     candidate_sets : list of length L
-        candidate_sets[ℓ] = C_{ℓ+1}, the candidates at hop ℓ+1
-        (Python is 0-indexed; paper uses 1-indexed ℓ).
+        candidate_sets[â„“] = C_{â„“+1}, the candidates at hop â„“+1
+        (Python is 0-indexed; paper uses 1-indexed â„“).
     """
     visited: set[str] = set(seeds)
     frontier: set[str] = {s for s in seeds if s in kg.adj}
@@ -239,12 +239,12 @@ def apply_frequency_cap(
     kg: KnowledgeGraph,
     K_r: int = 20,
 ) -> list[Triple]:
-    """Eq. 13 — Frequency cap: per (head, relation) keep top-K_r tails by deg(t).
+    """Eq. 13 â€” Frequency cap: per (head, relation) keep top-K_r tails by deg(t).
 
-        C^{(h,r)}_ℓ = top-K_r({(h, r, t) ∈ E}, by deg(t))
+        C^{(h,r)}_â„“ = top-K_r({(h, r, t) âˆˆ E}, by deg(t))
 
     This prevents hub-entity relation embeddings from saturating
-    the CSV (paper §6.1).
+    the CSV (paper Â§6.1).
 
     Parameters
     ----------
@@ -280,9 +280,9 @@ def apply_frequency_cap(
     return capped
 
 
-# ─────────────────────────────────────────────────────────────────
-# Gold-relevance annotation (paper §8.1)
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Gold-relevance annotation (paper Â§8.1)
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def annotate_gold_relevance(
@@ -291,7 +291,7 @@ def annotate_gold_relevance(
     gold_answer: str,
     L: int,
 ) -> set[tuple[str, str, str]]:
-    """Paper §8.1: triples on any shortest path from seed to gold
+    """Paper Â§8.1: triples on any shortest path from seed to gold
     answer entity receive y=1; all others y=0.
 
     Returns
@@ -302,7 +302,7 @@ def annotate_gold_relevance(
     --------------
     For each seed s, find ALL shortest paths from s to gold_answer
     in the underlying graph (ignoring relation labels for path
-    finding — paper uses unlabeled shortest path). Every edge on
+    finding â€” paper uses unlabeled shortest path). Every edge on
     any shortest path becomes a positive triple.
     """
     G = kg.to_networkx()
@@ -331,9 +331,9 @@ def annotate_gold_relevance(
     return positive_edges
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Cached BFS extractor (Smart Engineering S2)
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 class CachedBFSExtractor:
@@ -344,7 +344,7 @@ class CachedBFSExtractor:
 
     Cache layout:
       cache_dir/
-        bfs_<query_id>.pkl  →  dict {
+        bfs_<query_id>.pkl  â†’  dict {
           "candidate_sets":      list[list[Triple]],
           "candidate_sets_cap":  list[list[Triple]],  # post-FreqCap
           "gold_positives":      set[tuple[str,str,str]] | None,
@@ -370,7 +370,7 @@ class CachedBFSExtractor:
             return None
         # Sanitize query_id for filesystem
         safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in query_id)
-        return self.cache_dir / f"bfs_{safe}.pkl"
+        return self.cache_dir / f"bfs_L{self.L}_K{self.K_r}_{safe}.pkl"
 
     def extract(
         self,
@@ -417,9 +417,9 @@ class CachedBFSExtractor:
         return data
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # QA query records
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
@@ -452,27 +452,27 @@ def load_qa_split(path: str | Path) -> list[QARecord]:
     return records
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Triple-level dataset (per training instance = one BFS triple)
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
 class TripleInstance:
-    """One training example: a single (Q, h, r, t) at a specific hop ℓ.
+    """One training example: a single (Q, h, r, t) at a specific hop â„“.
 
     The label y comes from gold-relevance annotation. The upstream
-    context z_{ℓ-1} is computed lazily during training (we cannot
+    context z_{â„“-1} is computed lazily during training (we cannot
     cache it because it depends on the model's current decisions
-    at hops 1..ℓ-1).
+    at hops 1..â„“-1).
     """
     query_id: str
     question: str
     head: str
     relation: str
     tail: str
-    hop: int            # ℓ ∈ {1, ..., L}
-    label: int          # y ∈ {0, 1}
+    hop: int            # â„“ âˆˆ {1, ..., L}
+    label: int          # y âˆˆ {0, 1}
 
 
 class CAFFTripleDataset(Dataset):
@@ -482,7 +482,7 @@ class CAFFTripleDataset(Dataset):
     these in mini-batches, but actual scoring happens at the
     query+hop level (because W^ctx is per-query-per-hop, not
     per-triple). The DataLoader thus uses a custom collate_fn
-    that groups by (query_id, hop) — provided in caff/trainer.py.
+    that groups by (query_id, hop) â€” provided in caff/trainer.py.
     """
 
     def __init__(
