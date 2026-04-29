@@ -1,7 +1,7 @@
-config:
+﻿config:
   d: 768
   rho: 16
-  L: 2
+  L: 3  # match path lengths 1-3 in smoke data
   theta: 0.50
   K_r: 20
   gamma_C: 0.25
@@ -40,3 +40,4 @@ ablation:
   use_freqcap: true
   csv_pool: mean
   gate_activation: sigmoid
+

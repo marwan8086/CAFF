@@ -13,7 +13,7 @@ random.seed(42)
 # ─── KG generation ────────────────────────────────────────────────
 N_ENTITIES = 5000
 N_RELATIONS = 20
-AVG_DEGREE = 5
+AVG_DEGREE = 8  # higher density for directed reachability
 relations = [
     "associated_with", "causes", "treats", "interacts_with",
     "expressed_in", "mutated_in", "inhibits", "activates",
@@ -45,14 +45,14 @@ with open("smoke_kg.tsv", "w", encoding="utf-8") as f:
     for h, r, t in triples:
         f.write(f"{h}\t{r}\t{t}\n")
 # ─── Build undirected graph for path finding ───────────────────────
-G = nx.Graph()
+G = nx.DiGraph()  # directed: matches trainer kg.adj BFS
 for h, r, t in triples:
     G.add_edge(h, t)
 # ─── QA generation: pick (seed, gold) pairs reachable within 1-3 hops
 N_QUERIES = 1000
 queries = []
 attempts = 0
-max_attempts = N_QUERIES * 50
+max_attempts = N_QUERIES * 100  # directed paths are sparser
 while len(queries) < N_QUERIES and attempts < max_attempts:
     attempts += 1
     seed = random.choice(entities)
@@ -91,3 +91,7 @@ print(f"  qid={sample['query_id']}")
 print(f"  seeds={sample['seeds']} (in KG entities: {sample['seeds'][0] in {h for h,r,t in triples} | {t for h,r,t in triples}})")
 print(f"  gold={sample['gold_answer']}")
 print(f"  shortest path length: {nx.shortest_path_length(G, sample['seeds'][0], sample['gold_answer'])}")
+
+
+
+
