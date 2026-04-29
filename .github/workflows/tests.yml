@@ -36,11 +36,12 @@ jobs:
           python -m pytest tests/ -v --tb=short
       - name: Test imports of all modules
         run: |
-          python -c "from caff.trainer import CAFFTrainer; print(''trainer OK'')"
-          python -c "from caff.data import KnowledgeGraph, CAFFTripleDataset; print(''data OK'')"
-          python -c "from caff.model import CAFFModel; print(''model OK'')"
-          python -c "from caff.evaluator import CAFFEvaluator; print(''evaluator OK'')"
-          python -c "from caff.config import CAFFConfig, AblationFlags; print(''config OK'')"
+          python -c "from caff.trainer import CAFFTrainer; print('trainer OK')"
+          python -c "from caff.data import KnowledgeGraph, CAFFTripleDataset; print('data OK')"
+          python -c "from caff.model import CAFFModel; print('model OK')"
+          python -c "from caff.evaluator import CAFFEvaluator; print('evaluator OK')"
+          python -c "from caff.config import CAFFConfig, AblationFlags; print('config OK')"
+
 
 
 
