@@ -206,3 +206,43 @@ class HC3Miner:
             if len(negs) > 0:
                 triplets.append((anchor, negs))
         return triplets
+
+
+# ─── Depth-Contrastive (DC) miner — paper §6.5 ──────────────────
+
+
+class DCMiner:
+    """Sample a wrong hop l_- != l_+ for depth-contrastive loss.
+
+    The DC loss (paper Eq. 23) requires, for each (Q, r) anchor at
+    its gold hop l_+, a score for the SAME (Q, r) computed at a
+    different hop l_-. This class is responsible only for sampling
+    l_- given l_+; the actual re-scoring lives in the trainer
+    because it depends on the model and the CSV state z_{l_- - 1}.
+
+    Parameters
+    ----------
+    L : int
+        Total BFS depth (must be >= 2; otherwise no wrong hop exists).
+    seed : int
+        RNG seed for reproducibility.
+    """
+
+    def __init__(self, L: int, seed: int = 42) -> None:
+        if L < 2:
+            raise ValueError(
+                f"DC mining requires L >= 2 (got L={L}); "
+                f"with L=1 there is no wrong hop to sample."
+            )
+        self.L = L
+        self.seed = seed
+        self._rng = random.Random(seed)
+
+    def sample_wrong_hop(self, gold_hop: int) -> int:
+        """Sample l_- uniformly from {1..L} \ {gold_hop}."""
+        if not 1 <= gold_hop <= self.L:
+            raise ValueError(
+                f"gold_hop must be in [1, {self.L}], got {gold_hop}"
+            )
+        choices = [h for h in range(1, self.L + 1) if h != gold_hop]
+        return self._rng.choice(choices)
