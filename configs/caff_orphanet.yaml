@@ -1,4 +1,4 @@
-config:
+﻿config:
   d: 768
   rho: 16
   L: 3
@@ -22,7 +22,7 @@ config:
   early_stop_metric: f1
   encoder_name: bert-base-uncased   # CPU-friendly; switch to BioLinkBERT for GPU
   encoder_frozen: true
-  kg_path:    data/processed/merged_kg.tsv
+  kg_path:    data/processed/merged_kg_v2.tsv
   train_path: data/processed/train.json
   dev_path:   data/processed/dev.json
   test_path:  data/processed/test.json
@@ -40,3 +40,4 @@ ablation:
   use_freqcap: true
   csv_pool: mean
   gate_activation: sigmoid
+
