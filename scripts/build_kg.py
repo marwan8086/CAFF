@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 """
-scripts/build_kg.py — Merge Orphanet + DisGeNET + OMIM into a single
+scripts/build_kg.py â€” Merge Orphanet + DisGeNET + OMIM into a single
 biomedical KG, joined on shared UMLS Concept Unique Identifiers (CUIs).
 
-Implements the data construction pipeline described in paper §8.1:
+Implements the data construction pipeline described in paper Â§8.1:
 
     "We merge Orphanet, DisGeNET, and OMIM on shared UMLS concept
      identifiers. The merged KG contains |V|=148,423 entities,
@@ -20,7 +20,7 @@ Usage
         --out       data/processed/merged_kg.tsv \
         --min-relation-freq 50
 
-Important — Licensing
+Important â€” Licensing
 ---------------------
 This script does NOT redistribute source data. You must obtain
 each dataset directly from its provider:
@@ -54,9 +54,9 @@ from caff.utils.logging import setup_logging
 logger = logging.getLogger(__name__)
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # UMLS CUI mapping
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
@@ -69,9 +69,9 @@ class UMLSMapper:
         https://www.ncbi.nlm.nih.gov/books/NBK9685/
     """
 
-    # source vocab → identifier in source vocab → CUI
+    # source vocab â†’ identifier in source vocab â†’ CUI
     by_source: dict[str, dict[str, str]]
-    # name (lowercased) → CUI for fuzzy fallback
+    # name (lowercased) â†’ CUI for fuzzy fallback
     by_name: dict[str, str]
 
     @classmethod
@@ -79,11 +79,11 @@ class UMLSMapper:
         """Build a mapper from MRCONSO.RRF.
 
         We extract mappings for source vocabularies relevant to CAFF:
-            HGNC      — gene symbols
-            OMIM      — OMIM IDs
-            ORPHANET  — Orphanet codes
-            MSH       — MeSH terms (fallback)
-            SNOMEDCT_US — clinical terms (fallback)
+            HGNC      â€” gene symbols
+            OMIM      â€” OMIM IDs
+            ORPHANET  â€” Orphanet codes
+            MSH       â€” MeSH terms (fallback)
+            SNOMEDCT_US â€” clinical terms (fallback)
 
         MRCONSO columns (pipe-separated):
             CUI|LAT|TS|LUI|STT|SUI|ISPREF|AUI|SAUI|SCUI|SDUI|SAB|TTY|CODE|...
@@ -128,9 +128,9 @@ class UMLSMapper:
         return self.by_name.get(name.strip().lower())
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Source-specific loaders
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 @dataclass
@@ -150,9 +150,9 @@ def load_orphanet(orphanet_dir: str | Path) -> list[RawTriple]:
     """Load Orphanet triples from TSV dumps (2025 format).
 
     Orphanet ships several TSV files; we use:
-        genes_to_diseases_en_2025.tsv   — disease-gene relationships
-        phenotypes_en_2025.tsv         — disease-phenotype links
-        ORDO_en_2025.xlsx              — disease ontology for names
+        genes_to_diseases_en_2025.tsv   â€” disease-gene relationships
+        phenotypes_en_2025.tsv         â€” disease-phenotype links
+        ORDO_en_2025.xlsx              â€” disease ontology for names
 
     Falls back gracefully: missing files are warned and skipped.
     """
@@ -160,11 +160,11 @@ def load_orphanet(orphanet_dir: str | Path) -> list[RawTriple]:
     triples: list[RawTriple] = []
 
     # Load disease names from ORDO ontology
-    ordo_path = orph_dir / "ORDO_en_2025.xlsx"
+    ordo_path = orph_dir / "ORDO_names_en_2025.tsv"
     disease_names = {}
     if ordo_path.exists():
         logger.info(f"Loading Orphanet disease names from {ordo_path}")
-        ordo_df = pd.read_excel(ordo_path)
+        ordo_df = pd.read_csv(ordo_path, sep="\t")
         # Assuming columns include 'ORPHAcode' and 'Preferred term'
         if 'ORPHAcode' in ordo_df.columns and 'Preferred term' in ordo_df.columns:
             disease_names = dict(zip(ordo_df['ORPHAcode'], ordo_df['Preferred term']))
@@ -172,7 +172,7 @@ def load_orphanet(orphanet_dir: str | Path) -> list[RawTriple]:
     else:
         logger.warning(f"Orphanet ORDO file missing: {ordo_path}")
 
-    # ── Disease ↔ Gene (genes_to_diseases_en_2025.tsv) ───────
+    # â”€â”€ Disease â†” Gene (genes_to_diseases_en_2025.tsv) â”€â”€â”€â”€â”€â”€â”€
     genes_path = orph_dir / "genes_to_diseases_en_2025.tsv"
     if genes_path.exists():
         logger.info(f"Parsing Orphanet disease-gene file: {genes_path}")
@@ -202,7 +202,7 @@ def load_orphanet(orphanet_dir: str | Path) -> list[RawTriple]:
     else:
         logger.warning(f"Orphanet genes file missing: {genes_path}")
 
-    # ── Disease ↔ Phenotype (phenotypes_en_2025.tsv) ─────────
+    # â”€â”€ Disease â†” Phenotype (phenotypes_en_2025.tsv) â”€â”€â”€â”€â”€â”€â”€â”€â”€
     pheno_path = orph_dir / "phenotypes_en_2025.tsv"
     if pheno_path.exists():
         logger.info(f"Parsing Orphanet disease-phenotype file: {pheno_path}")
@@ -321,9 +321,9 @@ def load_omim(omim_dir: str | Path) -> list[RawTriple]:
     return triples
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CUI normalization + merge
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def normalize_to_cuis(
@@ -383,7 +383,7 @@ def deduplicate_and_filter(
 ) -> list[dict]:
     """Remove exact duplicates and filter singleton relations.
 
-    Per paper §8.1, relations with <50 triples are dropped, retaining
+    Per paper Â§8.1, relations with <50 triples are dropped, retaining
     |R|=42 from the original 47.
     """
     seen: set[tuple[str, str, str]] = set()
@@ -394,7 +394,7 @@ def deduplicate_and_filter(
             continue
         seen.add(key)
         deduped.append(row)
-    logger.info(f"Deduplication: {len(rows):,} → {len(deduped):,}")
+    logger.info(f"Deduplication: {len(rows):,} â†’ {len(deduped):,}")
 
     if min_relation_freq > 0:
         rel_counts: dict[str, int] = defaultdict(int)
@@ -405,16 +405,16 @@ def deduplicate_and_filter(
         deduped = [r for r in deduped if r["relation"] in kept]
         logger.info(
             f"Singleton-relation removal (min_freq={min_relation_freq}): "
-            f"{n_before:,} → {len(deduped):,}  "
+            f"{n_before:,} â†’ {len(deduped):,}  "
             f"(kept {len(kept)} of {len(rel_counts)} relations)"
         )
 
     return deduped
 
 
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Main
-# ─────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 def parse_args() -> argparse.Namespace:
@@ -436,7 +436,7 @@ def main() -> None:
     args = parse_args()
     setup_logging(level="INFO")
 
-    # ─── Load each source ───────────────────────────────────────
+    # â”€â”€â”€ Load each source â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     umls = None
     if args.umls:
         umls = UMLSMapper.from_mrconso(args.umls)
@@ -453,7 +453,7 @@ def main() -> None:
         raw.extend(load_omim(args.omim))
     logger.info(f"Total raw triples loaded: {len(raw):,}")
 
-    # ─── Normalize to UMLS CUIs ─────────────────────────────────
+    # â”€â”€â”€ Normalize to UMLS CUIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if umls:
         rows = normalize_to_cuis(raw, umls)
     else:
@@ -470,19 +470,19 @@ def main() -> None:
             })
         logger.info(f"Skipped CUI normalization: kept {len(rows):,} triples")
 
-    # ─── Deduplicate + drop singleton relations ─────────────────
+    # â”€â”€â”€ Deduplicate + drop singleton relations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     rows = deduplicate_and_filter(rows, min_relation_freq=args.min_relation_freq)
 
-    # ─── Stats ──────────────────────────────────────────────────
+    # â”€â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     entities = {r["head_cui"] for r in rows} | {r["tail_cui"] for r in rows}
     relations = {r["relation"] for r in rows}
-    logger.info("─" * 60)
+    logger.info("â”€" * 60)
     logger.info(f"Final KG:  |V|={len(entities):,}  "
                 f"|E|={len(rows):,}  |R|={len(relations)}")
-    logger.info(f"Paper §8.1 reports |V|=148,423  |E|=2,318,941  |R|=42")
-    logger.info("─" * 60)
+    logger.info(f"Paper Â§8.1 reports |V|=148,423  |E|=2,318,941  |R|=42")
+    logger.info("â”€" * 60)
 
-    # ─── Write TSV ──────────────────────────────────────────────
+    # â”€â”€â”€ Write TSV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(rows, columns=[
