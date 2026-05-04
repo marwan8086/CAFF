@@ -2,7 +2,7 @@
   d: 768
   rho: 16
   L: 3
-  theta: 0.50
+  theta: 0.80
   K_r: 20
   gamma_C: 0.25
   gamma_D: 0.20
@@ -15,7 +15,7 @@
   lr_min: 1.0e-5
   weight_decay: 1.0e-2
   batch_size: 256
-  epochs: 3
+  epochs: 10
   warmup_epochs: 1
   grad_clip: 1.0
   early_stop_patience: 5
@@ -40,4 +40,10 @@ ablation:
   use_freqcap: true
   csv_pool: mean
   gate_activation: sigmoid
+
+
+
+
+
+
 
