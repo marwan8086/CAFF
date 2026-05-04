@@ -54,7 +54,7 @@ from .data import (
 )
 from .encoders import FrozenBioEncoder
 from .losses import CAFFCombinedLoss
-from .miners import HC3Miner, TrainingInstance
+from .miners import DCMiner, HC3Miner, TrainingInstance
 from .model import CAFFModel
 logger = logging.getLogger(__name__)
 
@@ -324,14 +324,21 @@ class CAFFTrainer:
 
         # Checkpoint + logging
         self.ckpt = CheckpointManager(ckpt_dir, keep_best_metric="dev_f1")
-        # Transparency: warn user that DC mining is not active.
+        # DC mining (paper §6.5): only active when lambda_D > 0.
+        # When ablation_lambda_D=0.0 is passed, lambda_D becomes 0 and
+        # we skip building the miner entirely (also disables the DC
+        # block in _train_one_group).
         if self.criterion.lambda_D > 0:
-            logger.warning(
-                "DC mining is not implemented in this version; "
-                "lambda_D=%.2f contribution will be 0 during training. "
-                "See _optimizer_step for details.",
-                self.criterion.lambda_D,
+            self.dc_miner: DCMiner | None = DCMiner(
+                L=config.L, seed=config.seed
             )
+            logger.info(
+                "DCMiner initialized: L=%d, seed=%d, lambda_D=%.2f",
+                config.L, config.seed, self.criterion.lambda_D,
+            )
+        else:
+            self.dc_miner = None
+            logger.info("DC mining disabled (lambda_D=0)")
         self.history = TrainingHistory()
         self.log_jsonl_path = Path(log_jsonl_path) if log_jsonl_path else None
 
@@ -400,6 +407,46 @@ class CAFFTrainer:
         # Collect for loss
         accumulate_meta["bce_logits"].append(logits)
         accumulate_meta["bce_labels"].append(labels)
+
+        # ─── DC mining (paper §6.5, Eq. 23) ─────────────────
+        # For every gold candidate at this (query, hop=l_+), re-score
+        # the same (q, r) pair at a sampled wrong hop l_- with the
+        # CSV state z_{l_- - 1} built from gold relations of that
+        # hop's prefix (teacher-forced).
+        if self.dc_miner is not None:
+            gold_idx = [
+                i for i, inst in enumerate(group.instances)
+                if inst.label == 1
+            ]
+            if gold_idx:
+                wrong_hop = self.dc_miner.sample_wrong_hop(group.hop)
+                z_prev_wrong = teacher_forced_z_prev(
+                    self.model.csv,
+                    per_query_instances_by_hop,
+                    target_hop=wrong_hop,
+                    d=self.config.d,
+                    device=self.device,
+                )
+                W_ctx_wrong = self.model.get_hop_W_ctx(
+                    wrong_hop - 1, z_prev_wrong.unsqueeze(0)
+                ).squeeze(0)
+                gold_relations = [
+                    group.instances[i].relation for i in gold_idx
+                ]
+                logits_wrong = self.model.score_hop_candidates(
+                    wrong_hop - 1,
+                    W_ctx_wrong,
+                    group.q_embedding,
+                    gold_relations,
+                    return_logits=True,
+                )
+                # logits_correct: pick the gold scores from the BCE pass
+                gold_idx_t = torch.tensor(
+                    gold_idx, dtype=torch.long, device=self.device
+                )
+                logits_correct = logits.index_select(0, gold_idx_t)
+                accumulate_meta["dc_correct"].append(logits_correct)
+                accumulate_meta["dc_wrong"].append(logits_wrong)
 
         # Add to HC3 buffer (after computing instance-level z_prev)
         for inst, logit in zip(group.instances, logits.detach().tolist()):
@@ -506,7 +553,7 @@ class CAFFTrainer:
             per_query[inst.query_id][inst.hop].append(inst)
 
         # Iterate (query, hop) groups
-        accum_meta: dict = {"bce_logits": [], "bce_labels": []}
+        accum_meta: dict = {"bce_logits": [], "bce_labels": [], "dc_correct": [], "dc_wrong": []}
         accum_count = 0
 
         for query_id, hop, question, instances in self.train_dataset.iter_by_query_hop():
@@ -531,7 +578,7 @@ class CAFFTrainer:
             # Optimizer step every grad_accum_steps groups
             if accum_count >= self.config.grad_accum_steps:
                 self._optimizer_step(accum_meta, running)
-                accum_meta = {"bce_logits": [], "bce_labels": []}
+                accum_meta = {"bce_logits": [], "bce_labels": [], "dc_correct": [], "dc_wrong": []}
                 accum_count = 0
                 n_groups += self.config.grad_accum_steps
                 self.hc3_miner.step()
@@ -563,11 +610,17 @@ class CAFFTrainer:
         if hc3_pair is not None:
             hc3_pos, hc3_neg = hc3_pair
 
+        # DC pairs (paper §6.5) — gathered in _train_one_group
+        dc_correct = dc_wrong = None
+        if accum_meta.get("dc_correct"):
+            dc_correct = torch.cat(accum_meta["dc_correct"])
+            dc_wrong = torch.cat(accum_meta["dc_wrong"])
+
         loss_dict = self.criterion(
             bce_logits=bce_logits,
             bce_labels=bce_labels,
-            dc_correct=None,         # DC mining not implemented; see init-time WARNING. TODO(Phase-2).
-            dc_wrong=None,
+            dc_correct=dc_correct,
+            dc_wrong=dc_wrong,
             hc3_pos=hc3_pos,
             hc3_neg=hc3_neg,
         )

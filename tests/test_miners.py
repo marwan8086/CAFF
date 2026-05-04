@@ -85,3 +85,49 @@ def test_miner_paper_invariants():
     assert miner.buffer.capacity == 1000
     assert miner.refresh_every == 500
 
+
+
+
+# ─── DCMiner tests (Phase 2) ────────────────────────────────────
+
+
+def test_dcminer_invalid_L_raises():
+    """L < 2 must raise — no wrong hop exists for L=1."""
+    import pytest
+    from caff.miners import DCMiner
+    with pytest.raises(ValueError, match="L >= 2"):
+        DCMiner(L=1)
+    with pytest.raises(ValueError, match="L >= 2"):
+        DCMiner(L=0)
+
+
+def test_dcminer_sample_wrong_hop_excludes_gold():
+    """Sampled wrong hop is always != gold_hop and within [1, L]."""
+    from caff.miners import DCMiner
+    miner = DCMiner(L=3, seed=42)
+    for _ in range(50):
+        for gold in (1, 2, 3):
+            w = miner.sample_wrong_hop(gold)
+            assert 1 <= w <= 3
+            assert w != gold
+
+
+def test_dcminer_invalid_gold_hop_raises():
+    """gold_hop outside [1, L] must raise."""
+    import pytest
+    from caff.miners import DCMiner
+    miner = DCMiner(L=3, seed=42)
+    with pytest.raises(ValueError, match="gold_hop must be in"):
+        miner.sample_wrong_hop(0)
+    with pytest.raises(ValueError, match="gold_hop must be in"):
+        miner.sample_wrong_hop(4)
+
+
+def test_dcminer_reproducible_with_seed():
+    """Two miners with same seed produce identical sequences."""
+    from caff.miners import DCMiner
+    a = DCMiner(L=3, seed=123)
+    b = DCMiner(L=3, seed=123)
+    seq_a = [a.sample_wrong_hop(2) for _ in range(20)]
+    seq_b = [b.sample_wrong_hop(2) for _ in range(20)]
+    assert seq_a == seq_b
