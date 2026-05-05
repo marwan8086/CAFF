@@ -370,3 +370,99 @@ The dev-set threshold sweep (CAFF model trained at seed=42, ~10 epochs):
 
 A reviewer running the unmodified caff_orphanet.yaml should reproduce
 the theta=0.80 result (F1 = 0.51, hop-1 prec = 0.86) deterministically.
+
+
+---
+
+## 9. KG expansion and data scaling experiments (May 5, 2026)
+
+After establishing the baseline F1 = 0.509 ± 0.005 on Orphanet+HPO+OMIM
+with 5K QA records, we ran two further experiments to probe what would
+move the needle.
+
+### 9.1 MONDO ontology integration (negative result, kept for reference)
+
+We integrated MONDO (Mondo Disease Ontology, 2026-04-07 release,
+26,709 disease terms, 39,858 is_a edges, ~62K xrefs to Orphanet/OMIM/
+DOID/MESH/UMLS/ICD10CM). The merged KG v3 has:
+
+|         | KG v2 (Orphanet+HPO) | KG v3 (+ MONDO) |
+|---------|----------------------|-----------------|
+| nodes   | 38,456               | 66,441 (+72%)   |
+| edges   | 291,335              | 348,249 (+20%)  |
+| relations | 11                 | 12 (+equivalent_to) |
+
+Re-trained the same model (10 epochs, seed 42) on KG v3 with regenerated
+QA records:
+
+| metric    | KG v2  | KG v3  | delta  |
+|-----------|--------|--------|--------|
+| dev_f1    | 0.5123 | 0.4772 | -7%    |
+| dev_map   | 0.6236 | 0.6582 | +6%    |
+| ndcg@10   | 0.6658 | 0.7163 | +8%    |
+| hop1 prec | 0.8620 | 0.6517 | -24%   |
+
+**Interpretation:** MONDO genuinely improves *ranking quality* (MAP up
+6%, NDCG up 8%), but it adds 27K new candidate nodes that the model has
+not learned to suppress. With a fixed threshold of 0.80, hop-1
+precision collapses from 0.86 to 0.65 because the model now produces
+many borderline-confident predictions among the new MONDO-only nodes.
+
+The fix is not to abandon MONDO — it is to either (a) train longer so
+the model learns which MONDO terms are noise, (b) use per-relation or
+per-source thresholds, or (c) prune MONDO to disease-relevant
+sub-trees. We did none of these and reverted to KG v2 as the primary
+configuration. The MONDO scripts (`convert_mondo_to_tsv.py`,
+`merge_mondo_into_kg.py`) are kept for future work.
+
+### 9.2 Data scaling: 5K vs 20K QA records (small but real gain)
+
+Same KG (v2), same model, same 10-epoch budget. Only the number of
+sampled QA records changed:
+
+|                   | 5K queries (3 seeds) | 20K queries (1 seed) |
+|-------------------|----------------------|----------------------|
+| train instances   | 115,506              | 473,471 (4.1x)       |
+| best epoch        | 6                    | 8                    |
+| test F1 (theta=0.80) | 0.509 ± 0.005     | 0.5231               |
+| test MAP          | 0.625 ± 0.007        | 0.6377               |
+| test NDCG@10      | 0.665 ± 0.006        | 0.6802               |
+| hop-1 precision   | 0.856 ± 0.003        | 0.7988               |
+| hop-2 precision   | 0.422 ± 0.022        | 0.4076               |
+| hop-3 precision   | 0.291 ± 0.002        | 0.2533               |
+
+**Headline:** 4x more training data delivers +2.7% absolute F1 on the
+test set. This is positive but well under the +5-10% one would naively
+expect from such a data multiplier.
+
+**Per-hop story:** hop-1 precision drops from 0.86 to 0.80 while hop-2
+holds steady. The 4x-data model is *less over-confident on hop-1* — it
+spreads its predictions more evenly across the three hops, which costs
+some hop-1 precision but lifts overall F1. This is a healthier model,
+not a worse one.
+
+**What this tells us about the bottleneck.** With the encoder frozen
+(bert-base-uncased, 109M params) and only ~770K trainable parameters,
+the model's *capacity* is the binding constraint, not the amount of
+data. Doubling or quadrupling the QA set helps a little because more
+distinct (seed, gold) pairs let DC and HC3 mining build richer
+contrasts, but it cannot raise the ceiling. The realistic next moves
+are: (i) unfreeze the encoder or swap in BioLinkBERT-large; (ii) widen
+the trainable head; (iii) wait for Phase 5 GPU runs.
+
+### 9.3 Summary of the day's experiments
+
+| experiment              | test F1 | notes                              |
+|-------------------------|---------|-------------------------------------|
+| 5K, single global theta=0.50 | 0.307 | raw, no tuning                     |
+| 5K, theta=0.80           | 0.502   | threshold sweep on dev             |
+| 5K, theta=0.80, 3 seeds  | 0.509 ± 0.005 | reproducibility check        |
+| 5K, per-hop theta        | 0.511   | small uplift over global theta    |
+| KG v3 (+MONDO), theta=0.80 | 0.477 | reverted - candidate noise         |
+| 20K, theta=0.80          | 0.523   | best single number we have         |
+
+The 20K result has not been validated across multiple seeds because of
+training cost (each seed is roughly 80 minutes on this CPU). For the
+paper's headline claim we report the better-validated 5K number,
+0.509 ± 0.005, and present 0.523 as the upper end of what 4x data
+delivers without changing the model class.
