@@ -1,4 +1,4 @@
-# Paper Discrepancies — To Address Before Resubmission
+# Paper Discrepancies - To Address Before Resubmission
 
 This document tracks inconsistencies discovered between the paper text
 and the implementation. Each item should be resolved before the camera-
@@ -6,7 +6,7 @@ ready submission.
 
 ---
 
-## 1. Appendix C — JSD Numerical Example (DISCREPANCY)
+## 1. Appendix C - JSD Numerical Example (DISCREPANCY)
 
 **Discovered:** April 28, 2026
 **Severity:** Medium (factual error in the paper, fixable by changing numbers)
