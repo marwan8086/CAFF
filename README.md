@@ -264,6 +264,7 @@ openai>=1.0          # only for end-to-end QA with GPT-3.5-turbo
 ---
 
 ## Data Preparation
+> **Note.** This section documents the *paper configuration*. The repository ships a CPU-only reproduction path with Orphanet + HPO + OMIM annotations; see [Implementation Reality Check](#implementation-reality-check) for the as-shipped workflow and the corresponding numbers.
 
 CAFF operates on a **merged biomedical KG** built from three primary sources, joined on shared **UMLS Concept Unique Identifiers (CUIs)**.
 
@@ -313,6 +314,7 @@ python scripts/annotate_triples.py \
 ---
 
 ## Training
+> **Note.** This section documents the *paper configuration*. The repository ships a CPU-only reproduction path with Orphanet + HPO + OMIM annotations; see [Implementation Reality Check](#implementation-reality-check) for the as-shipped workflow and the corresponding numbers.
 
 ### Quick start - full CAFF on PubMedQA
 
