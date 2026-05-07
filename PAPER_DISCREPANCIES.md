@@ -165,7 +165,7 @@ recommended resolution.
 
 ---
 
-## 5. DC mining (Section 6.5) — IMPLEMENTED (was a Phase-1 placeholder)
+## 5. DC mining (Section 6.5) - IMPLEMENTED (was a Phase-1 placeholder)
 
 **Discovered:** April 28, 2026 (placeholder warning added)
 **Resolved:** May 4, 2026
@@ -184,24 +184,24 @@ running the unmodified config would see the trainer log a warning
 
 ### What we changed
 
-1. `caff/miners.py` — added a `DCMiner` class that, given the BFS
+1. `caff/miners.py` - added a `DCMiner` class that, given the BFS
    depth `L` and a seed, samples a wrong hop `l_- != l_+` for any
    gold hop `l_+`. Reproducible via `random.Random(seed)`.
-2. `caff/trainer.py::__init__` — when `lambda_D > 0`, instantiate
+2. `caff/trainer.py::__init__` - when `lambda_D > 0`, instantiate
    `self.dc_miner = DCMiner(L, seed)` (otherwise `None`). The old
    warning is replaced by an info-level "DCMiner initialized" log.
-3. `caff/trainer.py::_train_one_group` — for every gold candidate
+3. `caff/trainer.py::_train_one_group` - for every gold candidate
    at this `(query, hop)`, sample a wrong hop, rebuild the CSV
    state `z_{l_- - 1}` via the existing `teacher_forced_z_prev`
    helper (so DC re-uses the same teacher-forced training
    convention as BCE), recompute `W_ctx_wrong` and re-score the
    same gold relations. Append `(s_correct, s_wrong)` to the
    accumulator.
-4. `caff/trainer.py::_optimizer_step` — if the accumulator has DC
+4. `caff/trainer.py::_optimizer_step` - if the accumulator has DC
    pairs, concatenate them and pass real tensors to the criterion;
    otherwise pass `None` (preserves backward compatibility with
    `ablation_lambda_D=0.0`).
-5. `tests/test_miners.py` — four new unit tests:
+5. `tests/test_miners.py` - four new unit tests:
    `L < 2` raises, sampled hop excludes gold, invalid `gold_hop`
    raises, same seed produces identical sequences.
 
@@ -271,7 +271,7 @@ calibration matters.
 
 ---
 
-## 7. Phase 3 plus — HPO integration and 3-seed validation (May 4, 2026)
+## 7. Phase 3 plus - HPO integration and 3-seed validation (May 4, 2026)
 
 **Achievement:** First strong, reproducible biomedical results on a real
 KG built from Orphanet + HPO + OMIM annotations.
@@ -408,7 +408,7 @@ not learned to suppress. With a fixed threshold of 0.80, hop-1
 precision collapses from 0.86 to 0.65 because the model now produces
 many borderline-confident predictions among the new MONDO-only nodes.
 
-The fix is not to abandon MONDO — it is to either (a) train longer so
+The fix is not to abandon MONDO - it is to either (a) train longer so
 the model learns which MONDO terms are noise, (b) use per-relation or
 per-source thresholds, or (c) prune MONDO to disease-relevant
 sub-trees. We did none of these and reverted to KG v2 as the primary
@@ -436,7 +436,7 @@ test set. This is positive but well under the +5-10% one would naively
 expect from such a data multiplier.
 
 **Per-hop story:** hop-1 precision drops from 0.86 to 0.80 while hop-2
-holds steady. The 4x-data model is *less over-confident on hop-1* — it
+holds steady. The 4x-data model is *less over-confident on hop-1* - it
 spreads its predictions more evenly across the three hops, which costs
 some hop-1 precision but lifts overall F1. This is a healthier model,
 not a worse one.
@@ -470,7 +470,7 @@ delivers without changing the model class.
 
 ---
 
-## 10. 20K data scaling — full 3-seed validation (May 6, 2026)
+## 10. 20K data scaling - full 3-seed validation (May 6, 2026)
 
 Following the single-seed 20K result reported in section 9.2 (test F1
 = 0.523), we ran the remaining two seeds (1337 and 2024) to put the
@@ -491,7 +491,7 @@ data-scaling claim on the same statistical footing as the 5K baseline.
 **CAFF (Orphanet+HPO+OMIM, 20K QA, theta=0.80, 3 seeds):**
 **F1 = 0.522 ± 0.001 on held-out test (n = 3,000 queries, 102K candidates).**
 
-The MAP and NDCG standard deviations are 0.0002 — essentially three
+The MAP and NDCG standard deviations are 0.0002 - essentially three
 identical models from a ranking perspective. Variance on F1 is 0.001,
 roughly five times tighter than the 5K result (std = 0.005). More
 training data made the pipeline more reproducible, not less.
