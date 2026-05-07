@@ -451,6 +451,139 @@ A filter that maximizes edge-level F1 independently per hop can still drive mult
 
 ---
 
+
+---
+
+## Implementation Reality Check
+
+The numbers above (`Main Results`) are reproduced from the paper with
+the configuration described in Sections 7-8 of the manuscript:
+BioLinkBERT-Large encoder, 30 epochs on a single A100-80GB, the full
+four-source merged KG (Orphanet + DisGeNET + OMIM + UMLS) with
+`|V| = 148,423` and `|E| = 2,318,941`. They represent the published
+upper bound that the method can reach when given the full compute and
+data budget.
+
+This repository ships an implementation that any reviewer can run
+**today on a CPU laptop** without DisGeNET / UMLS credentials. To make
+the gap explicit, this section reports the numbers we obtain in that
+restricted setting, validated with three random seeds.
+
+### Configuration as shipped
+
+| Component             | Paper setting             | Repository default                |
+|-----------------------|---------------------------|-----------------------------------|
+| Encoder               | BioLinkBERT-Large (340 M) | `bert-base-uncased` (110 M, frozen) |
+| KG sources            | Orphanet + DisGeNET + OMIM + UMLS | Orphanet + HPO + OMIM annotations  |
+| KG size `\|V\|/\|E\|/\|R\|` | 148,423 / 2,318,941 / 42 | 38,456 / 291,335 / 11             |
+| QA records            | PubMedQA + BioASQ (~2.1K) | 20,000 sampled from KG (14K/3K/3K) |
+| Hardware              | 1 x A100-80GB             | CPU (Intel/AMD, 16 GB RAM)         |
+| Epochs                | 30 with patience 5        | 10 with patience 5                |
+| Threshold `theta`     | 0.50                      | 0.80 (chosen from a dev sweep)    |
+| Seeds                 | {42, 1337, 2024}          | {42, 1337, 2024}                  |
+
+### Measured numbers on the held-out test set (3 seeds)
+
+| metric           | mean +/- std       |
+|------------------|---------------------|
+| F1               | **0.522 +/- 0.001** |
+| Precision        | 0.479 +/- 0.007     |
+| Recall           | 0.574 +/- 0.014     |
+| MAP              | 0.638 +/- 0.000     |
+| NDCG@10          | 0.681 +/- 0.000     |
+| Hop-1 precision  | 0.803 +/- 0.005     |
+| Hop-2 precision  | 0.417 +/- 0.012     |
+| Hop-3 precision  | 0.254 +/- 0.001     |
+
+Test set: 3,000 queries, 102K candidate triples, never used in
+training or threshold tuning. Variance across the three seeds is
+extremely tight (std on F1 is 0.001, std on MAP and NDCG is 0.0002).
+
+### How the gap to the paper headline is composed
+
+The paper reports filtering F1 at the upper end of 0.70 and end-to-end
+QA accuracy of 0.796. Our 0.522 is the same method run with materially
+weaker pieces. A rough decomposition of where the missing ~0.27 should
+come from, supported by the experiments documented in
+`PAPER_DISCREPANCIES.md`:
+
+| Change                                         | Expected delta on F1 |
+|------------------------------------------------|---------------------:|
+| `bert-base-uncased` -> `BioLinkBERT-Large`     | +0.05 to +0.10       |
+| Add DisGeNET + UMLS gene-disease layer         | +0.05 to +0.10       |
+| Larger trainable head (current is 0.77 M)      | +0.02 to +0.05       |
+| Per-relation thresholds                        | +0.02 to +0.05       |
+| Longer training on GPU (30 epochs vs 10)       | +0.02 to +0.05       |
+
+Plausible reach with all of the above: F1 in the 0.65 - 0.75 band.
+Closing the full distance to 0.79 is not yet supported by an
+end-to-end run on this codebase.
+
+### Data-scaling experiment (5K vs 20K QA records)
+
+The QA-set size matters but not as much as one might expect on this
+KG/encoder combination. Both rows below are 3-seed validated on the
+same held-out test set:
+
+| QA records | Test F1         | Test recall     | Test MAP        |
+|------------|-----------------|-----------------|-----------------|
+| 5,000      | 0.509 +/- 0.005 | 0.500 +/- 0.002 | 0.625 +/- 0.007 |
+| 20,000     | 0.522 +/- 0.001 | 0.574 +/- 0.014 | 0.638 +/- 0.000 |
+
+Quadrupling the training data buys +2.6% absolute F1, almost entirely
+through recall (+14.8%). Variance shrinks 5x. This is consistent with
+the bottleneck being model capacity (frozen 110 M encoder + 0.77 M
+trainable head), not data quantity.
+
+### Negative result kept on record: MONDO ontology integration
+
+We tried adding the MONDO Disease Ontology (26K terms, 40K is_a edges,
+17K equivalent_to xrefs to Orphanet/OMIM) to grow the KG to 66K
+nodes / 348K edges. MONDO improved ranking quality (MAP +5%, NDCG +8%)
+but reduced F1 by 7% at the existing threshold because it injected
+many borderline-confident candidates the model had not learned to
+suppress. We reverted to the Orphanet+HPO KG and kept the MONDO
+scripts (`scripts/convert_mondo_to_tsv.py`,
+`scripts/merge_mondo_into_kg.py`) for future work that addresses
+candidate filtering or per-source thresholds.
+
+### Reproducing the numbers in this section
+
+```bash
+# 1. Convert raw ontologies to TSV (one-time, ~5 minutes)
+python scripts/convert_orphanet_xml_to_tsv.py
+python scripts/convert_hpo_to_tsv.py
+
+# 2. Build the merged KG v2 (Orphanet + HPO + OMIM annotations)
+python scripts/build_kg.py --orphanet data/raw/orphanet/ --out data/processed/merged_kg.tsv
+python scripts/merge_hpo_into_kg.py        # produces merged_kg_v2.tsv
+
+# 3. Sample 20,000 QA records from the KG
+python scripts/build_orphanet_qa.py \
+    --kg data/processed/merged_kg_v2.tsv \
+    --out-dir data/processed --n 20000
+
+# 4. Train three seeds (each takes ~80 min on CPU)
+for s in 42 1337 2024; do
+    python train.py --config configs/caff_orphanet.yaml --seed $s
+done
+
+# 5. Sweep thresholds on dev to find the optimum (chosen: 0.80)
+python scripts/threshold_sweep.py
+
+# 6. Evaluate each seed on the held-out test set
+for s in 42 1337 2024; do
+    python scripts/threshold_sweep.py \
+        --checkpoint runs/caff_orphanet/seed_${s}/best.pt \
+        --thresholds 0.80
+done
+```
+
+A reviewer running these commands deterministically reproduces the
+numbers in the table above. See `PAPER_DISCREPANCIES.md` for the
+ten-section running log of every experiment that informed the choices
+in this README.
+
 ## Ablation Study
 
 | Variant | Acc. | F1 | ΔAcc. |
