@@ -1,4 +1,4 @@
-﻿"""
+"""
 scripts/extract_bfs.py
 ======================
 Stand-alone BFS dumper.

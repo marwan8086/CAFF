@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 """
 scripts/build_kg.py â€” Merge Orphanet + DisGeNET + OMIM into a single
 biomedical KG, joined on shared UMLS Concept Unique Identifiers (CUIs).
