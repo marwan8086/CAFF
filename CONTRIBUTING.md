@@ -52,7 +52,7 @@ The full suite must pass before any commit:
 python -m pytest tests/ -v
 ```
 
-Expected: 48 tests passing in roughly 3-10 seconds (depending on machine).
+Expected: 52 tests passing in roughly 5-10 seconds (depending on machine).
 
 If you add new functionality, add a corresponding unit test in `tests/`. We
 prefer pytest's plain-function style over class-based tests; see existing
@@ -135,19 +135,49 @@ paper. Include:
 
 ---
 
+## Recent milestones
+
+The following used to be open issues and have since been resolved:
+
+- **Phase 2 - DC mining** (May 4, 2026): Implemented in `caff/miners.py` as
+  `DCMiner`, wired into `caff/trainer.py::__init__` and exercised by four
+  new unit tests in `tests/test_miners.py`. See PAPER_DISCREPANCIES.md
+  section 5 for the design notes.
+- **Phase 3 - Real biomedical KG** (May 4, 2026): `scripts/build_kg.py`
+  now loads Orphanet TSV exports produced by `convert_orphanet_xml_to_tsv.py`,
+  and `merge_hpo_into_kg.py` adds HPO + OMIM annotations to yield a
+  38,456-node / 291,335-edge KG (called `merged_kg_v2.tsv`).
+- **3-seed validation** (May 6, 2026): The full pipeline has been run with
+  seeds 42 / 1337 / 2024 on 20K QA records, producing
+  F1 = 0.522 +/- 0.001 on a held-out test set. See PAPER_DISCREPANCIES.md
+  section 10 and the README's Implementation Reality Check.
+
+---
+
 ## Known gaps (good first issues)
 
-These items are documented in the code with `TODO(Phase-2)` or
-`TODO(Phase-3)` markers:
+These items would close the remaining gap between the as-shipped
+F1 = 0.522 and the paper's headline F1 = 0.79:
 
-- **DC mining** (Phase 2): `DepthContrastiveLoss` is fully implemented but
-  the miner that produces (correct_hop, wrong_hop) score pairs is not. See
-  `caff/trainer.py::_optimizer_step` for details.
-- **Real biomedical data pipeline** (Phase 3): `scripts/build_kg.py` exists
-  but has not been validated end-to-end against Orphanet / DisGeNET / OMIM
-  releases. The smoke fixtures in `tests/fixtures/` are synthetic.
+- **Phase 5 - GPU + BioLinkBERT-Large**: replace `bert-base-uncased` with
+  `michiyasunaga/BioLinkBERT-large` (340 M frozen params). Expected lift:
+  +0.05 to +0.10 F1. Requires a CUDA device with at least 16 GB VRAM.
+- **DisGeNET integration**: add a gene-disease association layer to the
+  KG. The current public DisGeNET tier requires registration and a
+  manual license agreement; an issue is open to track API access.
+- **Open Targets parquet pipeline**: Open Targets ships association data
+  in Parquet rather than TSV. A small adapter using `pyarrow` would let
+  us reuse the merge logic in `merge_hpo_into_kg.py`.
+- **Per-relation thresholds**: `per_hop_threshold_sweep.py` tunes one
+  theta per hop; a per-relation variant would help when the KG contains
+  many high-volume relations of different signal strength (e.g. after
+  the MONDO experiment in PAPER_DISCREPANCIES.md section 9).
+- **MONDO follow-up**: the experimental KG v3 built by
+  `merge_mondo_into_kg.py` improves MAP and NDCG but hurts F1 because
+  the model has not learned to suppress the new candidates. Longer
+  training or candidate filtering should recover the lost precision.
 
-If you want to tackle either of these, please open an issue first so we can
+If you want to tackle any of these, please open an issue first so we can
 coordinate.
 
 ---
