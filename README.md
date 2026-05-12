@@ -495,6 +495,7 @@ python context_swap_diagnostic.py \
 ---
 
 ## Main Results
+> **Note.** The numbers in this section are the *paper headline* reproduced from the manuscript. For the as-shipped CPU pipeline (Orphanet + HPO + OMIM, bert-base-uncased), see [Implementation Reality Check](#implementation-reality-check) directly below, where F1 = 0.522 +/- 0.001 is reported with full 3-seed validation.
 
 ### End-to-end QA (mean over 3 seeds)
 
