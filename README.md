@@ -220,6 +220,102 @@ L  =  L_BCE  +  λ_D · L_DC  +  λ_C · L_HC3      (λ_D = 0.40,  λ_C = 0.35)
 
 ---
 
+
+---
+
+## Repository Structure
+
+```
+CAFF/
+├── caff/                            # Core package (importable)
+│   ├── __init__.py                  # Public API surface
+│   ├── config.py                    # CAFFConfig + AblationFlags dataclasses
+│   ├── csv.py                       # Contextual Summary Vector (Stage 2)
+│   ├── data.py                      # KG loader, BFS extractor, datasets
+│   ├── dbm.py                       # Dynamic Bilinear Modulation (Stage 3)
+│   ├── encoders.py                  # Frozen encoder + relation cache
+│   ├── evaluator.py                 # Metrics, MAP / NDCG, threshold tuning
+│   ├── losses.py                    # BCE + DC + HC3 loss objects
+│   ├── miners.py                    # DCMiner + HC3Miner + buffers
+│   ├── model.py                     # CAFFModel (CSV + DBM + scoring head)
+│   ├── scorer.py                    # DepthBilinear + HopScorer
+│   ├── trainer.py                   # CAFFTrainer + CheckpointManager
+│   └── utils/                       # seeding, logging
+│
+├── scripts/                         # Reproduction pipeline
+│   ├── convert_orphanet_xml_to_tsv.py   # Orphanet XML -> TSV
+│   ├── convert_hpo_to_tsv.py            # HPO obo -> TSV
+│   ├── convert_mondo_to_tsv.py          # MONDO obo -> TSV (experimental)
+│   ├── build_kg.py                      # Base KG from Orphanet TSV
+│   ├── merge_hpo_into_kg.py             # KG v2 = + HPO/OMIM annotations
+│   ├── merge_mondo_into_kg.py           # KG v3 = + MONDO (experimental)
+│   ├── build_orphanet_qa.py             # Sample QA records from KG
+│   ├── annotate_triples.py              # Paper-spec shortest-path gold
+│   ├── extract_bfs.py                   # Precompute BFS candidates
+│   ├── threshold_sweep.py               # Find optimal global theta
+│   └── per_hop_threshold_sweep.py       # Per-hop theta tuning
+│
+├── configs/                         # YAML training configs
+│   ├── caff_full.yaml               # Paper config (BioLinkBERT, GPU)
+│   ├── caff_no_hc3.yaml             # Ablation (no HC3 loss)
+│   ├── depthbilinear.yaml           # Baseline (no CSV / DBM)
+│   ├── caff_orphanet.yaml           # Repository default (CPU, KG v2)
+│   └── caff_smoke.yaml              # Smoke test (tiny synthetic KG)
+│
+├── tests/                           # 48+ unit tests (run by CI)
+│   ├── fixtures/                    # Tiny synthetic KG
+│   ├── test_csv.py                  # CSV faithfulness
+│   ├── test_data.py                 # KG loader + dataset
+│   ├── test_dbm.py                  # DBM rank sufficiency
+│   ├── test_evaluator.py            # Metrics + JSD diagnostic
+│   ├── test_losses.py               # BCE / DC / HC3 loss math
+│   ├── test_miners.py               # DC + HC3 mining (Phase 2)
+│   ├── test_scorer.py               # Bilinear scoring
+│   └── test_smoke_pipeline.py       # End-to-end smoke run
+│
+├── .github/workflows/
+│   └── tests.yml                    # CI: lint + pytest on every push
+│
+├── data/                            # gitignored (raw + processed)
+├── runs/                            # gitignored (checkpoints, logs)
+├── cache/                           # gitignored (BFS + relation cache)
+├── examples/                        # short usage snippets
+│
+├── train.py                         # Training entry point
+├── evaluate.py                      # Standalone evaluation script
+├── context_swap_diagnostic.py       # Appendix C diagnostic
+│
+├── README.md                        # This file
+├── CONTRIBUTING.md                  # Contribution guidelines
+├── PAPER_DISCREPANCIES.md           # 10-section running experiment log
+├── LICENSE                          # MIT
+├── requirements.txt                 # Core dependencies
+├── requirements-optional.txt        # Optional (wandb, scispacy, openai)
+├── .gitattributes
+└── .gitignore
+```
+
+### Notes on file purposes
+
+- **`caff/`** is the importable package. Its public API is declared in
+  `__init__.py` and matches the names referenced from `train.py`,
+  `evaluate.py`, and the test suite.
+- **`scripts/`** contains everything outside the training loop: data
+  conversion, KG construction, QA sampling, threshold tuning. Each
+  script is self-contained and can be run independently from the
+  command line.
+- **`configs/`** holds five YAML files. The paper's `caff_full.yaml`
+  expects BioLinkBERT-Large and the four-source KG and is the right
+  starting point on GPU. `caff_orphanet.yaml` is the CPU-only
+  default used throughout this repository's Implementation Reality
+  Check section.
+- **`tests/`** runs in CI on every push. All commits on `main` have
+  the suite green; see the badge near the top of this file.
+- **`PAPER_DISCREPANCIES.md`** is the source of truth for every
+  empirical decision in the repo (bug fixes, threshold choices, KG
+  scaling, the MONDO experiment). New experiments should append a
+  new numbered section there before changing the headline numbers.
+
 ## Installation
 
 ### Prerequisites
