@@ -151,6 +151,12 @@ The following used to be open issues and have since been resolved:
   seeds 42 / 1337 / 2024 on 20K QA records, producing
   F1 = 0.522 +/- 0.001 on a held-out test set. See PAPER_DISCREPANCIES.md
   section 10 and the README's Implementation Reality Check.
+- **Phase 5 - GPU + BioLinkBERT** (May 13, 2026): Training migrated to a
+  single 8 GB consumer GPU and the encoder swapped to
+  `michiyasunaga/BioLinkBERT-large`. Same 20K / 3-seed protocol lifts
+  test F1 to 0.5315 +/- 0.0003 (+1.8% over CPU baseline). See
+  PAPER_DISCREPANCIES.md section 11 and the README's `GPU + BioLinkBERT-Large
+  upgrade (Phase 5)` subsection.
 
 ---
 
@@ -159,9 +165,6 @@ The following used to be open issues and have since been resolved:
 These items would close the remaining gap between the as-shipped
 F1 = 0.522 and the paper's headline F1 = 0.79:
 
-- **Phase 5 - GPU + BioLinkBERT-Large**: replace `bert-base-uncased` with
-  `michiyasunaga/BioLinkBERT-large` (340 M frozen params). Expected lift:
-  +0.05 to +0.10 F1. Requires a CUDA device with at least 16 GB VRAM.
 - **DisGeNET integration**: add a gene-disease association layer to the
   KG. The current public DisGeNET tier requires registration and a
   manual license agreement; an issue is open to track API access.
@@ -176,6 +179,11 @@ F1 = 0.522 and the paper's headline F1 = 0.79:
   `merge_mondo_into_kg.py` improves MAP and NDCG but hurts F1 because
   the model has not learned to suppress the new candidates. Longer
   training or candidate filtering should recover the lost precision.
+- **Paper-spec 30-epoch training on GPU**: Phase 5 used 10 epochs to
+  match the CPU baseline budget. The paper specifies 30 epochs with
+  patience 5. Running BioLinkBERT for 30 epochs might add another
+  +0.02 to +0.05 F1 and is the cheapest remaining gain to chase
+  (~3 hours total on an 8 GB GPU).
 
 If you want to tackle any of these, please open an issue first so we can
 coordinate.

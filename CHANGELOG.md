@@ -14,14 +14,75 @@ notes, see [PAPER_DISCREPANCIES.md](PAPER_DISCREPANCIES.md).
 
 ### Planned (not yet implemented)
 
-- **Phase 5**: replace `bert-base-uncased` with `BioLinkBERT-Large` on
-  a CUDA device. Expected F1 lift: +0.05 to +0.10.
 - DisGeNET gene-disease layer integration (requires registration).
+- Longer training on GPU (30 epochs, paper-spec); current Phase 5
+  result uses 10 epochs.
 - Open Targets Parquet pipeline (requires `pyarrow`).
 - Per-relation threshold tuning to handle heterogeneous relation
   signal strength (motivated by the KG v3 MONDO experiment).
 - Longer training (30 epochs) on KG v3 to test whether the MONDO
   candidate noise can be learned away.
+
+---
+
+## [0.7.0] - 2026-05-13
+
+### Phase 5 - GPU pipeline + BioLinkBERT-Large
+
+### Headline result: test F1 = 0.5315 +/- 0.0003 (3 seeds)
+
+This release migrates training from CPU to a single 8 GB consumer GPU
+and upgrades the frozen encoder from `bert-base-uncased` to the paper's
+cited `michiyasunaga/BioLinkBERT-large` (340 M params). All other
+settings, KG, QA sample, seeds, and threshold are unchanged.
+
+### Added
+
+- GPU support: `train.py` auto-detects CUDA and applies sensible
+  hardware overrides for 8 GB consumer GPUs (micro_batch_size=4,
+  grad_accum_steps=64, mixed_precision=fp16, preserving effective
+  batch size of 256 from the paper).
+- BioLinkBERT-Large evaluation (3 seeds, 20K QA, theta=0.80, test set):
+  - F1 = 0.5315 +/- 0.0003 (tightest variance in the project)
+  - MAP = 0.6415 +/- 0.0044
+  - NDCG@10 = 0.6844 +/- 0.0034
+  - Hop-1 prec = 0.8264, Hop-2 prec = 0.4430, Hop-3 prec = 0.2478
+- PAPER_DISCREPANCIES.md section 11: two-stage validation
+  (a) bert-base on GPU (sanity check, F1 = 0.5154 +/- 0.0025) and
+  (b) BioLinkBERT on GPU (F1 = 0.5315 +/- 0.0003).
+- README: new `GPU + BioLinkBERT-Large upgrade (Phase 5)` subsection in
+  the Implementation Reality Check, with a 3-configuration comparison
+  table (CPU bert-base, GPU bert-base, GPU BioLinkBERT).
+
+### Changed
+
+- `configs/caff_orphanet.yaml`:
+  - `encoder_name: bert-base-uncased -> michiyasunaga/BioLinkBERT-large`
+  - `d: 768 -> 1024` (BioLinkBERT-Large hidden dim)
+  - All other fields unchanged
+- README gap-composition table: the `bert-base -> BioLinkBERT-Large`
+  row is now marked MEASURED with the actual +0.016 F1 lift, replacing
+  the previous estimate.
+- Trainable head: 0.77 M params (bert-base) -> 1.30 M params
+  (BioLinkBERT-Large), still well below the paper budget of 12 M.
+
+### Measured deltas (BioLinkBERT vs bert-base, both GPU)
+
+- Test F1:     +0.0161 (+3.1%)
+- Test recall: +0.0185 (+3.3%)
+- Test prec:   +0.0139 (+2.9%)
+- Hop-2 prec:  +0.0189 (+4.5%, the largest single-metric lift)
+- MAP / NDCG@10: essentially unchanged (the gain is in classification,
+  not ranking)
+
+### Notes
+
+- The dev-set lift from BioLinkBERT was tiny (+0.0017 F1), but the
+  test-set lift is +0.0161 F1. BioLinkBERT generalizes better.
+- The variance collapse (sigma 0.0025 -> 0.0003 on test F1) is a
+  Phase-5 finding worth keeping for future ablations.
+- Phase 5 was developed on Windows 11 with an RTX 4060 Laptop (8 GB)
+  and PyTorch 2.2.1+cu118.
 
 ---
 
@@ -240,7 +301,8 @@ edits, first code upload, badge polish. No functional code yet.
 
 ---
 
-[Unreleased]: https://github.com/marwan8086/CAFF/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/marwan8086/CAFF/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/marwan8086/CAFF/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/marwan8086/CAFF/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/marwan8086/CAFF/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/marwan8086/CAFF/compare/v0.3.0...v0.4.0
