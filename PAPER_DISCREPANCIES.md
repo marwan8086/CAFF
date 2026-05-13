@@ -673,3 +673,140 @@ choices from Phase 4 are unchanged. The 3-seed protocol and seeds
 - BioLinkBERT seeds 1337 / 2024: 40-100 minutes each (variable due to
   background system load)
 
+---
+
+## 12. Per-hop threshold tuning, revisited at fine-step resolution (May 14, 2026)
+
+### Setup
+
+After Phase 5 (Section 11) established the BioLinkBERT-Large baseline
+at test F1 = 0.5315 +/- 0.0003, the obvious next step was to revisit
+per-hop threshold tuning. Section 8 already documented a CPU-era
+experiment where per-hop tuning gave a small lift (+1.8% on bert-base,
+5K data), so the question was whether the same idea still helps with
+the upgraded encoder and the 20K configuration.
+
+The existing script `scripts/per_hop_threshold_sweep.py` sweeps
+thresholds at step 0.05. We ran it first with that step, found zero
+improvement, and then refined the step to 0.01.
+
+### Stage A: original step=0.05 (negative result)
+
+For all three seeds, the original sweep chose theta = 0.80 for every
+hop, identical to the global optimum:
+
+| seed | hop1 theta | hop2 theta | hop3 theta | test F1 (per-hop) | lift |
+|------|-----------|-----------|-----------|---------------------|------|
+| 42   | 0.80 | 0.80 | 0.80 | 0.5314 | +0.0000 |
+| 1337 | 0.80 | 0.80 | 0.80 | 0.5319 | +0.0000 |
+| 2024 | 0.80 | 0.80 | 0.80 | 0.5313 | +0.0000 |
+
+This appeared to indicate that BioLinkBERT-Large produces a hop-uniform
+score distribution. The conclusion would have been: "the encoder
+upgrade absorbed the gain that per-hop tuning used to offer."
+
+### Stage B: fine step=0.01 (positive result)
+
+Refining the threshold grid from 0.05 to 0.01 revealed that the
+optimum was hiding **between** the coarse grid points. All three seeds
+chose nearly identical fine-grained per-hop thresholds:
+
+| seed | hop1 theta | hop2 theta | hop3 theta | test F1 (per-hop) | lift   |
+|------|-----------|-----------|-----------|---------------------|--------|
+| 42   | 0.78 | 0.82 | 0.89 | 0.5514 | +0.0200 |
+| 1337 | 0.79 | 0.82 | 0.88 | 0.5515 | +0.0196 |
+| 2024 | 0.78 | 0.82 | 0.89 | 0.5542 | +0.0229 |
+| **mean** | **0.78** | **0.82** | **0.89** | **0.5524 +/- 0.0016** | **+0.0208** |
+
+The mean lift is +0.0208 absolute, or +3.9% relative, over the
+global theta = 0.80 baseline. The variance on the chosen thresholds
+is +/- 0.01 across seeds, indicating a stable optimum.
+
+### Headline test-set numbers (3 seeds, per-hop fine-step)
+
+| metric | mean +/- std |
+|---|---|
+| F1 | **0.5524 +/- 0.0016** |
+| Precision | 0.5577 +/- 0.0038 |
+| Recall | 0.5472 +/- 0.0017 |
+| Hop-1 precision | (best at hop-specific theta) |
+| Hop-2 precision | (best at hop-specific theta) |
+| Hop-3 precision | (best at hop-specific theta) |
+
+The trade-off captured: precision rises from 0.491 to 0.558 (+6.4%)
+while recall drops from 0.579 to 0.547 (-5.4%), and the net effect on
+F1 is positive at +0.0208.
+
+### Why step=0.05 missed the optimum
+
+The 0.05 grid contains {0.30, 0.35, 0.40, ..., 0.80, 0.85, 0.90}. Three
+of the fine-grained optima are not on this grid:
+
+- hop=1 optimum is 0.78, which the 0.05 grid replaces with 0.80
+- hop=2 optimum is 0.82, which the 0.05 grid replaces with 0.80
+- hop=3 optimum is 0.89, which the 0.05 grid replaces with 0.90 - but
+  the F1 surface near hop=3 is steep enough that 0.90 happened to lose
+  to 0.80 in the sweep
+
+So the coarse sweep ended up at the global optimum because *no* nearby
+grid point beat it. The 0.01 grid resolves the actual shape of the F1
+surface around each hop.
+
+### Interpretation
+
+1. **The encoder upgrade did not eliminate the per-hop calibration
+   gap; it just shrank the window where it shows.** With bert-base,
+   the fine-grained optima were probably spread wider, so even step
+   0.05 could find them. With BioLinkBERT, the optima are tight
+   (within +/- 0.05 of the global) and only a fine grid resolves them.
+
+2. **Per-hop tuning trades recall for precision.** With BioLinkBERT,
+   precision lifts +6.4% while recall drops -5.4%. The net F1 gain is
+   the right-half story; the left-half is that the model is
+   precision-limited, not recall-limited, at the chosen operating
+   point.
+
+3. **Reproducibility holds.** The chosen thresholds (0.78 / 0.82 /
+   0.89) agree across seeds to within +/- 0.01, and the test F1 std
+   of 0.0016 is barely worse than the 0.0003 from the global sweep.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE |
+| Per-hop fine-step thresholds (MEASURED)                   | +0.021 F1 | DONE (this section) |
+| Add DisGeNET + UMLS gene-disease layer                     | +0.05 to +0.10 | OPEN |
+| Larger trainable head: 1.30 M -> 12 M params (paper)       | +0.02 to +0.05 | OPEN |
+| Longer training (10 vs 30 epochs)                          | +0.02 to +0.05 | OPEN |
+
+**Net assessment.** Two measured lifts (+0.016 and +0.021) bring the
+project from CPU baseline F1 = 0.522 to **F1 = 0.5524 +/- 0.0016**.
+The remaining gap to the paper headline (0.79) is plausibly
+attributable to the three open items, all of which are mechanical to
+close given DisGeNET / UMLS access and a longer training budget.
+
+### Implementation note
+
+`scripts/per_hop_threshold_sweep.py` had `np.arange(0.30, 0.91, 0.05)`
+as the candidate grid; this was widened to `np.arange(0.30, 0.91, 0.01)`
+on May 14, 2026. The change is one line and adds 48 grid points (from
+13 to 61). Total runtime per seed grows by ~2 seconds (the sweep is
+trivial compared to scoring); total wall time per seed is unchanged
+at ~3 minutes on the RTX 4060.
+
+### Reproducibility command
+
+```bash
+for s in 42 1337 2024; do
+    python scripts/per_hop_threshold_sweep.py \
+        --config configs/caff_orphanet.yaml \
+        --checkpoint runs/caff_orphanet/seed_${s}/best.pt \
+        --device cuda
+done
+```
+
+The three runs print per-hop thresholds and the test F1 lift over
+global theta = 0.80. Total wall time on a single 8 GB GPU is roughly
+8-10 minutes.
+

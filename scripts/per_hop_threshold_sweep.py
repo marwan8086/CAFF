@@ -1,5 +1,5 @@
-"""
-scripts/per_hop_threshold_sweep.py — Find optimal threshold per hop.
+﻿"""
+scripts/per_hop_threshold_sweep.py â€” Find optimal threshold per hop.
 
 The trade-off is that high thresholds (e.g. 0.80) work well for hop-1
 where the model is confident, but they cut too much for hop-2 and
@@ -183,9 +183,9 @@ def main() -> int:
         return 1
 
     config, ablation = load_config(config_path)
-    candidate_thresholds = np.arange(0.30, 0.91, 0.05)
+    candidate_thresholds = np.arange(0.30, 0.91, 0.01)
 
-    # ─── Tune on DEV ───────────────────────────────────────
+    # â”€â”€â”€ Tune on DEV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logger.info("Step 1/3: Score DEV set")
     dev_scores, dev_labels, dev_hops = score_dataset(
         config, ablation, ckpt_path, args.dev_path,
@@ -197,7 +197,7 @@ def main() -> int:
         dev_scores, dev_labels, dev_hops, candidate_thresholds
     )
 
-    # ─── Apply to TEST ─────────────────────────────────────
+    # â”€â”€â”€ Apply to TEST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logger.info("Step 3/3: Score TEST set and apply per-hop thresholds")
     test_scores, test_labels, test_hops = score_dataset(
         config, ablation, ckpt_path, args.test_path,
@@ -252,3 +252,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
