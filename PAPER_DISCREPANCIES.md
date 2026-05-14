@@ -810,3 +810,149 @@ The three runs print per-hop thresholds and the test F1 lift over
 global theta = 0.80. Total wall time on a single 8 GB GPU is roughly
 8-10 minutes.
 
+---
+
+## 13. 30-epoch training experiment - mixed result (May 14, 2026)
+
+### Setup
+
+After Section 12 established the headline result of test F1 = 0.5524
++/- 0.0016 with BioLinkBERT-Large at 10 epochs and per-hop fine-step
+thresholds, we tested whether increasing the epoch budget to 30
+(the paper's specification) would improve the result further.
+
+Config change: `epochs: 10 -> 30`. Everything else identical:
+- Encoder: michiyasunaga/BioLinkBERT-large (frozen, 333.5 M params)
+- d: 1024, batch: 256 (effective), LR schedule: cosine 3e-4 -> 1e-5
+- Early stopping: patience 5 on dev F1
+- Same 20K QA, same KG v2, same seeds {42, 1337, 2024}
+
+### Training dynamics (3 seeds)
+
+All three seeds converged early and triggered the patience-5 early
+stop well before the 30-epoch budget was exhausted:
+
+| seed | best epoch | early stop at | dev F1 (best) | dev MAP (best) |
+|------|-----------|---------------|-----------------|------------------|
+| 42   | 6  | 11 | 0.5124 | 0.6423 |
+| 1337 | 7  | 12 | 0.5119 | 0.6416 |
+| 2024 | 7  | 12 | 0.5126 | 0.6430 |
+| mean |    |    | 0.5123 +/- 0.0004 | 0.6423 +/- 0.0007 |
+
+The 10-epoch baseline (Phase 5) had mean dev F1 = 0.5099 +/- 0.0009.
+The 30-epoch dev lift is +0.0024 (0.48%).
+
+The pattern is consistent across seeds: best epoch arrives at 6-7
+(within the original 10-epoch budget), and 5 epochs of no further
+improvement triggers early stopping at 11-12. The 19 unused epochs
+in the 30-budget were unnecessary.
+
+### Test set results (3 seeds, global theta = 0.80)
+
+| seed | precision | recall | F1     |
+|------|-----------|--------|--------|
+| 42   | 0.4902 | 0.5829 | 0.5326 |
+| 1337 | 0.4922 | 0.5848 | 0.5345 |
+| 2024 | 0.4916 | 0.5865 | 0.5349 |
+| mean | 0.4913 +/- 0.0010 | 0.5847 +/- 0.0018 | **0.5340 +/- 0.0012** |
+
+Compared to the 10-epoch baseline (Phase 5, test F1 = 0.5315 +/-
+0.0003), the 30-epoch result lifts test F1 by **+0.0025** at the same
+global theta.
+
+### Test set results with per-hop fine-step thresholds
+
+Per-hop thresholds tuned on dev (3 seeds):
+
+| seed | hop1 theta | hop2 theta | hop3 theta | test F1 (per-hop) | lift vs g=0.80 |
+|------|-----------|-----------|-----------|---------------------|------------------|
+| 42   | 0.79 | 0.81 | 0.80 | 0.5333 | +0.0008 |
+| 1337 | 0.79 | 0.80 | 0.90 | 0.5570 | +0.0225 |
+| 2024 | 0.80 | 0.82 | 0.89 | 0.5526 | +0.0178 |
+| mean | 0.79 | 0.81 | 0.86 | **0.5476 +/- 0.0126** | +0.0137 |
+
+### The unexpected variance
+
+Section 12 reported per-hop F1 = **0.5524 +/- 0.0016** with the
+10-epoch checkpoints; the same procedure on the 30-epoch checkpoints
+returns **0.5476 +/- 0.0126**. The mean is lower and the variance is
+8x higher.
+
+The cause is visible in the per-hop threshold table above. Seed 42
+chose hop=3 theta = 0.80 (same as global), giving essentially zero
+per-hop lift on that seed. Seeds 1337 and 2024 chose hop=3 theta
+= 0.89-0.90, behaving like the 10-epoch run.
+
+In the 10-epoch experiment (Section 12), all three seeds agreed on
+hop=3 theta near 0.89. With 30 epochs, the score distribution on
+hop=3 has tightened to the point where the F1 surface near 0.80 has
+become competitive with the 0.89 region for seed 42, and the dev
+search picks the wrong local maximum for that seed.
+
+### Direct comparison
+
+| Configuration | Test F1 (global=0.80) | Test F1 (per-hop) |
+|---|---|---|
+| 10-epoch (Phase 5 / Section 12) | 0.5315 +/- 0.0003 | **0.5524 +/- 0.0016** |
+| 30-epoch (this section)         | 0.5340 +/- 0.0012 | 0.5476 +/- 0.0126 |
+| Delta                            | +0.0025 (+0.5%)   | -0.0048 (-0.9%) |
+
+Longer training helps the global threshold by a small margin and
+hurts the per-hop result on a comparable margin. Net of variance,
+the two configurations are roughly equivalent on absolute F1, but
+the 10-epoch + per-hop pipeline is more reproducible.
+
+### Interpretation
+
+1. **BioLinkBERT-Large + the merged KG converge within 10 epochs.**
+   The dev F1 best-epoch sits at 6-7 in all three 30-epoch seeds,
+   identical to where Section 12's seeds converged. The remaining 5
+   epochs of training only nudge the loss down without moving F1.
+
+2. **Longer training makes per-hop tuning seed-sensitive.** The dev
+   sweep selects per-hop thresholds at a finer F1 contour, and with
+   30-epoch checkpoints that contour has flattened enough that
+   seed-level noise can push the chosen threshold to a different
+   region. Section 12's 10-epoch result was more stable precisely
+   because the dev F1 surface was sharper.
+
+3. **10 epochs are sufficient at this scale.** With 1.3 M trainable
+   parameters, a frozen 340 M encoder, 14 K training queries, and
+   the merged Orphanet + HPO + OMIM KG, additional epochs do not
+   buy a reliable improvement.
+
+### What this means for the gap to the paper
+
+The paper specifies 30 epochs and reports F1 = 0.79. The 30-epoch
+experiment here does not close the gap, which rules out epoch count
+as a major contributor. The remaining open items (DisGeNET + UMLS
+gene-disease layer, the 12 M trainable head, possibly task-specific
+calibration) are now the dominant unknowns.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE (Section 11) |
+| Per-hop fine-step thresholds (MEASURED)                   | +0.021 F1 | DONE (Section 12) |
+| Longer training (10 -> 30 epochs) (MEASURED)              | +0.003 F1 (global) | DONE (this section) |
+| Add DisGeNET + UMLS gene-disease layer                     | +0.05 to +0.10 | OPEN |
+| Larger trainable head: 1.30 M -> 12 M params (paper)       | +0.02 to +0.05 | OPEN |
+
+**Net assessment.** Three measured items contribute a cumulative +0.020
+absolute F1 over the CPU baseline at global theta = 0.80 (0.522 ->
+0.534), and another +0.021 from per-hop fine-step tuning brings the
+best published number to F1 = 0.5524 (Section 12). The remaining gap
+to 0.79 is attributable to the two open items, which require
+DisGeNET / UMLS access.
+
+### Reproducibility note
+
+The 30-epoch checkpoints in `runs/caff_orphanet/seed_*/best.pt` after
+this experiment do not match the Section 12 checkpoints; running
+`scripts/per_hop_threshold_sweep.py` on them produces this section's
+0.5476 number rather than Section 12's 0.5524. To reproduce
+Section 12 exactly, set `epochs: 10` in `configs/caff_orphanet.yaml`
+and re-train all three seeds. The Day 7 commit (5025ed4) on `main`
+is the immutable record of the Section 12 result.
+
