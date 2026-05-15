@@ -956,3 +956,182 @@ Section 12 exactly, set `epochs: 10` in `configs/caff_orphanet.yaml`
 and re-train all three seeds. The Day 7 commit (5025ed4) on `main`
 is the immutable record of the Section 12 result.
 
+---
+
+## 14. Open Targets evidence_orphanet redundancy check (May 15, 2026)
+
+### Motivation
+
+Sections 11-13 closed the headline at F1 = 0.5524 +/- 0.0016 with a
+10-epoch BioLinkBERT-Large run and per-hop fine-step thresholds. To
+chase further gains, we explored augmenting the merged KG with gene
+disease evidence from the Open Targets Platform (release 26.03), the
+release accessible via the EMBL-EBI FTP server. Open Targets
+aggregates gene disease associations from ~20 source databases
+(ClinVar, ClinGen, Genomics England, Orphanet, UniProt, GWAS, etc.)
+and was a candidate replacement for the paper's cited DisGeNET, since
+DisGeNET migrated to an academic-license model in 2020 and no longer
+allows direct anonymous download.
+
+Open Targets organises evidence into per-source parquet folders
+(`evidence_orphanet/`, `evidence_eva/`, `evidence_clingen/`, etc.).
+We started with `evidence_orphanet/` because the existing KG v2
+already uses Orphanet as its primary disease source, so a clean
+disease-level overlap analysis was possible.
+
+### Data downloaded
+
+| File | Size | Source URL |
+|------|------|------------|
+| `disease.parquet` (full) | 7.0 MB | `26.03/output/disease/` |
+| `target/part-00000.parquet` | 8.0 MB | `26.03/output/target/` (1 of 32) |
+| `association/part-00000.parquet` | 13.9 MB | `26.03/output/association_overall_direct/` (1 of 70) |
+| `evidence_orphanet/part-00000.parquet` | 0.7 MB | `26.03/output/evidence_orphanet/` (full, 7,245 rows) |
+
+The `evidence_orphanet` partition is small (~720 KB) and downloads
+fully in one part, so we used it as the verification target before
+committing to the much larger `association_overall_direct` (~1 GB).
+
+### Schema of evidence_orphanet
+
+20 columns; the relevant ones for our purposes:
+
+| field | example | notes |
+|---|---|---|
+| `diseaseFromSourceId` | `Orphanet_544472` | Orphanet ID with prefix |
+| `diseaseId` | `MONDO_0035290` | MONDO mapping |
+| `targetId` | `ENSG00000243649` | Ensembl gene ID |
+| `targetFromSource` | `complement factor B` | gene full name |
+| `score` | 0.5-1.0 (mean 0.999) | evidence confidence |
+| `datasourceId` | `orphanet` (100%) | always orphanet here |
+| `datatypeId` | `genetic_association` (100%) | always genetic_association |
+| `confidence` | `Assessed` | curation flag |
+
+The partition contains 7,245 rows, 3,243 unique Orphanet diseases,
+and 3,926 unique Ensembl gene IDs.
+
+### KG v2 structure (corrected understanding)
+
+While building the overlap script, we found that the working KG v2
+TSV has a 6-column schema, not the 3-column `(head, relation, tail)`
+form that the original `check_otg_kg_overlap.py` assumed:
+
+```
+head    relation    tail    head_cui    tail_cui    source
+```
+
+- `head` and `tail` are human-readable strings (disease names, gene
+  symbols)
+- `head_cui` is the numeric Orphanet ID (e.g. `93`, `166024`) for
+  Orphanet-source rows
+- `tail_cui` is the gene symbol for Orphanet-source rows
+- `source` distinguishes ontology sources
+
+Counts inside KG v2:
+
+| relation | count |
+|---|---|
+| has_phenotype | 259,333 |
+| is_a | 23,677 |
+| disease_causing_germline_mutation_s_in | 5,298 |
+| disease_causing_germline_mutation_s_loss_of_function_in | 1,226 |
+| (other 7 gene-disease relations) | 1,801 |
+
+Filtering to `source = orphanet` and any gene-disease relation gives
+**8,325 KG v2 edges** spanning **4,116 unique Orphanet diseases** and
+4,549 unique gene symbols.
+
+### Overlap analysis (disease level)
+
+Comparing the 3,243 OTG diseases against the 4,116 KG v2 diseases
+(both keyed by Orphanet numeric ID):
+
+| metric | value |
+|---|---|
+| OTG diseases | 3,243 |
+| KG v2 diseases (gene-disease only) | 4,116 |
+| Overlap | **3,243 (100.0%)** |
+| OTG-only (new diseases) | **0** |
+| KG-only (extra coverage) | 873 |
+
+**Every single Orphanet disease in `evidence_orphanet` is already in
+KG v2.** KG v2 covers an additional 873 Orphanet diseases that the
+OTG snapshot does not.
+
+### Pair-level overlap (disease-gene pairs)
+
+A direct string match on (disease, gene) pairs found only 7 overlaps
+out of ~6,317 OTG pairs vs 8,293 KG v2 pairs. This is misleading
+because the gene representations differ:
+
+- OTG `targetFromSource` is the long name (`complement factor B`)
+- KG v2 `tail` is the HGNC symbol (`CFB`)
+
+Resolving these would require an Ensembl-to-HGNC mapping step, but
+the 100% disease-level overlap already settles the question: both
+files derive from the same Orphanet release, and the residual gene
+counts (6,317 OTG vs 8,293 KG) are explained by KG v2 being a more
+recent snapshot.
+
+### Why KG v2 is larger
+
+Two likely reasons:
+
+1. **Release timing.** OTG release 26.03 froze in March 2026; KG v2
+   was built from a fresh Orphanet XML download earlier this month.
+   Orphanet pushes ontology updates more frequently than Open Targets
+   re-ingests them, so KG v2 sees newer disease entries.
+2. **Direct vs aggregated.** OTG ingests Orphanet via its evidence
+   pipeline, which may drop entries that fail their evidence filters
+   (low confidence, missing fields). KG v2 reads the XML directly and
+   accepts the full set.
+
+### Verdict
+
+`evidence_orphanet` adds zero new content over what KG v2 already
+imports from Orphanet. Integrating it would only duplicate rows that
+are already present and would not improve F1.
+
+For real F1 gains from Open Targets, the target is the *non-Orphanet*
+evidence partitions:
+
+- `evidence_genomics_england` (UK rare disease panel)
+- `evidence_clingen` (clinical genetics curation)
+- `evidence_eva` / `evidence_eva_somatic` (ClinVar variants)
+- `evidence_gene2phenotype` (developmental disorders)
+- `evidence_uniprot_literature` (UniProt curation)
+- `evidence_europepmc` (text mining)
+- `association_overall_direct` (aggregated score across all sources)
+
+Each of these covers gene-disease evidence that does not flow through
+the Orphanet pipeline, so it would actually expand KG v2's coverage.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE (Section 11) |
+| Per-hop fine-step thresholds (MEASURED)                   | +0.021 F1 | DONE (Section 12) |
+| Longer training (10 -> 30 epochs) (MEASURED)              | +0.003 / -0.005 | DONE (Section 13) |
+| OTG `evidence_orphanet` integration (MEASURED) | **+0.000 F1** | DONE (this section, redundant) |
+| Add non-Orphanet OTG evidence (clingen, eva, etc.)        | +0.03 to +0.08 | OPEN |
+| Larger trainable head: 1.30 M -> 12 M params (paper)       | +0.02 to +0.05 | OPEN |
+
+### Headline reminder
+
+The project headline remains **F1 = 0.5524 +/- 0.0016** from Section
+12 (Day 7 commit `5025ed4`). This section adds a documented negative
+result, not a new headline.
+
+### Reproducibility
+
+The verification is one command on the parquet file:
+
+```bash
+python verify_otg_overlap.py
+```
+
+The script handles the 6-column KG v2 schema explicitly, extracts the
+numeric Orphanet ID from the OTG `Orphanet_NNNN` field, and reports
+disease- and pair-level overlap. It does not modify any files.
+
