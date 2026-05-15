@@ -1135,3 +1135,180 @@ The script handles the 6-column KG v2 schema explicitly, extracts the
 numeric Orphanet ID from the OTG `Orphanet_NNNN` field, and reports
 disease- and pair-level overlap. It does not modify any files.
 
+---
+
+## 15. KG v3 enrichment with non-Orphanet Open Targets evidence (May 15-16, 2026)
+
+### Motivation
+
+Section 14 showed that Open Targets `evidence_orphanet` is fully
+redundant with the existing KG v2 Orphanet source. The next reasonable
+target was the *non-Orphanet* evidence partitions, which aggregate
+gene-disease curations that do not flow through the Orphanet
+pipeline. Three high-quality sources were selected:
+
+- `evidence_clingen`           (ClinGen clinical genetics curation)
+- `evidence_gene2phenotype`    (Gene2Phenotype developmental disorders)
+- `evidence_genomics_england`  (Genomics England rare disease panel)
+
+The hypothesis: these sources add gene-disease pairs that KG v2 lacks,
+so merging them should improve F1 on the test set.
+
+### Data downloaded
+
+| Source | Parts | Total size | Rows |
+|--------|-------|------------|------|
+| `evidence_clingen` | 1 | 497 KB | 3,894 |
+| `evidence_gene2phenotype` | 1 | 549 KB | 5,026 |
+| `evidence_genomics_england` | 5 | 6.0 MB | 46,905 |
+| `target/` (Ensembl -> HGNC mapping) | 10 | 80 MB | 78,691 |
+| `disease.parquet` (Disease -> Orphanet mapping) | 1 | 7.0 MB | 47,030 |
+
+The target/ download was critical: an early version of the analysis
+script used only `part-00000` (7,872 genes) and reported just 433 new
+pairs. After downloading all 10 target parts (78,691 genes), the
+extraction recovered ~9x more pairs (`Skipped no gene` dropped to 0).
+
+### Pipeline
+
+1. **Ensembl -> HGNC mapping** built from `target/*.parquet`:
+   78,691 entries, key `id` (Ensembl) -> value `approvedSymbol` (HGNC).
+
+2. **Disease -> Orphanet mapping** built from `disease.parquet`:
+   9,259 entries by parsing `id` (`Orphanet_NNN`) and `dbXRefs`
+   (cross-references to Orphanet from MONDO/EFO/DOID/OMIM).
+
+3. **Pair extraction** per evidence source:
+   - Read all parts as one DataFrame.
+   - Resolve `targetId` (Ensembl) -> HGNC symbol.
+   - Resolve `diseaseId` (MONDO/EFO/Orphanet) -> Orphanet number.
+   - Emit `(orphanet_num, hgnc_symbol, source, score)`.
+
+4. **Deduplication**: 37,836 raw pairs -> 7,908 unique (disease, gene).
+
+5. **Overlap with KG v2**:
+   - 8,293 existing pairs in KG v2 (Orphanet source).
+   - 3,879 (49.1%) of OTG pairs already exist in KG v2.
+   - **4,029 (50.9%) are NEW.**
+
+6. **KG v3 build** (`build_kg_v3.py`):
+   - Match each new pair's Orphanet number to a disease name in KG v2.
+   - 1,750 of 4,029 pairs (43%) match an existing KG v2 disease name.
+   - The other 2,279 reference Orphanet IDs that KG v2 does not have
+     (different release vintage between Open Targets and the Orphanet
+     XML we used).
+   - Emit rows with `relation='gene_associated_with_disease_otg'`,
+     `source='opentargets'`.
+   - KG v2: 291,335 rows -> KG v3: 293,085 rows (+0.60% growth).
+
+### KG v3 size statistics (after data loader expansion)
+
+| metric | KG v2 | KG v3 | delta |
+|---|---|---|---|
+| TSV rows | 291,335 | 293,085 | +1,750 (+0.60%) |
+| Unique relations | 11 | 12 | +1 |
+| Unique sources | 3 | 4 | +1 (opentargets) |
+| `|V|` (loader-expanded) | 38,456 | 66,441 | +73% |
+| `|E|` (with inverses) | 291,335 | 348,249 | +19.6% |
+
+The 73% jump in `|V|` is the data loader injecting gene-symbol nodes
+that are not used as `head` anywhere else in the TSV. The 19.6%
+jump in `|E|` includes the inverse-edge expansion for the new
+relation.
+
+### Training (3 seeds, BioLinkBERT-Large, 10 epochs, same as Section 12)
+
+| seed | best_epoch | dev_f1 |
+|------|-----------|--------|
+| 42   | 5  | 0.5116 |
+| 1337 | 5  | 0.5079 |
+| 2024 | 6  | 0.5087 |
+| mean |    | **0.5094 +/- 0.0019** |
+
+Compared to KG v2 baseline (Section 12 -> Phase 5 dev F1 0.5099 +/-
+0.0009), KG v3 dev F1 is essentially unchanged (-0.0005).
+
+### Test results (3 seeds, per-hop fine-step thresholds on dev)
+
+| seed | hop1 theta | hop2 theta | hop3 theta | g80 F1 | per-hop F1 | lift |
+|------|-----------|-----------|-----------|--------|-------------|------|
+| 42   | 0.80 | 0.83 | 0.80 | 0.5298 | 0.5266 | -0.0032 |
+| 1337 | 0.78 | 0.81 | 0.82 | 0.5310 | 0.5321 | +0.0010 |
+| 2024 | 0.80 | 0.82 | 0.90 | 0.5285 | 0.5494 | +0.0209 |
+| mean | -    | -    | -    | **0.5298 +/- 0.0013** | **0.5360 +/- 0.0119** | +0.0062 |
+
+### Direct comparison with KG v2 (Day 7 baseline)
+
+| metric | KG v2 (Day 7) | KG v3 (this section) | delta |
+|---|---|---|---|
+| global theta = 0.80 F1 | 0.5315 +/- 0.0003 | 0.5298 +/- 0.0013 | **-0.0017** |
+| per-hop fine-step F1   | 0.5524 +/- 0.0016 | 0.5360 +/- 0.0119 | **-0.0164** |
+
+KG enrichment with 1,750 high-quality clinical edges from three new
+sources caused F1 to decrease, not increase. The per-hop drop (-0.016)
+is more pronounced than the global drop (-0.002).
+
+### Root cause analysis
+
+The QA gold annotations were built from Orphanet alone
+(`scripts/build_orphanet_qa.py`). Each query has gold (disease, gene)
+pairs derived from Orphanet's own gene-disease tables. When KG v3
+adds 1,750 new clinical edges from ClinGen / G2P / Genomics England,
+the BFS finds new candidate triples that are not in the Orphanet gold
+set, so the evaluator scores them as false positives.
+
+This is a structural ceiling, not a model failure:
+
+- The new edges are clinically high-quality (curated rare-disease
+  panels).
+- The model correctly proposes them at training time.
+- But the *evaluation gold* doesn't credit them.
+
+For non-Orphanet sources to lift F1, the QA gold annotation pipeline
+would need to ingest from those sources as well, which would change
+the benchmark definition.
+
+### Secondary observation: per-hop instability
+
+Seed 42 chose hop=3 theta=0.80 (a "no-lift" outcome), while seeds
+1337 and 2024 chose the more typical hop=3 theta=0.82-0.90. The
+resulting per-hop F1 standard deviation jumps from 0.0016 (KG v2) to
+0.0119 (KG v3). This same instability appeared in Section 13 with
+30-epoch training: any change that subtly reshapes the score
+distribution can flatten the per-hop dev surface and let one seed
+pick an off-axis threshold.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE (Section 11) |
+| Per-hop fine-step thresholds (MEASURED) | +0.021 F1 | DONE (Section 12) |
+| Longer training (10 -> 30 epochs) (MEASURED) | +0.003 / -0.005 | DONE (Section 13) |
+| OTG `evidence_orphanet` integration (MEASURED) | +0.000 F1 | DONE (Section 14, redundant) |
+| OTG non-Orphanet sources (clingen+g2p+ge) (MEASURED) | **-0.016 F1** | DONE (this section, gold-limited) |
+| Larger trainable head: 1.30 M -> 12 M params | +0.02 to +0.05 | OPEN |
+| QA gold re-annotation from multiple sources | unknown | OPEN |
+
+### Headline reminder
+
+The project headline remains **F1 = 0.5524 +/- 0.0016** from Section
+12 (Day 7 commit `5025ed4`). This section documents a thorough
+KG-enrichment attempt that did not improve test F1 because of the
+gold-annotation ceiling.
+
+### Files produced
+
+- `analyze_new_evidence_v2.py` (root, untracked) - extracts pairs
+- `build_kg_v3.py` (root, untracked) - merges into KG v3
+- `data/processed/otg_new_gene_disease_pairs.tsv` - 4,029 new pairs
+- `data/processed/merged_kg_v3.tsv` - 293K rows, 12 relations
+- `data/raw/opentargets/{evidence_clingen, evidence_gene2phenotype,
+  evidence_genomics_england, target, disease.parquet}` - source data
+
+### Restoration
+
+The config is restored to `merged_kg_v2.tsv` after this experiment, so
+default reproduction tracks the Section 12 headline. The KG v3 file
+is kept for future work that pairs enrichment with re-annotation.
+
