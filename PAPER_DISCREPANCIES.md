@@ -1312,3 +1312,132 @@ The config is restored to `merged_kg_v2.tsv` after this experiment, so
 default reproduction tracks the Section 12 headline. The KG v3 file
 is kept for future work that pairs enrichment with re-annotation.
 
+---
+
+## 16. QA re-annotation from KG v3 - sampling-limited result (May 16, 2026)
+
+### Motivation
+
+Section 15 showed that adding 1,750 ClinGen / Gene2Phenotype /
+Genomics England edges to KG v2 did not improve F1 because the QA
+gold annotations were generated only from Orphanet relations. The
+natural follow-up was: regenerate QA from KG v3, so the new
+gene-disease edges become candidate gold answers, then re-train.
+
+### Pipeline
+
+1. Backed up the original QA splits to
+   `data/processed/backup_kgv2/{train,dev,test}.json`.
+2. Rebuilt KG v3 cleanly. (The first build had a Unicode print
+   crashing before `to_csv`, so a later `build_kg.py` run had silently
+   overwritten the file with a different KG variant. Patching the
+   print and rerunning produced the correct 293,085-row file with
+   1,750 `gene_associated_with_disease_otg` edges.)
+3. Regenerated QA with `build_orphanet_qa.py --kg merged_kg_v3.tsv
+   --n 20000 --seed 42`. The script does a uniform-hop BFS sample
+   from random head entities and records the final-edge relation as
+   metadata.
+
+### What the QA pool actually looks like
+
+Across all 20,000 records:
+
+| relation (final edge of the sampled path) | count | share |
+|---|---|---|
+| `is_a` | 16,723 | 83.6% |
+| `has_phenotype` | 2,831 | 14.2% |
+| `disease_causing_germline_mutation_s_in` | 244 | 1.2% |
+| `disease_causing_germline_mutation_s_loss_of_function_in` | 65 | 0.3% |
+| **`gene_associated_with_disease_otg`** | **46** | **0.23%** |
+| `major_susceptibility_factor_in` | 29 | 0.15% |
+| (other gene-disease relations) | ~85 | 0.4% |
+
+**Only 46 of 20,000 records (0.23%) terminate on an OTG-added edge.**
+
+### Why so few
+
+This is structural, not a bug. KG v3 has 293,085 edges. Of those,
+1,750 (0.60%) are the new OTG edges. A uniform BFS sample over heads
+sees that 0.60% ratio diluted further because:
+
+- `is_a` and `has_phenotype` dominate the graph (282,010 edges
+  combined, 96% of the total). Both have far higher branching factor
+  than the gene-disease relations.
+- The OTG relation only attaches to 875 distinct disease nodes (1,750
+  edges over 1,750 disease-gene pairs, of which 875 are unique
+  diseases). Random head selection lands on them rarely.
+- Gene-disease relations as a whole are only ~3.1% of all sampled
+  paths (618 records). OTG's 46 = 7.4% of *that* gene-disease bucket,
+  which is consistent with its share of gene-disease edges in KG v3
+  (1,750 / 8,325 + 1,750 ≈ 17%, lower in QA because BFS prefers the
+  denser Orphanet-source edges first).
+
+### Why this can't improve F1 meaningfully
+
+The arithmetic ceiling: 46 records out of 20,000. Even with perfect
+recall on those records, the upper bound contribution to test F1 is
+~0.23% (and far less in practice since the model would have to also
+maintain precision elsewhere). Day 7's measured per-hop F1 standard
+deviation across seeds is 0.0016; any lift below ~0.005 is invisible
+under that noise.
+
+Equally important: regenerating QA from a *different* KG produces a
+different test set, so any score on it is not directly comparable to
+the headline F1 = 0.5524 from Section 12. A fair comparison would
+need: same QA seed records, same test split, and only the gold pool
+expanded - which is a heavier change to the sampler than time
+allowed today.
+
+### What would actually work (open future work)
+
+The right next step, if F1 lift via KG enrichment is desired, is a
+**stratified QA sampler**:
+
+- Force a target share of paths to terminate on gene-disease relations
+  (e.g. 30% instead of the natural 3%).
+- Within that bucket, force a target share to terminate on OTG-added
+  edges proportional to the new content's clinical value.
+- Keep the same heads as the baseline QA so the test split is
+  comparable.
+
+This is a 1-2 day implementation. It is documented here so future
+work can pick it up.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE (Section 11) |
+| Per-hop fine-step thresholds (MEASURED) | +0.021 F1 | DONE (Section 12) |
+| Longer training (10 -> 30 epochs) (MEASURED) | +0.003 / -0.005 | DONE (Section 13) |
+| OTG `evidence_orphanet` integration (MEASURED) | +0.000 F1 | DONE (Section 14) |
+| OTG non-Orphanet sources (clingen+g2p+ge) (MEASURED) | -0.016 F1 | DONE (Section 15) |
+| QA re-annotation from KG v3 (MEASURED) | **bounded < 0.005** | DONE (this section) |
+| Stratified QA sampling | unknown | OPEN |
+| Larger trainable head: 1.30 M -> 12 M params | +0.02 to +0.05 | OPEN |
+
+### Headline reminder
+
+The project headline remains **F1 = 0.5524 +/- 0.0016** from Section
+12 (Day 7 commit `5025ed4`). After this experiment, the working tree
+was restored:
+
+- `data/processed/{train,dev,test}.json` copied back from
+  `data/processed/backup_kgv2/` (the Section 12 baseline splits).
+- `configs/caff_orphanet.yaml` still points at `merged_kg_v2.tsv`.
+- KG v3 file is kept at `data/processed/merged_kg_v3.tsv` for future
+  stratified-sampling work.
+
+### Files involved
+
+- `build_kg_v3.py` (root, untracked) - rebuilds KG v3 from
+  `otg_new_gene_disease_pairs.tsv`. The published Section 15 result
+  depends on this file.
+- `data/processed/otg_new_gene_disease_pairs.tsv` - 4,029 unique
+  (Orphanet_id, HGNC_symbol, source, score) tuples extracted from
+  three OTG evidence partitions.
+- `data/processed/merged_kg_v3.tsv` - KG v2 + 1,750 OTG edges, kept
+  for future work.
+- `data/processed/backup_kgv2/` - the Section 12 baseline QA splits,
+  kept so the headline is reproducible without rerunning the sampler.
+
