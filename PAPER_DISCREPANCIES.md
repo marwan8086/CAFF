@@ -1441,3 +1441,179 @@ was restored:
 - `data/processed/backup_kgv2/` - the Section 12 baseline QA splits,
   kept so the headline is reproducible without rerunning the sampler.
 
+---
+
+## 17. Stratified QA sampling - catastrophic class imbalance (May 16, 2026)
+
+### Motivation
+
+Section 16 ended with a clear next step: a stratified QA sampler that
+forces the relation distribution toward gene-disease instead of letting
+`is_a` dominate (84% of natural BFS samples). The expectation was that
+forcing ~15% of records to terminate on the new `gene_associated_with_
+disease_otg` edges, plus ~35% on Orphanet gene-disease edges, would
+finally let the model exercise the KG enrichment.
+
+### Implementation
+
+Wrote `scripts/build_orphanet_qa_stratified.py`. The script:
+
+1. Pre-buckets KG v3 edges by relation family:
+   - `otg` = 1,750 edges (the new opentargets ones)
+   - `gene_disease_orphanet` = 8,325 (the existing Orphanet gene-disease)
+   - `has_phenotype` = 259,333
+   - `is_a` = 23,677
+
+2. Computes target counts for each (bucket, hop) cell, using:
+   - Bucket shares: 15% otg, 35% gene_disease_orphanet, 35%
+     has_phenotype, 15% is_a.
+   - Hop shares: 33% each for hop=1, 2, 3.
+
+3. For each cell, picks random edges from that bucket and constructs a
+   path of exactly the requested hop length whose final edge is in the
+   target bucket.
+
+### Output of the sampler
+
+The sampler itself worked perfectly:
+
+| relation (final edge) | count | share |
+|---|---|---|
+| `has_phenotype` | 6,980 | 34.90% |
+| `disease_causing_germline_mutation_s_in` | 3,517 | 17.59% |
+| `is_a` | 3,019 | 15.10% |
+| **`gene_associated_with_disease_otg`** | **3,000** | **15.00%** |
+| `major_susceptibility_factor_in` | 1,078 | 5.39% |
+| (other gene-disease relations) | 1,406 | 7.03% |
+
+OTG share jumped from 0.23% (Section 16) to 15.00%, a 65x increase.
+This part was the obvious win and the reason for trying.
+
+### Training crash
+
+Training on KG v3 + the stratified QA splits, with everything else
+matching Section 12 (BioLinkBERT-Large, 10 epochs, seed 42):
+
+| metric | KG v2 + QA v2 (Day 7) | KG v3 + QA stratified |
+|---|---|---|
+| Train triple instances | 503,174 | **2,227,418** (4.4x more) |
+| Train class balance | 6.23% positive | **0.88% positive** (7x fewer) |
+| Dev class balance | 6.23% positive | 0.90% positive |
+| Best dev F1 | 0.5099 | **0.1447** (-71%) |
+| Best epoch | 8 | 10 (still improving but flat) |
+
+The model collapsed. Dev F1 reached only 0.1447 at epoch 10, vs the
+baseline's 0.5099. This is not noise; this is a fundamental imbalance
+shift.
+
+### Root cause
+
+The bug is in the interaction between the new sampler and the trainer,
+not in either alone.
+
+The original `build_orphanet_qa.py` samples records by picking a
+**random head** with outgoing edges and walking outward. Most picked
+heads sit at the periphery of the graph (low out-degree, short BFS
+frontiers), so each record generates a small number of candidate
+triples for the trainer's local BFS expansion. Average: ~25 triples
+per record (503,174 / 20,000).
+
+The stratified sampler instead picks records by **the target final
+edge**, then walks backward to a seed. For an OTG or gene-disease
+final edge, that means the seed is often a *core ontology node*
+(grandparent of a disease via `is_a` chains). Core ontology nodes have
+huge out-degree, so the trainer's local BFS expansion finds enormous
+neighbourhoods. Average: ~111 triples per record (2,227,418 / 20,000).
+
+Each record still has only 1-2 gold answers, so a 4x explosion in
+candidate triples drives positive density from 6.23% down to 0.88%.
+The binary classifier is now training on a 1:113 imbalance instead of
+the original 1:15. Standard binary cross-entropy with no rebalancing
+collapses; the model learns to predict "no" everywhere.
+
+### What was tried before stopping
+
+- Confirmed the bug at the end of epoch 1 (dev_f1 = 0.108, well
+  outside the noise band).
+- Let training run to epoch 10 to confirm the model would not recover
+  with more updates. It didn't (dev_f1 climbed to 0.145 and stayed
+  there).
+- **Did not run seeds 1337 and 2024.** Each would have cost ~60
+  minutes for a result that the seed-42 outcome already settles. The
+  effect is structural and seed-independent: 0.88% class balance is a
+  property of the (sampler, KG, trainer-BFS) tuple, not the random
+  seed.
+
+### What the right fix looks like (open future work)
+
+Three coordinated changes, not one:
+
+1. **Stratified sampler with seed-side stratification.** Pick the seed
+   first, by sampling from a curated pool of disease nodes (not
+   ontology cores), then pick the target relation among that seed's
+   outgoing options. This keeps neighbourhood sizes consistent with
+   the baseline.
+
+2. **Trainer loss rebalancing.** Add a `pos_weight` argument to the
+   binary cross-entropy that is automatically derived from the
+   training class balance. This is a one-line change but conceptually
+   important: it lets the trainer absorb sampler changes without
+   collapsing.
+
+3. **Comparable test split.** Keep the original test seeds fixed and
+   only expand the gold set for those seeds. This makes the new F1
+   directly comparable to the headline.
+
+Estimated effort: 2-3 days of careful work, not one session.
+
+### Cumulative gap-composition update
+
+| Source of difference | Estimated effect | Status |
+|---|---|---|
+| Encoder: bert-base-uncased -> BioLinkBERT-Large (MEASURED) | +0.016 F1 | DONE (Section 11) |
+| Per-hop fine-step thresholds (MEASURED) | +0.021 F1 | DONE (Section 12) |
+| Longer training (10 -> 30 epochs) (MEASURED) | +0.003 / -0.005 | DONE (Section 13) |
+| OTG `evidence_orphanet` integration (MEASURED) | +0.000 F1 | DONE (Section 14) |
+| OTG non-Orphanet sources (clingen+g2p+ge) (MEASURED) | -0.016 F1 | DONE (Section 15) |
+| Natural QA re-annotation from KG v3 (MEASURED) | bounded < 0.005 | DONE (Section 16) |
+| Stratified QA sampling alone (MEASURED) | **-0.365 F1 (broken)** | DONE (this section) |
+| Stratified sampler + loss rebalancing + seed-fixed test | unknown | OPEN |
+| Larger trainable head: 1.30 M -> 12 M params | +0.02 to +0.05 | OPEN |
+
+### Headline reminder
+
+The project headline remains **F1 = 0.5524 +/- 0.0016** from Section
+12 (Day 7 commit `5025ed4`). After this experiment the working tree
+was restored:
+
+- `data/processed/{train,dev,test}.json` copied back from
+  `data/processed/backup_kgv2/` (Section 12 baseline splits).
+- `configs/caff_orphanet.yaml` `kg_path` set back to
+  `merged_kg_v2.tsv`.
+- Caches cleared so the next run rebuilds from the restored config.
+
+### Files involved
+
+- `scripts/build_orphanet_qa_stratified.py` - the new sampler, kept
+  so the structural finding can be reproduced.
+- `gpu_kgv3_strat_seed42_PRESERVED.log` (untracked) - the crashed
+  training log.
+- KG v3 file and OTG-derived pair file are unchanged from Section 15.
+
+### What we now know with confidence
+
+Three sequential attempts at improving over the Section 12 headline
+through KG / QA changes:
+
+1. KG enrichment alone (Section 15): -0.016 F1.
+2. KG enrichment plus natural QA re-annotation (Section 16): no
+   measurable change because OTG share fell to 0.23%.
+3. KG enrichment plus stratified QA re-annotation (this section):
+   -0.37 F1 because the trainer-side class balance shifts under the
+   new sampler.
+
+This is enough to publish a clean characterisation in the paper: the
+F1 ceiling for this evaluation framework is not the KG, and it is not
+the QA pool size; it is the *coupling* between sampler choice and
+training-loss design. Future work on this dataset must touch both.
+
