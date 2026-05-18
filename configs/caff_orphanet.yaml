@@ -1,5 +1,5 @@
 ﻿config:
-  d: 768
+  d: 1024
   rho: 16
   L: 3
   theta: 0.80
@@ -20,7 +20,7 @@
   grad_clip: 1.0
   early_stop_patience: 5
   early_stop_metric: f1
-  encoder_name: bert-base-uncased   # CPU-friendly; switch to BioLinkBERT for GPU
+  encoder_name: michiyasunaga/BioLinkBERT-large
   encoder_frozen: true
   kg_path:    data/processed/merged_kg_v2.tsv
   train_path: data/processed/train.json
@@ -40,6 +40,26 @@ ablation:
   use_freqcap: true
   csv_pool: mean
   gate_activation: sigmoid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
