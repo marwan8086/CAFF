@@ -2626,3 +2626,125 @@ python scripts/per_hop_threshold_sweep.py --config configs/caff_orphanet.yaml --
 # (repeat sweep for 1337, 2024)
 python scripts/apply_hc3_fix.py --revert
 ```
+---
+
+## Section 24: Architecture ablation (DepthBilinear vs Full CAFF): CSV+DBM+DC contribute a real, large gain, and they work mainly by improving calibration
+
+**Status:** Positive result. The context-aware components (CSV + DBM +
+DepthContrastive) provide a substantial, reproducible test-F1 gain over
+a stripped depth-bilinear baseline. Measured across 3 seeds in one
+environment.
+**Date:** 2026-05-26 (Day 14, continued).
+**Environment:** NVIDIA Studio Driver 596.36, RTX 4060, fp16, effective
+batch 256, deterministic. DepthBilinear and Full were both run in this
+session; Full also reproduces the Day 7 headline exactly.
+
+### 24.1 Setup
+
+DepthBilinear is the stripped baseline: `use_csv=False, use_dbm=False,
+use_dc=False, use_hc3=False, use_freqcap=True`. Everything else (KG, QA
+split, encoder, optimizer, schedule, effective batch, steps/epoch=648)
+is identical to the headline Full CAFF. This isolates the value of the
+context-aware stack (CSV + DBM + DepthContrastive). HC3 is off in both
+arms because Sections 22-23 already showed it is inert.
+
+### 24.2 Headline comparison (per-hop thresholds, test set)
+
+| seed | DepthBilinear | Full CAFF |
+|-----:|--------------:|----------:|
+| 42   | 0.4915        | 0.5514    |
+| 1337 | 0.5104        | 0.5515    |
+| 2024 | 0.4879        | 0.5542    |
+| mean | 0.4966 +/- 0.0121 | 0.5524 +/- 0.0016 |
+
+Per-hop test-F1 gain from the context-aware stack: **+0.0558**
+(about 5.6 F1 points). The Full model is also far more stable across
+seeds (std 0.0016 vs 0.0121).
+
+### 24.3 The dev signal is misleading
+
+On dev F1, the baseline looks BETTER than Full:
+
+| | DepthBilinear dev_f1 | Full dev_f1 |
+|-|---------------------:|------------:|
+| seed 42   | 0.5129 | 0.5107 |
+| seed 1337 | 0.5138 | 0.5099 |
+| seed 2024 | 0.5137 | 0.5090 |
+| mean      | 0.5135 | 0.5099 |
+
+DepthBilinear converges fast (best epoch 2-4) and posts a higher dev F1
+and higher dev MAP (about 0.674 vs 0.632). If we had trusted dev alone,
+we would have wrongly concluded the context stack hurts. Held-out test
+reverses this completely. This is a concrete reminder that dev F1 at a
+single global threshold is not a safe proxy for the per-hop test metric.
+
+### 24.4 Mechanism: the gain is largely calibration
+
+To separate representation quality from calibration, we also evaluate at
+a single shared threshold (global theta=0.80, the same value for both
+models):
+
+| metric | DepthBilinear | Full CAFF | gain |
+|--------|--------------:|----------:|-----:|
+| test F1, global theta=0.80 | 0.5250 +/- 0.0050 | 0.5315 +/- 0.0003 | +0.0066 |
+| test F1, per-hop thresholds | 0.4966 +/- 0.0121 | 0.5524 +/- 0.0016 | +0.0558 |
+
+At a shared threshold the gain is small but consistent (+0.0066): the
+context stack does produce a modestly better raw score function. The
+large remainder of the headline gain comes from calibration. The
+baseline's dev-tuned per-hop thresholds are erratic and do not transfer:
+
+```
+DepthBilinear per-hop thetas:  hop1 = 0.91 / 0.87 / 0.91   (very high, unstable)
+                               hop3 = 0.63 / 0.69 / 0.63   (low)
+Full CAFF per-hop thetas:      hop1 ~ 0.78, hop2 ~ 0.82, hop3 ~ 0.89  (smooth, monotone)
+```
+
+For DepthBilinear, per-hop thresholds tuned on dev actually HURT test F1
+(per-hop is below the global-theta number by 0.02 to 0.03). For Full,
+per-hop thresholds HELP (+0.02 over global theta, Section 12). So the
+context-aware stack produces scores whose per-hop distribution is stable
+between dev and test; the bare baseline does not.
+
+### 24.5 Interpretation
+
+The CSV+DBM+DC stack contributes value through two distinct channels:
+1. A small direct improvement in the raw score function (+0.0066 at a
+   shared threshold).
+2. A much larger improvement in per-hop calibration, which is what makes
+   the headline per-hop thresholding work and yields the full +0.0558.
+
+Both are legitimate. The honest framing for the paper is: the
+context-aware components improve held-out F1 by +0.056 under the
+project's per-hop protocol, and a controlled shared-threshold check
+attributes most of that to better cross-split calibration rather than a
+large jump in raw ranking power (dev MAP is actually higher for the
+baseline).
+
+### 24.6 The complete ablation picture
+
+Combining with Sections 22-23:
+
+| component | effect on test F1 | status |
+|-----------|------------------:|--------|
+| CSV + DBM + DC | +0.056 (per-hop) / +0.007 (global theta) | real, large |
+| per-hop calibration (Section 12) | +0.020 on Full | real |
+| HC3 (as implemented) | 0.000 | inert (Sections 22-23) |
+| HC3 cross-query variant (Section 23) | -0.001 (neutral) | does not help |
+
+The headline F1 = 0.5524 +/- 0.0016 is driven by the context-aware
+architecture plus per-hop calibration. HC3 contributes nothing on this
+data. This is the accurate decomposition of where the performance comes
+from.
+
+### 24.7 Reproduction
+
+```
+for s in 42 1337 2024; do
+  python train.py --config configs/depthbilinear.yaml --seed $s
+  python scripts/per_hop_threshold_sweep.py --config configs/depthbilinear.yaml --checkpoint runs/depthbilinear/seed_$s/best.pt
+done
+# Compare against runs/caff_orphanet/seed_* (Full, headline)
+```
+
+DepthBilinear checkpoints are under `runs/depthbilinear/seed_{42,1337,2024}`.
