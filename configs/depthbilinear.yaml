@@ -1,63 +1,60 @@
-# ─────────────────────────────────────────────────────────────────
-# DepthBilinear baseline — paper baseline B5.
+# ----------------------------------------------------------------------
+# DepthBilinear baseline (CAFF with all context components disabled).
 #
-# Depth-stratified bilinear scorer (corrects PCE) without context
-# conditioning. CAFF reduces to this when use_csv = use_dbm = false.
+# CAFF reduces to a depth-stratified bilinear scorer when
+# use_csv = use_dbm = false. This is the strongest context-agnostic
+# baseline: it still corrects per-depth scoring (depth-specific bias
+# and the A_l B_l^T term) but has no access to the previously retained
+# set, so it cannot perform context-aware filtering.
 #
-# Expected (paper Table 3): PubMedQA Acc = 76.9, MAP = 0.672
-# Expected (paper Table 10): JSD = 0.00 bits (CBE signature)
+# Every field under `config:` is IDENTICAL to configs/caff_orphanet.yaml
+# (the project headline). Only the `ablation:` block differs, so any
+# F1 difference is attributable solely to the disabled components.
 #
-# This is the strongest depth-stratified baseline against which
-# all CAFF improvements are measured.
-# ─────────────────────────────────────────────────────────────────
+# Threshold: trained with theta=0.80, then evaluated with the same
+# per-hop fine-step sweep used for the headline (Section 12 method).
+# ----------------------------------------------------------------------
 
 config:
-  d: 768
+  d: 1024
   rho: 16
   L: 3
-  theta: 0.50
+  theta: 0.80
   K_r: 20
-
-  gamma_C: 0.25       # unused (use_hc3=false, use_dc=false)
+  gamma_C: 0.25
   gamma_D: 0.20
-  lambda_C: 0.0       # ← HC3 off
-  lambda_D: 0.0       # ← DC  off
-
-  hc3_buffer_size: 1000
-  hc3_negatives_per_anchor: 8
-  hc3_buffer_refresh_steps: 500
-
+  lambda_C: 0.35
+  lambda_D: 0.40
+  hc3_buffer_size: 200
+  hc3_negatives_per_anchor: 4
+  hc3_buffer_refresh_steps: 100
   lr: 3.0e-4
   lr_min: 1.0e-5
   weight_decay: 1.0e-2
   batch_size: 256
-  epochs: 30
-  warmup_epochs: 2
+  epochs: 10
+  warmup_epochs: 1
   grad_clip: 1.0
   early_stop_patience: 5
   early_stop_metric: f1
-
   encoder_name: michiyasunaga/BioLinkBERT-large
   encoder_frozen: true
-
-  kg_path:    data/processed/merged_kg.tsv
+  kg_path:    data/processed/merged_kg_v2.tsv
   train_path: data/processed/train.json
   dev_path:   data/processed/dev.json
   test_path:  data/processed/test.json
-
+  min_relation_freq: 50
   seed: 42
   deterministic: true
-
   micro_batch_size: 256
   grad_accum_steps: 1
   mixed_precision: "no"
 
-# Strip away both context conditioning and contrastive losses
 ablation:
-  use_csv: false      # ← z_{ℓ-1} ≡ 0
-  use_dbm: false      # ← Δ_ℓ ≡ 0
-  use_hc3: false      # ← redundant with lambda_C=0
-  use_dc: false       # ← redundant with lambda_D=0
-  use_freqcap: true
+  use_csv: false        # z_{l-1} = 0  (no contextual summary)
+  use_dbm: false        # Delta_l = 0  (no dynamic modulation)
+  use_hc3: false        # lambda_C forced to 0 by train.py hook
+  use_dc: false         # lambda_D forced to 0 by train.py hook
+  use_freqcap: true     # keep BFS candidate cap (Eq. 13)
   csv_pool: mean
   gate_activation: sigmoid

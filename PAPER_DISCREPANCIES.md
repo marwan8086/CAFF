@@ -2354,3 +2354,275 @@ fine-step thresholding contribution. Section 12's grid search is
 not merely a useful heuristic - it provably reaches the
 data-determined calibration optimum.
 
+---
+
+## Section 22: HC3 loss produces zero gradient on KG-derived QA (Full CAFF == CAFF-NoHC3)
+
+**Status:** Negative result, confirmed empirically at two levels (data + model).
+**Date:** 2026-05-24 (Day 14).
+**Commit context:** HEAD = 2daf05f. Ablation configs `configs/depthbilinear.yaml`
+and `configs/caff_no_hc3.yaml` rebuilt to match `configs/caff_orphanet.yaml`
+exactly except for the ablation flags.
+
+### 22.1 What we set out to measure
+
+To produce a real architecture ablation (CSV + DBM + HC3 vs the
+context-agnostic baseline), we trained CAFF-NoHC3 (`use_hc3: false`,
+all else identical to the headline Full CAFF) on the same KG, the same
+20K QA split, the same seed, and the same GPU environment
+(BioLinkBERT-Large, RTX 4060, fp16, effective batch 256).
+
+### 22.2 The observation
+
+Full CAFF and CAFF-NoHC3, trained from the same seed with everything
+identical except the HC3 flag, produced byte-identical model weights:
+
+```
+max weight diff (Full vs NoHC3) = 0.0   (across ALL parameters)
+```
+
+Per-epoch dev metrics were identical at every epoch:
+
+| epoch | Full dev_f1 | NoHC3 dev_f1 |
+|------:|------------:|-------------:|
+| 4     | 0.5092      | 0.5092       |
+| 6     | 0.5106      | 0.5106       |
+| 8     | 0.5107      | 0.5107       |
+| 10    | 0.5101      | 0.5101       |
+
+Best epoch = 8, dev_f1 = 0.5107 for both. The only difference was the
+logged training loss, because the HC3 term is added to the reported
+total even though it does not affect the gradient:
+
+```
+Full  epoch 1: train_loss = 0.020623 = bce(0.017956) + 0.40*dc(0.003306) + 0.35*hc3(0.003841)
+NoHC3 epoch 1: train_loss = 0.019278 = bce(0.017956) + 0.40*dc(0.003306)
+train_bce, train_dc, train_hc3 are IDENTICAL across the two runs.
+```
+
+So HC3 is computed and added to the scalar loss with lambda_C = 0.35,
+yet it changes no weight. Its gradient with respect to the model
+parameters is exactly zero.
+
+### 22.3 Diagnosis, level 1 (data): the miner is NOT starved
+
+`scripts/probe_hc3_keys.py` (data-only, no model) checked whether the
+HC3 miner can even find triplets. The miner pairs a positive anchor
+with negatives sharing the same key (query_id, relation, hop):
+
+```
+distinct keys                       : 47,504
+keys with BOTH label 0 and 1        : 13,443
+positive anchors total              : 29,556
+positive anchors with same-key neg  : 15,271  (51.67%)
+```
+
+So 51.67% of positive anchors do have a same-key negative available.
+HC3 is NOT failing for lack of triplets. (Hypothesis A rejected.)
+
+### 22.4 Diagnosis, level 2 (model): identical context => identical score
+
+`scripts/probe_hc3_model.py` loaded the trained checkpoint and
+replicated the exact scoring path used in training
+(`model.get_hop_W_ctx` -> `relation_cache.get_batch` ->
+`scorer.score_candidates`). For 20 real same-key (positive, negative)
+pairs drawn from the same (query_id, hop) group:
+
+```
+mean |s_pos - s_neg|    : 0.000e+00
+max  |s_pos - s_neg|    : 0.000e+00
+HC3 loss value          : 0.250000   (= margin gamma_C exactly)
+requires_grad           : True
+total |grad| sum        : 0.000000e+00
+params with grad > 0    : 0
+```
+
+The positive and negative receive identical scores, so
+`L_HC3 = relu(s_neg - s_pos + gamma_C) = relu(gamma_C)` is the constant
+margin, and its gradient is exactly zero.
+
+### 22.5 Root cause
+
+The causal chain is:
+
+1. The HC3 miner pairs instances with the same key
+   (query_id, relation, hop).
+2. The trainer groups instances by (query_id, hop) via
+   `iter_by_query_hop`, and assigns ONE teacher-forced z_prev to the
+   whole group.
+3. A positive anchor and its same-key negative therefore live in the
+   same group and share the same z_prev.
+4. They also share the same query embedding q (same query_id) and the
+   same relation embedding E_r (the key fixes the relation).
+5. The scorer is a deterministic function of (W_ctx(z), v, q, E_r), so
+   it returns an identical score for the positive and the negative.
+6. relu(s_neg - s_pos + margin) collapses to the constant margin;
+   because s_pos and s_neg have the same derivative w.r.t. every
+   parameter, the gradient is exactly zero.
+
+This is a design-data mismatch, not a backpropagation bug: the HC3
+loss code is mathematically correct, but the contrast it requires
+("the same triple under a DIFFERENT retained context") does not exist
+in this dataset, because the gold-labeling scheme fixes one context
+per (query, hop).
+
+### 22.6 Consequence
+
+On this KG-derived QA data, HC3 contributes nothing: Full CAFF is
+identical to CAFF-NoHC3 at the level of trained weights. Any claim
+that the HC3 loss improves results is therefore unsupported here. The
+project's reproducible headline (F1 = 0.5524 +/- 0.0016) is a
+CSV+DBM+DC result; HC3 is inert.
+
+### 22.7 Reproduction
+
+```
+# 1. Train both variants from the same seed
+python train.py --config configs/caff_orphanet.yaml --seed 42   # Full
+python train.py --config configs/caff_no_hc3.yaml  --seed 42    # NoHC3
+
+# 2. Confirm identical weights
+python -c "import torch; a=torch.load('runs/caff_orphanet/seed_42/best.pt',map_location='cpu',weights_only=False)['model']; b=torch.load('runs/caff_no_hc3/seed_42/best.pt',map_location='cpu',weights_only=False)['model']; print('max diff', max((a[k]-b[k]).abs().max().item() for k in a if k in b))"
+
+# 3. Data-level probe (miner is not starved)
+python scripts/probe_hc3_keys.py --config configs/caff_orphanet.yaml
+
+# 4. Model-level probe (identical scores, zero gradient)
+python scripts/probe_hc3_model.py --checkpoint runs/caff_orphanet/seed_42/best.pt --device cuda
+```
+
+### 22.8 Next step (separate section to follow)
+
+A fix is attempted in a subsequent section: drawing HC3 negatives from
+DIFFERENT (query, hop) groups so the positive and negative carry
+genuinely different z_prev, restoring a non-zero contrast. That
+attempt and its measured effect on F1 (positive or negative) are
+documented separately, per the principle that every attempt is
+recorded.
+---
+
+## Section 23: Cross-query contrastive fix for HC3 activates the gradient but does not improve the headline
+
+**Status:** Attempted fix for the Section 22 defect. Measured across 3
+seeds in a single environment. Net effect on held-out test F1: neutral
+(within noise), with higher variance. Code reverted to original after
+measurement.
+**Date:** 2026-05-25 (Day 14, continued).
+**Environment:** NVIDIA Studio Driver 596.36, RTX 4060, fp16,
+effective batch 256, deterministic. Both arms (Original and the fixed
+variant) were trained and evaluated in this same session, so the
+comparison is free of cross-session confounds.
+
+### 23.1 Motivation
+
+Section 22 showed that the HC3 loss is inert: a positive anchor and its
+same-(query_id, relation, hop) negative share one teacher-forced
+z_prev, so they receive identical scores and the loss has zero
+gradient. We attempted the natural fix: draw the negative from a
+DIFFERENT query that shares the same (relation, hop), so it carries a
+genuinely different z_prev.
+
+### 23.2 Honesty note on what this variant is
+
+Because the cross-query negative changes BOTH the query embedding q AND
+the context z (not just z), this is NOT the paper's HC3 ("the same
+triple under a different retained context"). It is a cross-query
+contrastive variant. We label it as such throughout and do not claim
+it as a working instance of HC3.
+
+### 23.3 The three edits (applied, then reverted)
+
+1. `caff/miners.py` `_rebuild_index`: index by (relation, hop) instead
+   of (query_id, relation, hop).
+2. `caff/miners.py` `get_negatives_for`: keep label=0 negatives from a
+   DIFFERENT query at hop >= 2 (teacher-forced z is zero at hop 1, so
+   it offers no contrast there).
+3. `caff/trainer.py` `_score_hc3_instance`: score on pre-sigmoid logits
+   (`score_logits`) instead of post-sigmoid probabilities. A probe
+   showed the contrast is about 3x stronger on logits because the
+   sigmoid saturates near 1.0.
+
+### 23.4 Pre-training probe (no retraining)
+
+`scripts/probe_hc3_fix.py` simulated the fix on the trained checkpoint.
+For 13 cross-query (pos, neg) pairs at hop >= 2:
+
+```
+mode score_candidates (sigmoid): mean|s_pos-s_neg|=0.225, total|grad|=45.3
+mode score_logits   (pre-sigmoid): mean|s_pos-s_neg|=1.552, total|grad|=142.1
+mean |z_pos - z_neg|max = 0.171  (contexts genuinely differ)
+```
+
+So the fix produces a real gradient (vs exactly 0 before), and the
+logits path is the stronger signal.
+
+### 23.5 Effect on training
+
+With the fix applied, the fixed model's weights diverged from CAFF-NoHC3
+(max weight diff = 0.499, versus 0.0 for the original inert HC3),
+confirming HC3 now affects optimization. Dev F1 rose consistently
+across all three seeds:
+
+| seed | Original dev_f1 | Fixed dev_f1 | delta |
+|-----:|----------------:|-------------:|------:|
+| 42   | 0.5107          | 0.5216       | +0.0109 |
+| 1337 | 0.5099          | 0.5258       | +0.0159 |
+| 2024 | 0.5090          | 0.5236       | +0.0146 |
+| mean | 0.5099          | 0.5237       | +0.0138 |
+
+### 23.6 Effect on held-out test F1 (per-hop thresholds)
+
+Using the same per-hop threshold sweep as the headline (Section 12),
+evaluated on the held-out test set:
+
+| seed | Original test F1 | Fixed test F1 | delta |
+|-----:|-----------------:|--------------:|------:|
+| 42   | 0.5514           | 0.5463        | -0.0051 |
+| 1337 | 0.5515           | 0.5542        | +0.0027 |
+| 2024 | 0.5542           | 0.5529        | -0.0013 |
+| mean | 0.5524 +/- 0.0016 | 0.5511 +/- 0.0042 | -0.0012 |
+
+The Original numbers were re-measured in this same session and match
+the Day 7 headline exactly (0.5514 / 0.5515 / 0.5542), a 6th
+reproduction.
+
+### 23.7 Interpretation
+
+The cross-query contrastive signal raises dev F1 by a consistent
++0.014, but the held-out test F1 mean moves by only -0.0012 (within the
+seed-to-seed noise) while the standard deviation grows from 0.0016 to
+0.0042. The dev gain does not transfer to test, and the variant is less
+stable across seeds. The one seed that improved on test (1337, +0.0027)
+is offset by two that declined, so there is no consistent gain.
+
+This is consistent with the calibration-ceiling finding of Sections
+18-19: the limiting factor for held-out F1 on this data is threshold
+calibration at the deep hops, not the addition of another training
+signal. Activating HC3 changes the score distribution (the fixed
+variant's optimal per-hop thresholds shift down, e.g. hop2 from 0.82 to
+0.75) but does not raise the achievable test F1.
+
+### 23.8 Decision
+
+The headline configuration (F1 = 0.5524 +/- 0.0016) is a CSV+DBM+DC
+result and remains the project's production model. The cross-query
+contrastive variant is recorded here as a documented attempt that
+activated the previously inert objective but did not improve held-out
+performance. After measurement, the code was reverted to the original
+(verified: the cross-query key and score_logits edits are absent;
+both files parse; Original retraining reproduces 0.5107 / 0.5099 /
+0.5090 dev exactly). The fixed-variant checkpoints are preserved under
+`runs/hc3fix_seed_{42,1337,2024}` for reference.
+
+### 23.9 Reproduction
+
+```
+# Apply the fix, train 3 seeds, sweep, then revert
+python scripts/apply_hc3_fix.py
+python train.py --config configs/caff_orphanet.yaml --seed 42
+python train.py --config configs/caff_orphanet.yaml --seed 1337
+python train.py --config configs/caff_orphanet.yaml --seed 2024
+python scripts/per_hop_threshold_sweep.py --config configs/caff_orphanet.yaml --checkpoint runs/caff_orphanet/seed_42/best.pt
+# (repeat sweep for 1337, 2024)
+python scripts/apply_hc3_fix.py --revert
+```
