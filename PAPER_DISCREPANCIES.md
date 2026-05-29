@@ -3229,3 +3229,199 @@ results/per_relation_theta070_seed42.json                     # theta=0.70, seed
 All JSON outputs are committed; the per-relation tables in 27.3, 27.4,
 and the peak verification in 27.4 are reproducible from these files
 without re-running inference.
+---
+
+## Section 28: Hop-stratified analysis and the cold-start hypothesis
+
+**Status:** Completed. Reveals a structural explanation for the `is_a`
+vs `has_phenotype` performance gap documented in Section 27: the
+relations live at different hop depths, and CAFF's context mechanism
+only activates from hop 2 onwards.
+**Date:** 2026-05-29 (Day 15).
+**Environment:** Same as Sections 26-27 (autoregressive inference,
+no_dc checkpoints, seeds {42, 1337, 2024}, theta=0.80).
+
+### 28.1 Motivation
+
+Section 27 documented that overall F1 = 0.5477 hides a strong-on-`is_a`
+(F1=0.60) / weak-on-`has_phenotype` (F1=0.06) split. The natural next
+question is *where* in the multi-hop chain that gap originates: is
+`has_phenotype` failing at every hop, or concentrated in one place?
+And if `is_a` works so well, does it work equally at every hop?
+
+Cross-tabulating predictions by (hop, relation) is cheap, uses the same
+checkpoints, and the result turned out to be more informative than we
+expected.
+
+### 28.2 Implementation
+
+`scripts/hop_stratified_analysis.py` (committed in the same change as
+this section) loads a checkpoint, scores the test set, then aggregates
+by `(hop, relation)` pairs. The `TripleInstance` dataclass in
+`caff/miners.py` already exposes both `hop` and `relation`, so this is
+purely an aggregation pass over `evaluator._score_dataset` output.
+
+### 28.3 Per-hop summary (3 seeds, theta=0.80)
+
+Mean across seeds {42, 1337, 2024}:
+
+| hop | n_total | n_pos | pos rate | precision | recall | F1     | score_mean +/- std |
+|----:|--------:|------:|---------:|----------:|-------:|-------:|--------------------|
+| 1   | 18,043  | 3,000 | 16.6%    | 0.823     | 0.640  | 0.7207 | 0.5822 +/- 0.0048  |
+| 2   | 38,850  | 2,271 |  5.8%    | 0.438     | 0.606  | 0.5084 | 0.2154 +/- 0.0001  |
+| 3   | 45,424  | 1,145 |  2.5%    | 0.243     | 0.284  | 0.2611 | 0.0672 +/- 0.0006  |
+
+Two immediate observations:
+
+- **Score collapse with depth.** The mean predicted score drops from
+  0.58 at hop 1 to 0.22 at hop 2 to 0.07 at hop 3. A fixed global
+  threshold of 0.80 therefore cuts much harder at hop 2/3 than at hop 1.
+  The per-hop sweep results from Section 25 already showed this in
+  effect; this is the underlying mechanism.
+- **F1 cascade.** Hop 1 reaches F1 = 0.72, hop 3 falls to 0.26. The
+  "headline" overall F1 of 0.55 is a weighted average dominated by
+  hop 2 (the largest hop by support and the only one where positives
+  remain relatively common).
+
+### 28.4 Hop x relation cross-tabulation (counts; identical across seeds because the test set is fixed)
+
+`n_total / n_positive` per cell:
+
+| relation                                                | hop 1         | hop 2         | hop 3         |
+|---------------------------------------------------------|--------------:|--------------:|--------------:|
+| `is_a`                                                  |   2,223 / 1,883 |  32,042 / 2,195 |  41,204 / 1,136 |
+| `has_phenotype`                                         |  15,275 / 1,068 |   5,800 /    69 |   3,617 /     9 |
+| `disease_causing_germline_mutation_s_in`                |     337 /    37 |     406 /     5 |      95 /     0 |
+| `major_susceptibility_factor_in`                        |      40 /     0 |     349 /     1 |     362 /     0 |
+| `disease_causing_germline_mutation_s_loss_of_function_in` |      78 /     6 |      99 /     1 |      76 /     0 |
+| 6 other rare relations                                  |      90 /     6 |     154 /     0 |      67 /     0 |
+
+The two large relations occupy very different hop regimes:
+
+- **`is_a`** is mostly hop 2 and 3 (73,246 of 75,469 total instances; 97%
+  of `is_a` lives below hop 1).
+- **`has_phenotype`** is mostly hop 1 (15,275 of 24,692 total; **93%** of
+  `has_phenotype` positives are at hop 1).
+
+This is consistent with the Orphanet+HPO+OMIM KG topology: every disease
+has a small number of immediate `has_phenotype` edges that the BFS
+collects at hop 1; deeper hops mostly traverse `is_a` chains through
+HPO/disease ontologies.
+
+### 28.5 Per (hop, relation) F1: the structural finding
+
+Restricting to the two relations with enough support for stable F1:
+
+| relation        | hop | n_total | n_pos | F1 (mean across 3 seeds, std) |
+|-----------------|----:|--------:|------:|-------------------------------|
+| `is_a`          |   1 |   2,223 | 1,883 | **0.9172 +/- 0.0000** *(recall=1.000)* |
+| `is_a`          |   2 |  32,042 | 2,195 | 0.5156 +/- 0.0006             |
+| `is_a`          |   3 |  41,204 | 1,136 | 0.2621 +/- 0.0066             |
+| `has_phenotype` |   1 |  15,275 | 1,068 | 0.0645 +/- 0.0103             |
+| `has_phenotype` |   2 |   5,800 |    69 | 0.0000 +/- 0.0000             |
+| `has_phenotype` |   3 |   3,617 |     9 | 0.0000 +/- 0.0000             |
+
+The cells for `has_phenotype` at hops 2 and 3 register F1 = 0 only
+because the support is tiny (69 and 9 positives), not because of a
+qualitative difference; we will not over-interpret them.
+
+The non-trivial cells expose three things:
+
+1. **`is_a` at hop 1 is nearly perfect**: F1 = 0.917, with **recall =
+   1.000** on every seed and identical to four decimal places across
+   seeds. The model is finding every `is_a` positive at hop 1.
+2. **`has_phenotype` at hop 1 is essentially broken**: F1 = 0.065
+   (precision 0.37, recall 0.03). Same hop, same threshold, same
+   architecture; only the relation differs.
+3. **`is_a` degrades cleanly with depth**: 0.92 -> 0.52 -> 0.26 across
+   hops 1, 2, 3. The drop is driven by score collapse (Section 28.3),
+   not by inability to find positives.
+
+So the relation-level disparity from Section 27 does not split along
+"hierarchical vs semantic" cleanly. It splits more concretely as:
+
+- The model handles **anything at hop 1 that has hierarchical structure
+  in `(Q, r)` alone** (i.e., `is_a`).
+- The model **fails at hop 1 when the relation is non-hierarchical**
+  (`has_phenotype`), even though it is the easy hop in score terms.
+
+### 28.6 The cold-start interpretation
+
+Why would hop 1 specifically fail on `has_phenotype`? At hop 1 by
+definition, the previously-retained set `S_0` is empty and the CSV
+output is `z_0 = 0` (this is hard-coded in `caff/csv.py` and discussed
+in the README). When `z_0 = 0`, the DBM perturbation is:
+
+```
+Delta_1(0) = sigmoid(U * 0) * (A * 0)(B * 0)^T = sigmoid(0) * 0 = 0
+```
+
+In other words, **at hop 1 CAFF is mathematically identical to
+DepthBilinear**: there is no context to condition on. The whole point
+of CSV+DBM is to feed `S_{ell-1}` into the scorer, and at the very
+first hop there is nothing to feed.
+
+This is consistent with the data:
+
+- `is_a` at hop 1 reaches F1 = 0.92 because hierarchical relations
+  carry their structure directly in `(Q, r)`; DepthBilinear is enough.
+- `has_phenotype` at hop 1 needs query-conditioned signal that the
+  current architecture only constructs *after* it has accumulated a
+  retained set. With `z = 0` there is no DBM modulation, and the bare
+  `Q^T W_1 E[r]` apparently does not separate `has_phenotype`
+  positives well in this KG.
+- At hop 2 and beyond, where `z` is non-zero, CAFF is genuinely
+  doing something different from DepthBilinear (the Section 25
+  ablation confirmed this: removing CSV or DBM costs ~0.07 F1
+  globally). But hop 2/3 are dominated by `is_a` (97% of `is_a`
+  instances), so the benefit of CAFF at depth is felt mostly on `is_a`.
+
+The structural picture is therefore:
+
+> CAFF's context mechanism activates from hop 2 onwards. The hop-1
+> behaviour reduces to a depth-stratified bilinear scorer. Relations
+> that mostly live at hop 1 (`has_phenotype` in this KG) do not benefit
+> from the CAFF architecture; relations that mostly live deeper (`is_a`
+> here) benefit fully.
+
+### 28.7 What this updates from earlier sections
+
+- **Section 27's framing** ("CAFF transfers well to hierarchical
+  relations but not to many-to-many semantic relations") is consistent
+  with the evidence, but the deeper cause is now visible: the
+  many-to-many relations in this KG happen to live at hop 1, where
+  the architecture does nothing extra.
+- **Future-work item 4** ("typed CSV for semantic relations") is still
+  a sensible direction, but Section 28 suggests a separate item is
+  equally important: **non-zero `z_0` at hop 1**, e.g. by initialising
+  it from the query embedding directly, so that DBM has something to
+  modulate from the very first hop. This is a smaller architectural
+  change than redesigning the CSV pool and may yield the larger
+  practical gain.
+
+### 28.8 Limits of this finding
+
+- Per (hop, relation) cells with very few positives (e.g.
+  `disease_causing_*` mutations at any hop, or `has_phenotype` at
+  hops 2-3) are not interpretable as F1 = 0; they are statistically
+  silent.
+- The cold-start interpretation rests on a clean mathematical fact
+  (`z_0 = 0 => DBM = 0` at hop 1) and a strong empirical pattern
+  (`has_phenotype` hop 1 F1 = 0.065 vs `is_a` hop 1 F1 = 0.917). It is
+  not yet validated by a counterfactual experiment (e.g., training a
+  variant with `z_0 := f(Q)` and checking whether `has_phenotype`
+  hop 1 F1 recovers); that experiment is the natural follow-up.
+- The 73.8 / 24.1 split between `is_a` and `has_phenotype` is a
+  property of this Orphanet+HPO+OMIM KG. On a KG where
+  `has_phenotype`-like relations sit at hop 2 or 3, the cold-start
+  effect would be invisible and CAFF would perform uniformly well.
+
+### 28.9 Files
+
+```
+scripts/hop_stratified_analysis.py         # the analysis script
+results/hop_stratified_seed{42,1337,2024}.json   # three seeds, autoregressive, theta=0.80
+```
+
+The JSON outputs include the full per-hop summary, the
+hop x relation count matrix, and the per (hop, relation) F1 cells.

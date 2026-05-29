@@ -1,0 +1,203 @@
+{
+  "checkpoint": "runs\\no_dc\\seed_2024\\best.pt",
+  "mode": "autoregressive",
+  "threshold": 0.8,
+  "per_hop": [
+    {
+      "hop": 1,
+      "n_total": 18043,
+      "n_pos": 3000,
+      "pos_rate": 0.1662694673834728,
+      "precision": 0.8206984667802385,
+      "recall": 0.6423333333333333,
+      "f1": 0.7206432311144353,
+      "score_mean": 0.5775352711251205,
+      "score_std": 0.18306968503822213,
+      "score_mean_pos": 0.835189257889986,
+      "score_mean_neg": 0.5261517731330579
+    },
+    {
+      "hop": 2,
+      "n_total": 38850,
+      "n_pos": 2271,
+      "pos_rate": 0.05845559845559845,
+      "precision": 0.43853503184713377,
+      "recall": 0.6063408190224571,
+      "f1": 0.5089632230641287,
+      "score_mean": 0.2152888699591641,
+      "score_std": 0.23939307661142137,
+      "score_mean_pos": 0.6760690421700963,
+      "score_mean_neg": 0.18668142385372036
+    },
+    {
+      "hop": 3,
+      "n_total": 45424,
+      "n_pos": 1145,
+      "pos_rate": 0.025206939063050368,
+      "precision": 0.24123120973514675,
+      "recall": 0.2943231441048035,
+      "f1": 0.26514555468135326,
+      "score_mean": 0.0668562511488665,
+      "score_std": 0.2058770274783993,
+      "score_mean_pos": 0.4722513639256785,
+      "score_mean_neg": 0.056373236534050214
+    }
+  ],
+  "hop_x_relation_counts": [
+    {
+      "relation": "is_a",
+      "hop1_n_total": 2223,
+      "hop1_n_pos": 1883,
+      "hop2_n_total": 32042,
+      "hop2_n_pos": 2195,
+      "hop3_n_total": 41204,
+      "hop3_n_pos": 1136
+    },
+    {
+      "relation": "has_phenotype",
+      "hop1_n_total": 15275,
+      "hop1_n_pos": 1068,
+      "hop2_n_total": 5800,
+      "hop2_n_pos": 69,
+      "hop3_n_total": 3617,
+      "hop3_n_pos": 9
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_in",
+      "hop1_n_total": 337,
+      "hop1_n_pos": 37,
+      "hop2_n_total": 406,
+      "hop2_n_pos": 5,
+      "hop3_n_total": 95,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "major_susceptibility_factor_in",
+      "hop1_n_total": 40,
+      "hop1_n_pos": 0,
+      "hop2_n_total": 349,
+      "hop2_n_pos": 1,
+      "hop3_n_total": 362,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_loss_of_function_in",
+      "hop1_n_total": 78,
+      "hop1_n_pos": 6,
+      "hop2_n_total": 99,
+      "hop2_n_pos": 1,
+      "hop3_n_total": 76,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "candidate_gene_tested_in",
+      "hop1_n_total": 39,
+      "hop1_n_pos": 0,
+      "hop2_n_total": 84,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 48,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "disease_causing_somatic_mutation_s_in",
+      "hop1_n_total": 9,
+      "hop1_n_pos": 1,
+      "hop2_n_total": 49,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 19,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "role_in_the_phenotype_of",
+      "hop1_n_total": 25,
+      "hop1_n_pos": 0,
+      "hop2_n_total": 9,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 0,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_gain_of_function_in",
+      "hop1_n_total": 13,
+      "hop1_n_pos": 4,
+      "hop2_n_total": 0,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 1,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "modifying_germline_mutation_in",
+      "hop1_n_total": 2,
+      "hop1_n_pos": 1,
+      "hop2_n_total": 9,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 2,
+      "hop3_n_pos": 0
+    },
+    {
+      "relation": "part_of_a_fusion_gene_in",
+      "hop1_n_total": 2,
+      "hop1_n_pos": 0,
+      "hop2_n_total": 3,
+      "hop2_n_pos": 0,
+      "hop3_n_total": 0,
+      "hop3_n_pos": 0
+    }
+  ],
+  "per_hop_relation_f1_top2": [
+    {
+      "relation": "is_a",
+      "hop": 1,
+      "n_total": 2223,
+      "n_pos": 1883,
+      "precision": 0.8470535312640576,
+      "recall": 1.0,
+      "f1": 0.9171943497320995
+    },
+    {
+      "relation": "is_a",
+      "hop": 2,
+      "n_total": 32042,
+      "n_pos": 2195,
+      "precision": 0.43853503184713377,
+      "recall": 0.6273348519362186,
+      "f1": 0.5162136832239925
+    },
+    {
+      "relation": "is_a",
+      "hop": 3,
+      "n_total": 41204,
+      "n_pos": 1136,
+      "precision": 0.24123120973514675,
+      "recall": 0.2966549295774648,
+      "f1": 0.26608764311093563
+    },
+    {
+      "relation": "has_phenotype",
+      "hop": 1,
+      "n_total": 15275,
+      "n_pos": 1068,
+      "precision": 0.36936936936936937,
+      "recall": 0.03838951310861423,
+      "f1": 0.06955046649703138
+    },
+    {
+      "relation": "has_phenotype",
+      "hop": 2,
+      "n_total": 5800,
+      "n_pos": 69,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "relation": "has_phenotype",
+      "hop": 3,
+      "n_total": 3617,
+      "n_pos": 9,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  ]
+}
