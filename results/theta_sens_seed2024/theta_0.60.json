@@ -1,0 +1,18 @@
+{
+  "metrics": {
+    "precision": 0.30864528226076476,
+    "recall": 0.718360349127182,
+    "f1": 0.431776664012366,
+    "map": 0.673791574306723,
+    "ndcg@10": 0.7084753194899889,
+    "hop1_prec": 0.40712290502793297,
+    "hop2_prec": 0.2925756186984418,
+    "hop3_prec": 0.1816,
+    "n_instances": 102317
+  },
+  "bootstrap": null,
+  "checkpoint": "runs\\no_dc\\seed_2024\\best.pt",
+  "test_split": "data/processed/test.json",
+  "mode": "autoregressive",
+  "threshold": 0.6
+}
