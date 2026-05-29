@@ -1,33 +1,50 @@
-# ─────────────────────────────────────────────────────────────────
-# CAFF (Full) — paper §8.4 default configuration.
+# ---------------------------------------------------------------------
+# DEPRECATED CONFIG -- DO NOT USE FOR NEW RUNS
+# ---------------------------------------------------------------------
+# Status (May 2026): This file is the paper-spec configuration for
+# reference only. It is NOT runnable as-is on this codebase:
+#   * d: 768 does not match BioLinkBERT-Large's actual output
+#     dimension of 1024 (would fail with a dimension mismatch at the
+#     scoring head).
+#   * kg_path points to data/processed/merged_kg.tsv which is the
+#     pre-HPO v1 KG; this repository now uses merged_kg_v2.tsv.
+#   * Was never trained in this repository (no runs/caff_full/ exists).
 #
-# This is the headline configuration: CSV + DBM + HC3 + DC.
-# Expected results (paper Table 3, mean over 3 seeds):
+# Current default for new runs: configs/no_dc.yaml
+#   (the as-shipped headline; CSV + DBM, DC disabled).
+# Previous default: configs/caff_orphanet.yaml (Full CAFF; F1 = 0.5524).
+# See PAPER_DISCREPANCIES.md Sections 22-26 for the ablation evidence.
+# ---------------------------------------------------------------------
+# Below is the paper-spec configuration kept for historical reference.
+# Expected results from the paper (Table 3, mean over 3 seeds):
 #   PubMedQA  Accuracy   = 79.6
 #   PubMedQA  MAP        = 0.703
 #   BioASQ 7b Macro-F1   = 74.3
-# ─────────────────────────────────────────────────────────────────
+# These numbers were NOT reproduced in this repository because the
+# paper's KG (Orphanet+DisGeNET+OMIM+UMLS, |V|=148K) requires
+# institutional access not available here.
+# ---------------------------------------------------------------------
 
 config:
-  # Architecture
+  # Architecture (NOTE: d=768 is wrong for BioLinkBERT-Large; use d=1024)
   d: 768
   rho: 16
   L: 3
   theta: 0.50
   K_r: 20
 
-  # Loss weights & margins (paper §8.4)
+  # Loss weights & margins (paper Section 8.4)
   gamma_C: 0.25
   gamma_D: 0.20
   lambda_C: 0.35
   lambda_D: 0.40
 
-  # HC3 mining (paper §6.4)
+  # HC3 mining (paper Section 6.4)
   hc3_buffer_size: 1000
   hc3_negatives_per_anchor: 8
   hc3_buffer_refresh_steps: 500
 
-  # Optimization (paper §8.4)
+  # Optimization (paper Section 8.4)
   lr: 3.0e-4
   lr_min: 1.0e-5
   weight_decay: 1.0e-2
@@ -42,7 +59,7 @@ config:
   encoder_name: michiyasunaga/BioLinkBERT-large
   encoder_frozen: true
 
-  # Data — adjust paths to your environment
+  # Data (paths are for the paper's larger KG, not the one shipped here)
   kg_path:    data/processed/merged_kg.tsv
   train_path: data/processed/train.json
   dev_path:   data/processed/dev.json

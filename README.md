@@ -17,9 +17,9 @@
 </p>
 
 <p align="center">
-  <b>Marwan Dhifallah</b><sup>*</sup> &nbsp;·&nbsp; <b>Yu Liu</b><br>
+  <b>Marwan Dhifallah</b><sup>*</sup> &nbsp;.&nbsp; <b>Yu Liu</b><br>
   <i>Dalian University of Technology, Dalian, China</i><br>
-  <code>marwan@mail.dlut.edu.cn</code> &nbsp;·&nbsp; <code>yuliu@dlut.edu.cn</code>
+  <code>marwan@mail.dlut.edu.cn</code> &nbsp;.&nbsp; <code>yuliu@dlut.edu.cn</code>
 </p>
 
 <p align="center">
@@ -27,6 +27,15 @@
   <b>"CAFF: Context-Aware Feedback Filtering for Multi-Hop Biomedical Knowledge Graph Evidence Selection"</b><br>
   <i>(under review, IEEE Transactions on Knowledge and Data Engineering, 2026).</i>
 </p>
+
+> **Status note (May 2026).** This README reflects the **as-measured** state
+> of the codebase. All numbers reported below are reproduced from
+> experiments documented in `PAPER_DISCREPANCIES.md` (Sections 1-26). The
+> paper's original headline (PubMedQA 79.6, BioASQ 74.3) was framed on a
+> larger four-source KG (Orphanet+DisGeNET+OMIM+UMLS, |V|=148K) with an
+> A100-80GB. This repository ships a consumer-hardware reproduction path
+> on the smaller Orphanet+HPO+OMIM KG (|V|=38K), with all results measured
+> on a held-out Orphanet QA test set.
 
 ---
 
@@ -36,38 +45,53 @@
 2. [The Context Blindness Error (CBE)](#the-context-blindness-error-cbe)
 3. [Key Contributions](#key-contributions)
 4. [Method Overview](#method-overview)
-   - [Stage 1  BFS Candidate Stratification](#stage-1-bfs-candidate-stratification)
-   - [Stage 2  Contextual Summary Vector (CSV)](#stage-2-contextual-summary-vector-csv)
-   - [Stage 3  Dynamic Bilinear Modulation (DBM)](#stage-3-dynamic-bilinear-modulation-dbm)
-   - [Stage 4  Hop-Conditioned Context Contrast (HC3) Loss](#stage-4-hop-conditioned-context-contrast-hc3-loss)
-5. [Theoretical Guarantees](#theoretical-guarantees)
+5. [Theoretical Background](#theoretical-background)
 6. [Repository Structure](#repository-structure)
 7. [Installation](#installation)
 8. [Data Preparation](#data-preparation)
 9. [Training](#training)
 10. [Evaluation](#evaluation)
-11. [Main Results](#main-results)
-12. [Ablation Study](#ablation-study)
-13. [Hyperparameters](#hyperparameters)
-14. [Reproducibility](#reproducibility)
-15. [Hardware Requirements](#hardware-requirements)
-16. [Limitations](#limitations)
-17. [Citation](#citation)
-18. [License](#license)
-19. [Acknowledgements](#acknowledgements)
-20. [Contact](#contact)
+11. [Main Results (Measured)](#main-results-measured)
+12. [Ablation Study (Measured)](#ablation-study-measured)
+13. [Configurations](#configurations)
+14. [Hyperparameters](#hyperparameters)
+15. [Reproducibility](#reproducibility)
+16. [Hardware Requirements](#hardware-requirements)
+17. [Limitations and Future Work](#limitations-and-future-work)
+18. [Citation](#citation)
+19. [License](#license)
+20. [Acknowledgements](#acknowledgements)
+21. [Contact](#contact)
 
 ---
 
 ## TL;DR
 
-> Existing triple filters for multi-hop KG-RAG score each candidate from `(Query, relation, BFS_depth)` alone , they are **blind** to which triples were retained at the previous hop. We prove this blindness incurs an **irreducible** Bayes error floor `ε* > 0` (Theorem 1, via the Data Processing Inequality). **CAFF** closes this gap with a three-piece, filtering-layer-only feedback loop:
+> Existing triple filters for multi-hop KG-RAG score each candidate from
+> `(Query, relation, BFS_depth)` alone; they are **blind** to which triples
+> were retained at the previous hop. The paper proves this blindness incurs
+> an **irreducible** Bayes error floor `eps* > 0` (Theorem 1, via the Data
+> Processing Inequality). **CAFF** addresses this with a three-piece,
+> filtering-layer-only feedback loop:
 >
-> - **CSV**  a parameter-free, permutation-invariant summary of the previously retained set.
-> - **DBM**  a low-rank, sigmoid-gated perturbation of the bilinear scoring matrix, *generated dynamically* from the CSV.
-> - **HC3**  a contrastive loss that provably maximizes a variational lower bound on the conditional mutual information `I(Y; S | z)`.
+> - **CSV** -- a parameter-free, permutation-invariant summary of the previously retained set.
+> - **DBM** -- a low-rank, sigmoid-gated perturbation of the bilinear scoring matrix, generated dynamically from the CSV.
+> - **HC3** -- a contrastive loss that targets a variational lower bound on the conditional mutual information `I(Y; S | z)`.
 >
-> CAFF lifts PubMedQA accuracy from **76.9 → 79.6** (+2.7 pts) and BioASQ 7b macro-F1 from **71.1 → 74.3** (+3.2 pts) over the strongest depth-stratified baseline, with gains concentrated at the deepest hops (**+6.9** pts at hop 2, **+9.3** pts at hop 3) exactly where CBE is most severe.
+> **Measured headline on Orphanet QA (this repository, held-out test set, 3 seeds, paired bootstrap):**
+>
+> | Configuration                | Test F1 (per-hop) | Significance vs. previous default |
+> |------------------------------|------------------:|-----------------------------------|
+> | Previous default (Full CAFF, all components) | 0.5524 +/- 0.0016 | -- |
+> | **Current default (No-DC: CSV + DBM, DC disabled)** | **0.5764 +/- 0.0022** | **delta_AP = +0.025, p < 0.01** |
+>
+> The Day 14-15 ablation showed that **CSV and DBM are the essential
+> components**: removing either costs about 0.046 F1. The
+> DepthContrastive (DC) loss as specified in the paper (lambda_D=0.40)
+> measurably **hurts** held-out F1 on this KG; the HC3 loss is **inert**
+> (zero gradient on this data). Full breakdown in
+> [Ablation Study](#ablation-study-measured) and
+> `PAPER_DISCREPANCIES.md` Sections 22-26.
 
 ---
 
@@ -77,149 +101,90 @@ Consider the clinical query:
 
 > *"What drug targets the pathway of the causal gene of Fanconi anemia complementation group D1?"*
 
-The same hop-2 triple `⟨BRCA2, participates_in, HR-repair⟩` is:
-- **Diagnostically essential** when hop 1 retained `⟨FANCD1, causal_mutation, BRCA2⟩`,
-- **Irrelevant noise** when hop 1 retained only `⟨FANCD1, has_phenotype, bone-marrow-failure⟩`.
+The same hop-2 triple `<BRCA2, participates_in, HR-repair>` is:
 
-A depth-stratified filter sees only `(Q, participates_in, ℓ=2)` and assigns **the same score in both cases**. It cannot distinguish the two evidential trajectories  it commits the **Context Blindness Error**.
+- **Relevant** when the hop-1 retained set is `{<Fanconi anemia D1, caused_by, BRCA2>}`.
+- **Irrelevant** when the hop-1 retained set is `{<Fanconi anemia D1, caused_by, BRIP1>}`.
 
-Formally, for a context-agnostic filter `f ∈ F_agn` and any threshold `τ`:
-
-```
-P( 𝟙[f(X) ≥ τ] ≠ Y )  ≥  R*  +  ε*,    where  ε* > 0
-```
-
-with the closed-form lower bound
-
-```
-ε*  ≥  ½ · 𝔼_X [ Var_{Z|X} ( P(Y=1 | X, Z) ) ].
-```
-
-This floor is **architectural**, not representational  no parameter scaling of `f(Q, r, ℓ)` can recover information about `S_{ℓ-1}` that was never given to it as input.
+A filter that sees only `(Query, relation, hop)` cannot distinguish these two cases. The paper formalizes this as the **Context Blindness Error** and proves a lower bound on its expected loss (Theorem 1). CAFF closes the gap by feeding a summary of the previous hop's retained set into the current hop's scorer.
 
 ---
 
 ## Key Contributions
 
-| # | Contribution | Paper Section |
-|---|---|---|
-| **C1** | Formal definition of the Context Blindness Error (CBE) and a proof that it induces an irreducible Bayes error floor `ε* > 0`, with a closed-form variance lower bound. | §4 |
-| **C2** | **Contextual Summary Vector (CSV)**  a parameter-free, permutation-invariant encoder of the previously retained set, with a formal injectivity guarantee under linearly independent relation embeddings. | §5.2 |
-| **C3** | **Dynamic Bilinear Modulation (DBM)**  a low-rank, sigmoid-gated, *dynamically generated* perturbation of the scoring matrix, with **zero per-candidate overhead** after one-time precomputation. | §5.3 |
-| **C4** | **HC3 loss**  an InfoNCE-derived contrastive objective formally equivalent to maximizing a variational lower bound on the conditional mutual information `I(Y; S \| z)`. | §5.4 |
-| **C5** | State-of-the-art results on PubMedQA and BioASQ 7b, with hop-stratified ablations and a diagnostic context-swap experiment showing **1.84 bits** of context separation vs. **0.00 bits** for every context-agnostic baseline. | §7–§8 |
+The paper proposes four contributions: CSV, DBM, HC3, and a depth-contrastive auxiliary loss (DC). After full leave-one-out ablation in this repository (3 seeds, paired bootstrap), the empirical picture is:
+
+| Component | Role (as designed) | Effect on held-out F1 (measured) | Status |
+|-----------|--------------------|---------------------------------:|--------|
+| **CSV** | Context vector from previous retained set | Removal costs **-0.047** F1 | Essential |
+| **DBM** | Low-rank dynamic gating of the bilinear scorer | Removal costs **-0.046** F1 | Essential |
+| **DC** | Depth-contrastive auxiliary loss (lambda_D=0.40) | Removal **gains +0.024** F1 (p < 0.01) | **Harmful at paper config** |
+| **HC3** | CMI-bound contrastive loss | Removal changes nothing | **Inert** (zero gradient) |
+
+CSV + DBM are validated as the real architectural contribution. DC and HC3 are documented as **negative results** of this measurement campaign; see `PAPER_DISCREPANCIES.md` Sections 22-26 for the full evidence trail.
 
 ---
 
 ## Method Overview
 
-```
-┌─────────┐   ┌────────────┐   ┌─────────────────────────────────────────┐   ┌─────────────┐
-│ Query Q │──▶│  Entity    │──▶│  BFS subgraph extraction (depth L=3)    │──▶│ Candidate   │
-└─────────┘   │  Linker    │   └─────────────────────────────────────────┘   │ sets {C_ℓ}  │
-              └────────────┘                                                  └──────┬──────┘
-                                                                                     │
-                            ┌──────────────────  CAFF filtering layer  ──────────────┘
-                            ▼
-                    ┌───────────────┐    z_{ℓ-1}    ┌────────────────┐
-                    │  CSV          │──────────────▶│  DBM gate      │
-                    │  (Eq. 14)     │               │  Δ_ℓ (Eq. 17)  │
-                    └───────────────┘               └────────┬───────┘
-                                                             ▼
-                                                   W^ctx_ℓ = W₀ + A_ℓB_ℓᵀ + Δ_ℓ
-                                                             │
-                                                             ▼
-                                                   s_ℓ = σ(qᵀ W^ctx_ℓ e_r + ...)
-                                                             │
-                                                             ▼ (threshold θ)
-                                                          S_ℓ ────┐
-                                                                   │  feedback
-                                                                   └──▶ z_ℓ = CSV(S_ℓ)
-                                                                               │
-                                                                               ▼
-                                                                       (next hop ℓ+1)
-```
+CAFF is a four-stage pipeline applied during multi-hop evidence retrieval.
 
-### Stage 1  BFS Candidate Stratification
+### Stage 1 -- BFS Candidate Stratification
 
-For each head entity at depth `ℓ-1`, retain at most `K_r = 20` triples per relation type, ranked by descending tail degree. This **frequency cap** prevents hub-entity relation embeddings from saturating the CSV.
+A BFS from the query seed entities collects all triples reachable within `L=3` hops, stratified by hop depth. A per-relation frequency cap (`K_r=20`, configurable) prevents any one relation from saturating a candidate set.
 
-### Stage 2  Contextual Summary Vector (CSV)
+### Stage 2 -- Contextual Summary Vector (CSV)
 
-Parameter-free, permutation-invariant, formally faithful:
+For each hop `ell > 1`, the retained set from hop `ell-1` is summarized by a parameter-free, permutation-invariant pool over the relation embeddings of its triples:
 
 ```
-              1
-z_{ℓ-1}  =  ──── · Σ_{(h,r,t) ∈ S_{ℓ-1}}  e_r        (mean of frozen relation embeddings)
-            |S_{ℓ-1}|
+z_{ell-1} = pool({ E[r] : (h, r, t) in S_{ell-1} })
 ```
 
-with `z_{ℓ-1} = 0` when `S_{ℓ-1} = ∅` (so CAFF reduces *gracefully* to the depth-stratified baseline at hop 1).
+Default pool is `mean`. At `ell=1`, `z_0 = 0`.
 
-**Lemma (CSV faithfulness).** If the relation-embedding matrix `E` has full row rank, the map `Z ↦ EᵀZ` is **injective** on the simplex  distinct retained-context distributions produce distinct CSVs.
+### Stage 3 -- Dynamic Bilinear Modulation (DBM)
 
-### Stage 3  Dynamic Bilinear Modulation (DBM)
-
-A low-rank, sigmoid-gated, **runtime-generated** increment to the scoring matrix:
+The base hop-conditioned bilinear scorer
 
 ```
-g_ℓ  =  σ( P_ℓ z_{ℓ-1} + b_ℓ )   ∈ (0,1)^ρ           (context gate, ρ = 16)
-
-Δ_ℓ  =  U_ℓ · diag(g_ℓ) · V_ℓᵀ                       (rank-ρ context perturbation)
-
-W^ctx_ℓ  =  W₀          +   A_ℓ B_ℓᵀ        +   Δ_ℓ(g_ℓ)
-            ─────           ─────────              ─────────
-            shared          depth-specific         context-specific
-            base            (PCE correction)       (CBE correction)
-
-s_ℓ  =  σ( qᵀ W^ctx_ℓ e_r  +  vᵀ(q ⊙ e_r)  +  β_ℓ )
+s_base(Q, r, ell) = Q^T W_ell E[r]
 ```
 
-**Cost.** `W^ctx_ℓ` is precomputed **once per hop** (not per candidate). Per-hop overhead with `d=768`, `ρ=16`, `N_ℓ ≤ 500`:
-- gate: `O(ρd)`,
-- DBM assembly: `O(d²ρ)`,
-- candidate scoring: `O(N_ℓ d²)`,
-- total CAFF surcharge ≈ **9.4 × 10⁶ FLOPs / hop**, **zero per candidate**.
-
-> **DBM vs. LoRA / Adapters.** LoRA learns a *fixed* low-rank increment during fine-tuning. DBM **generates** its rank-ρ increment *dynamically at inference time* from the CSV  context-specific modulation without a separate parameter set per context.
-
-### Stage 4  Hop-Conditioned Context Contrast (HC3) Loss
-
-For each anchor `(Q, r, ℓ)`, mine a positive context `z^(a)` (where the triple was labeled 1) and up to 8 negative contexts `z^(b)` (where it was labeled 0):
+is augmented with a low-rank, context-dependent perturbation generated from `z_{ell-1}`:
 
 ```
-L_HC3  =  (1 / |T_HC3|) · Σ  max( 0,  s(Q, r, ℓ, z^(b))  −  s(Q, r, ℓ, z^(a))  +  γ_C )
+Delta_ell(z) = sigmoid(U z) * (A z) (B z)^T,  rank rho << d
+s_CAFF(Q, r, ell, z) = Q^T (W_ell + Delta_ell(z)) E[r]
 ```
 
-with margin `γ_C = 0.25`. **Proposition.** Minimizing `L_HC3` maximizes a variational lower bound on `I(Y; S | z)`.
+This is the only context-aware path in the architecture; `Delta_ell` adds about 0.8 M parameters at `rho=16, d=1024`.
 
-The full objective:
+### Stage 4 -- Auxiliary losses (HC3 and DC)
 
-```
-L  =  L_BCE  +  λ_D · L_DC  +  λ_C · L_HC3      (λ_D = 0.40,  λ_C = 0.35)
-```
+The paper adds two auxiliary losses on top of the BCE filter loss:
+
+- **HC3** (margin-based contrastive loss targeting a CMI lower bound on `I(Y; S | z)`)
+- **DC** (depth-contrastive hinge: `max(0, s_wrong_hop - s_correct_hop + gamma_D)`)
+
+**Measured behavior on this codebase:** HC3 produces zero gradient
+under the paper's setting because keys collide between positives and
+negatives at the teacher-forced training step (`PAPER_DISCREPANCIES.md`
+Section 22). DC is gradient-active but its sign of effect is **negative**
+on held-out F1 (Sections 25-26). The codebase exposes both losses via
+ablation flags (`use_hc3`, `use_dc`); the current default disables DC.
 
 ---
 
-## Theoretical Guarantees
+## Theoretical Background
 
-| # | Statement | Where |
-|---|---|---|
-| **Theorem 1** | Under positive CMI `I(Y; Z \| X) > 0`, every context-agnostic filter incurs an irreducible Bayes error floor `ε* > 0` with `ε* ≥ ½ · 𝔼_X[Var_{Z\|X}(π(X,Z))]`. | §4.2 |
-| **Lemma 1** | CBE forces label indistinguishability: there exist `(X, z₁, y=1)` and `(X, z₂, y=0)` receiving identical agnostic scores. | §3.3 |
-| **Lemma 2** | The CSV is injective on the simplex of retained-context distributions whenever the relation-embedding matrix has full row rank. | §5.2 |
-| **Proposition 1** | CSV noise stability: `𝔼[‖z̃ − z‖²] = σ²d / \|S_{ℓ-1}\|`  context summaries are **most stable in the regime where they carry the most information**. | §5.2 |
-| **Proposition 2** | DBM rank sufficiency: with `ρ ≥ rank(Δ*)`, DBM can exactly represent any context-induced perturbation (Eckart–Young). | §6 |
-| **Proposition 3** | Minimizing `L_HC3` maximizes a variational lower bound on `I(Y; S \| z)`. | §5.4 |
-| **Proposition 4** | `ε*` is monotone non-decreasing in `I(Y; Z \| X)` (via Pinsker). | §4.2 |
-| **Theorem 2** | Strict TPR benefit: there exist contexts at which the optimal context-aware filter strictly outperforms the optimal context-agnostic one. | §6 |
+The paper develops two results that survive empirically:
 
----
+1. **CBE lower bound (Theorem 1).** Any filter that sees `(Q, r, ell)` only has Bayes error at least `eps*`, where `eps*` is bounded below by `I(Y; S | Q, r, ell)`. CSV+DBM provide a sufficient channel through which `S_{ell-1}` can influence the score function.
 
+2. **DPI under context conditioning.** Conditioning on a sufficient context vector `z` of the retained set is at least as good (in DPI terms) as conditioning on the raw set, justifying the CSV pool plus DBM modulation rather than per-element attention.
 
-
----
-
+The CMI bound that motivates HC3 is preserved in the paper as theoretical background. The measured behavior of HC3 on this codebase is reported under [Key Contributions](#key-contributions) and Section 22 of the discrepancies log.
 
 ---
 
@@ -227,102 +192,86 @@ L  =  L_BCE  +  λ_D · L_DC  +  λ_C · L_HC3      (λ_D = 0.40,  λ_C = 0.35)
 
 ```
 CAFF/
-├── caff/                            # Core package (importable)
-│   ├── __init__.py                  # Public API surface
-│   ├── config.py                    # CAFFConfig + AblationFlags dataclasses
-│   ├── csv.py                       # Contextual Summary Vector (Stage 2)
-│   ├── data.py                      # KG loader, BFS extractor, datasets
-│   ├── dbm.py                       # Dynamic Bilinear Modulation (Stage 3)
-│   ├── encoders.py                  # Frozen encoder + relation cache
-│   ├── evaluator.py                 # Metrics, MAP / NDCG, threshold tuning
-│   ├── losses.py                    # BCE + DC + HC3 loss objects
-│   ├── miners.py                    # DCMiner + HC3Miner + buffers
-│   ├── model.py                     # CAFFModel (CSV + DBM + scoring head)
-│   ├── scorer.py                    # DepthBilinear + HopScorer
-│   ├── trainer.py                   # CAFFTrainer + CheckpointManager
-│   └── utils/                       # seeding, logging
-│
-├── scripts/                         # Reproduction pipeline
-│   ├── convert_orphanet_xml_to_tsv.py   # Orphanet XML -> TSV
-│   ├── convert_hpo_to_tsv.py            # HPO obo -> TSV
-│   ├── convert_mondo_to_tsv.py          # MONDO obo -> TSV (experimental)
-│   ├── build_kg.py                      # Base KG from Orphanet TSV
-│   ├── merge_hpo_into_kg.py             # KG v2 = + HPO/OMIM annotations
-│   ├── merge_mondo_into_kg.py           # KG v3 = + MONDO (experimental)
-│   ├── build_orphanet_qa.py             # Sample QA records from KG
-│   ├── annotate_triples.py              # Paper-spec shortest-path gold
-│   ├── extract_bfs.py                   # Precompute BFS candidates
-│   ├── threshold_sweep.py               # Find optimal global theta
-│   └── per_hop_threshold_sweep.py       # Per-hop theta tuning
-│
-├── configs/                         # YAML training configs
-│   ├── caff_full.yaml               # Paper config (BioLinkBERT, GPU)
-│   ├── caff_no_hc3.yaml             # Ablation (no HC3 loss)
-│   ├── depthbilinear.yaml           # Baseline (no CSV / DBM)
-│   ├── caff_orphanet.yaml           # Repository default (CPU, KG v2)
-│   └── caff_smoke.yaml              # Smoke test (tiny synthetic KG)
-│
-├── tests/                           # 48+ unit tests (run by CI)
-│   ├── fixtures/                    # Tiny synthetic KG
-│   ├── test_csv.py                  # CSV faithfulness
-│   ├── test_data.py                 # KG loader + dataset
-│   ├── test_dbm.py                  # DBM rank sufficiency
-│   ├── test_evaluator.py            # Metrics + JSD diagnostic
-│   ├── test_losses.py               # BCE / DC / HC3 loss math
-│   ├── test_miners.py               # DC + HC3 mining (Phase 2)
-│   ├── test_scorer.py               # Bilinear scoring
-│   └── test_smoke_pipeline.py       # End-to-end smoke run
-│
-├── .github/workflows/
-│   └── tests.yml                    # CI: lint + pytest on every push
-│
-├── data/                            # gitignored (raw + processed)
-├── runs/                            # gitignored (checkpoints, logs)
-├── cache/                           # gitignored (BFS + relation cache)
-├── examples/                        # short usage snippets
-│
-├── train.py                         # Training entry point
-├── evaluate.py                      # Standalone evaluation script
-├── context_swap_diagnostic.py       # Appendix C diagnostic
-│
-├── README.md                        # This file
-├── CONTRIBUTING.md                  # Contribution guidelines
-├── PAPER_DISCREPANCIES.md           # 10-section running experiment log
-├── LICENSE                          # MIT
-├── requirements.txt                 # Core dependencies
-├── requirements-optional.txt        # Optional (wandb, scispacy, openai)
-├── .gitattributes
-└── .gitignore
+|-- caff/                            # Core package (importable)
+|   |-- __init__.py                  # Public API surface
+|   |-- config.py                    # CAFFConfig + AblationFlags dataclasses
+|   |-- csv.py                       # Contextual Summary Vector (Stage 2)
+|   |-- data.py                      # KG loader, BFS extractor, datasets
+|   |-- dbm.py                       # Dynamic Bilinear Modulation (Stage 3)
+|   |-- encoders.py                  # Frozen encoder + relation cache
+|   |-- evaluator.py                 # Metrics, MAP / NDCG, threshold tuning
+|   |-- losses.py                    # BCE + DC + HC3 loss objects
+|   |-- miners.py                    # DCMiner + HC3Miner + buffers
+|   |-- model.py                     # CAFFModel (CSV + DBM + scoring head)
+|   |-- scorer.py                    # DepthBilinear + HopScorer
+|   |-- trainer.py                   # CAFFTrainer + CheckpointManager
+|   `-- utils/                       # seeding, logging
+|
+|-- scripts/                         # Reproduction pipeline
+|   |-- convert_orphanet_xml_to_tsv.py   # Orphanet XML -> TSV
+|   |-- convert_hpo_to_tsv.py            # HPO obo -> TSV
+|   |-- convert_mondo_to_tsv.py          # MONDO obo -> TSV (experimental)
+|   |-- build_kg.py                      # Base KG from Orphanet TSV
+|   |-- merge_hpo_into_kg.py             # KG v2 = + HPO/OMIM annotations
+|   |-- merge_mondo_into_kg.py           # KG v3 = + MONDO (experimental)
+|   |-- build_orphanet_qa.py             # Sample QA records from KG
+|   |-- annotate_triples.py              # Shortest-path gold annotation
+|   |-- extract_bfs.py                   # Precompute BFS candidates
+|   |-- threshold_sweep.py               # Find optimal global theta
+|   |-- per_hop_threshold_sweep.py       # Per-hop theta tuning
+|   |-- probe_hc3_keys.py                # HC3 diagnostic (Section 22)
+|   |-- probe_hc3_model.py               # HC3 diagnostic (Section 22)
+|   `-- apply_hc3_fix_FINAL.py           # HC3 cross-query variant (Section 23)
+|
+|-- configs/                         # YAML training configs (see Configurations below)
+|   |-- no_dc.yaml                   # CURRENT DEFAULT (headline, F1=0.5764)
+|   |-- caff_orphanet.yaml           # Previous default (Full CAFF, F1=0.5524)
+|   |-- caff_full.yaml               # DEPRECATED: paper-spec, never trained, d=768 buggy
+|   |-- caff_no_hc3.yaml             # Ablation (HC3 off)
+|   |-- no_csv.yaml                  # Ablation (CSV off)
+|   |-- no_dbm.yaml                  # Ablation (DBM off)
+|   |-- no_freqcap.yaml              # Ablation (FreqCap off)
+|   |-- depthbilinear.yaml           # Baseline (all components off)
+|   `-- caff_smoke.yaml              # Smoke test (tiny synthetic KG, bert-base, 2 epochs)
+|
+|-- tests/                           # Unit tests (run by CI)
+|   |-- fixtures/                    # Tiny synthetic KG
+|   `-- test_*.py                    # Per-module tests
+|
+|-- .github/workflows/
+|   `-- tests.yml                    # CI: lint + pytest on every push
+|
+|-- data/                            # gitignored (raw + processed)
+|-- runs/                            # gitignored (checkpoints, logs)
+|-- cache/                           # gitignored (BFS + relation cache)
+|-- examples/                        # short usage snippets
+|
+|-- train.py                         # Training entry point
+|-- evaluate.py                      # Standalone evaluation script
+|
+|-- README.md                        # This file
+|-- CONTRIBUTING.md                  # Contribution guidelines
+|-- PAPER_DISCREPANCIES.md           # 26-section running experiment log
+|-- LICENSE                          # MIT
+|-- requirements.txt                 # Core dependencies
+|-- requirements-optional.txt        # Optional dependencies
+|-- .gitattributes
+`-- .gitignore
 ```
 
-### Notes on file purposes
+`PAPER_DISCREPANCIES.md` is the source of truth for every empirical
+decision in the repo. New experiments append a new numbered section
+there before changing the headline numbers.
 
-- **`caff/`** is the importable package. Its public API is declared in
-  `__init__.py` and matches the names referenced from `train.py`,
-  `evaluate.py`, and the test suite.
-- **`scripts/`** contains everything outside the training loop: data
-  conversion, KG construction, QA sampling, threshold tuning. Each
-  script is self-contained and can be run independently from the
-  command line.
-- **`configs/`** holds five YAML files. The paper's `caff_full.yaml`
-  expects BioLinkBERT-Large and the four-source KG and is the right
-  starting point on GPU. `caff_orphanet.yaml` is the CPU-only
-  default used throughout this repository's Implementation Reality
-  Check section.
-- **`tests/`** runs in CI on every push. All commits on `main` have
-  the suite green; see the badge near the top of this file.
-- **`PAPER_DISCREPANCIES.md`** is the source of truth for every
-  empirical decision in the repo (bug fixes, threshold choices, KG
-  scaling, the MONDO experiment). New experiments should append a
-  new numbered section there before changing the headline numbers.
+---
 
 ## Installation
 
 ### Prerequisites
 
-- **Python** ≥ 3.10
-- **CUDA** 11.8 (a single NVIDIA A100-80GB or equivalent is recommended)
-- **Git LFS** (for downloading model checkpoints, when released)
+- **Python** >= 3.10
+- **CUDA** 11.8 (a single consumer 8 GB GPU is sufficient for this codebase; the paper used A100-80GB)
+- **Git LFS** (optional, only if downloading released checkpoints)
 
 ### Setup
 
@@ -350,484 +299,297 @@ python -c "from transformers import AutoModel; AutoModel.from_pretrained('michiy
 ```
 torch>=2.0
 transformers>=4.30
-scispacy>=0.5
 networkx>=3.0
 numpy, scipy, scikit-learn, pandas
-tqdm, pyyaml, wandb (optional)
-openai>=1.0          # only for end-to-end QA with GPT-3.5-turbo
+tqdm, pyyaml
 ```
+
+`scispacy` and `openai` are listed in `requirements-optional.txt`; they are not required to run the measured pipeline in this repository.
 
 ---
 
 ## Data Preparation
-> **Note.** This section documents the *paper configuration*. The repository ships a CPU-only reproduction path with Orphanet + HPO + OMIM annotations; see [Implementation Reality Check](#implementation-reality-check) for the as-shipped workflow and the corresponding numbers.
 
-CAFF operates on a **merged biomedical KG** built from three primary sources, joined on shared **UMLS Concept Unique Identifiers (CUIs)**.
+This repository ships a reproducible pipeline using **public, non-credentialed** biomedical sources. The paper's larger KG (with DisGeNET and UMLS) is referenced for completeness, but those sources require institutional access and are **not used** in this repository's measured results.
 
-| Source | Version | Used for | Access |
-|---|---|---|---|
-| **Orphanet** | 2024 release | Rare-disease ontology, gene–disease links | <https://www.orphadata.com> |
-| **DisGeNET** | v7.0 (2020) | Gene–disease associations | <https://www.disgenet.org> |
-| **OMIM** | 2023 update | Mendelian inheritance, gene–phenotype | <https://www.omim.org> |
-| **PubMedQA** | — | QA benchmark (1,000 questions) | <https://pubmedqa.github.io/> |
-| **BioASQ 7b** | 2019 release | QA benchmark (1,141 yes/no + factoid) | <http://bioasq.org> |
+### Sources used in this repository
 
-> **Licensing note.** Orphanet, DisGeNET, OMIM, and BioASQ have their own access terms. We **do not redistribute** the raw data; users must obtain it directly from each source. The build script reproduces the merged KG deterministically.
+| Source | Used for | Access |
+|--------|----------|--------|
+| **Orphanet** (2024) | Rare-disease ontology, gene-disease links | <https://www.orphadata.com> |
+| **HPO** | Phenotype-to-disease relations | <https://hpo.jax.org> |
+| **OMIM** | Mendelian inheritance, gene-phenotype (annotations only) | <https://www.omim.org> |
 
-### Build the merged KG
+### Build the merged KG (v2: Orphanet + HPO + OMIM annotations)
 
 ```bash
-python scripts/build_kg.py \
-    --orphanet  data/raw/orphanet/ \
-    --disgenet  data/raw/disgenet/all_gene_disease_associations.tsv \
-    --omim      data/raw/omim/ \
-    --umls      data/raw/umls/MRCONSO.RRF \
-    --out       data/processed/kg.parquet \
-    --min-relation-freq 50
+# 1. Convert raw ontologies to TSV
+python scripts/convert_orphanet_xml_to_tsv.py --in data/raw/orphanet/ --out data/processed/orphanet.tsv
+python scripts/convert_hpo_to_tsv.py          --in data/raw/hpo/hp.obo  --out data/processed/hpo.tsv
+
+# 2. Build base KG and merge in HPO/OMIM
+python scripts/build_kg.py            --orphanet data/processed/orphanet.tsv --out data/processed/merged_kg.tsv
+python scripts/merge_hpo_into_kg.py   --in data/processed/merged_kg.tsv --hpo data/processed/hpo.tsv --out data/processed/merged_kg_v2.tsv
+
+# 3. Sample QA records from the KG
+python scripts/build_orphanet_qa.py --kg data/processed/merged_kg_v2.tsv --n 20000 --out data/processed/
+
+# 4. Pre-compute BFS candidates and gold annotations
+python scripts/extract_bfs.py       --kg data/processed/merged_kg_v2.tsv --L 3 --K_r 20
+python scripts/annotate_triples.py  --kg data/processed/merged_kg_v2.tsv --qa data/processed/
 ```
 
-After construction, the merged KG contains:
+After construction, the KG used in all measured results here is:
 
-| Property | Value |
-|---|---|
-| Entities `\|V\|` | **148,423** |
-| Triples `\|E\|` | **2,318,941** |
-| Relation types `\|R\|` (after singleton removal) | **42** |
-| Max BFS depth `L` | 3 |
+| Property                | Value (this repository) | Paper's larger KG |
+|-------------------------|-------------------------|-------------------|
+| Entities `|V|`          | **38,456**              | 148,423           |
+| Triples `|E|`           | **291,335**             | 2,318,941         |
+| Relation types `|R|`    | **11** (after `min_relation_freq=50`) | 42 |
+| Max BFS depth `L`       | 3                       | 3                 |
+| QA records (train/dev/test) | 14,000 / 3,000 / 3,000 | varies            |
 
-### Annotate gold relevance
-
-Triples on any shortest path from a seed entity to the gold answer entity receive `y = 1`; all others `y = 0`. This yields **≈ 3.7 M** labeled training instances across hop depths 1–3.
-
-```bash
-python scripts/annotate_triples.py \
-    --kg          data/processed/kg.parquet \
-    --pubmedqa    data/benchmarks/pubmedqa.json \
-    --linker      scispacy + UMLS \
-    --out         data/processed/gold_pubmedqa.jsonl
-```
+> **Note on PubMedQA and BioASQ.** The paper headline uses PubMedQA and
+> BioASQ 7b for end-to-end QA evaluation. This repository does **not**
+> include those benchmarks; all measured numbers below are on the
+> Orphanet-derived QA test set. PubMedQA/BioASQ evaluation is listed
+> under [Limitations](#limitations-and-future-work).
 
 ---
 
 ## Training
-> **Note.** This section documents the *paper configuration*. The repository ships a CPU-only reproduction path with Orphanet + HPO + OMIM annotations; see [Implementation Reality Check](#implementation-reality-check) for the as-shipped workflow and the corresponding numbers.
 
-### Quick start - full CAFF on PubMedQA
-
-```bash
-python train.py --config configs/caff_full.yaml
-```
-
-### Reproduce the full benchmark suite
+The current headline configuration is `configs/no_dc.yaml`. To reproduce it on three seeds:
 
 ```bash
-# 1. Strongest baseline (depth-stratified bilinear, no context)
-python train.py --config configs/depthbilinear.yaml -seed 42
-
-# 2. CAFF without HC3 loss (CSV + DBM only — ablates the CMI bound)
-python train.py --config configs/caff_no_hc3.yaml -seed 42
-
-# 3. Full CAFF
-python train.py --config configs/caff_full.yaml -seed 42
-
-# 4. Repeat across the three reported seeds
 for s in 42 1337 2024; do
-    python train.py --config configs/caff_full.yaml --seed $s
+    python train.py --config configs/no_dc.yaml --seed $s
 done
 ```
 
-### Key training hyperparameters
+Each seed takes about 40 minutes on an 8 GB consumer GPU (RTX 4060). The `train.py` script auto-detects CUDA and applies sensible hardware overrides (`micro_batch_size=4, grad_accum_steps=64, mixed_precision=fp16`, effective batch 256).
+
+### Reproduce the ablation suite
+
+```bash
+# Full leave-one-out ablation (3 seeds each)
+for cfg in caff_orphanet no_dc no_csv no_dbm no_freqcap caff_no_hc3 depthbilinear; do
+    for s in 42 1337 2024; do
+        python train.py --config configs/$cfg.yaml --seed $s
+    done
+done
+
+# Per-hop threshold tuning on each variant
+for cfg in caff_orphanet no_dc no_csv no_dbm no_freqcap depthbilinear; do
+    for s in 42 1337 2024; do
+        python scripts/per_hop_threshold_sweep.py \
+            --config configs/$cfg.yaml \
+            --checkpoint runs/$cfg/seed_$s/best.pt
+    done
+done
+```
+
+### Key training hyperparameters (no_dc.yaml, the current default)
 
 | Hyperparameter | Default | Notes |
-|---|---:|---|
-| Optimizer | AdamW | weight decay `1e-2` |
-| Base learning rate | `3e-4` | cosine decay to `1e-5`, 2-epoch linear warmup |
-| Batch size | 256 | |
-| Epochs | 30 | early stopping on dev, patience 5 |
-| Gradient clip | `‖∇‖₂ ≤ 1.0` | |
-| Random seeds | `{42, 1337, 2024}` | three runs reported |
+|----------------|--------:|-------|
+| Optimizer | AdamW | weight decay 1e-2 |
+| Base learning rate | 3e-4 | cosine decay to 1e-5, 1-epoch warmup |
+| Effective batch size | 256 | micro=4, accum=64 on 8 GB GPU |
+| Epochs | 10 | early stopping on dev F1, patience 5 |
+| Gradient clip | 1.0 | |
+| Random seeds | {42, 1337, 2024} | three runs reported |
+| Encoder | BioLinkBERT-large (340 M, frozen) | output dim 1024 |
 
 ---
 
 ## Evaluation
 
-### Filtering-layer metrics
+### Filtering-layer metrics (per-hop test F1, MAP, NDCG@10)
+
+```bash
+python scripts/per_hop_threshold_sweep.py \
+    --config configs/no_dc.yaml \
+    --checkpoint runs/no_dc/seed_42/best.pt
+```
+
+This script tunes per-hop thresholds on the dev set, then reports F1 / precision / recall on the held-out test set under three regimes: global theta=0.50, global theta=0.80, and per-hop tuned thresholds.
+
+### Paired-bootstrap significance test
 
 ```bash
 python evaluate.py \
-    --checkpoint  runs/caff_full/seed_42/best.pt \
-    --benchmark   pubmedqa \
-    --metrics     precision recall f1 map ndcg@10 \
-    --hop-stratified
+    --checkpoint runs/no_dc/seed_42/best.pt \
+    --report-bootstrap-vs runs/caff_orphanet/seed_42/best.pt \
+    --mode autoregressive \
+    --output-json results/bench_no_dc_vs_full_seed_42.json
 ```
 
-### End-to-end question answering (GPT-3.5-turbo backbone)
+Outputs the test-set metrics (F1, MAP, NDCG@10, per-hop precision) at `theta=0.80` in autoregressive (no gold leakage) inference mode, plus a paired bootstrap on per-query AP versus the baseline checkpoint (10,000 resamples).
 
-```bash
-export OPENAI_API_KEY=<your-key>
-
-python evaluate.py \
-    --checkpoint  runs/caff_full/seed_42/best.pt \
-    --benchmark   pubmedqa \
-    --llm-backbone gpt-3.5-turbo \
-    --temperature 0 --top-p 1 \
-    --metrics     accuracy
-```
-
-Triples are serialized as one per line:
-
-```
-[head] -- [relation] --> [tail]
-```
-
-### Diagnostic context-swap experiment (Appendix C)
-
-This experiment **directly measures CBE**: it presents the same `(Q, r, ℓ=2)` under two semantically opposing upstream contexts and reports the Jensen–Shannon divergence between the resulting score distributions.
-
-```bash
-python context_swap_diagnostic.py \
-    --checkpoint  runs/caff_full/seed_42/best.pt \
-    --report-bits
-```
-
-> Every context-agnostic baseline yields **JSD = 0.00 bits** (the empirical signature of CBE). CAFF achieves **JSD = 1.84 bits**  concrete proof that the architectural fix is doing what the theory predicts.
+The end-to-end QA evaluation with an LLM backbone (paper Section 9.2)
+is **not implemented** in this repository; see
+[Limitations](#limitations-and-future-work).
 
 ---
 
-## Main Results
-> **Note.** The numbers in this section are the *paper headline* reproduced from the manuscript. For the as-shipped CPU pipeline (Orphanet + HPO + OMIM, bert-base-uncased), see [Implementation Reality Check](#implementation-reality-check) directly below, where F1 = 0.522 +/- 0.001 is reported with full 3-seed validation.
+## Main Results (Measured)
 
-### End-to-end QA (mean over 3 seeds)
+All numbers below are measured on the held-out Orphanet QA test set
+(3,000 queries, 102,317 candidate triples, never used in training or
+threshold tuning). Three seeds, deterministic.
 
-| Method | PubMedQA Acc. | PubMedQA MAP | BioASQ 7b Macro-F1 | BioASQ MAP |
-|---|---:|---:|---:|---:|
-| BM25 | 68.2 | 0.571 | 61.3 | 0.519 |
-| DPR-Bio | 72.4 | 0.618 | 65.7 | 0.562 |
-| BioRAG | 74.1 | 0.641 | 68.9 | 0.591 |
-| SubgraphRAG | 75.6 | 0.658 | 69.8 | 0.605 |
-| DepthBilinear (B5, immediate predecessor) | 76.9 | 0.672 | 71.1 | 0.621 |
-| CAFF - NoHC3 | _78.2_ | _0.689_ | _72.8_ | _0.638_ |
-| **CAFF (Full)** | **79.6** | **0.703** | **74.3** | **0.652** |
-| **Δ (Full vs. B5)** | **+2.7** | **+0.031** | **+3.2** | **+0.031** |
+### Headline (No-DC, the current default)
 
-All gains over DepthBilinear are statistically significant at `p < 0.01` (paired bootstrap, 10,000 resamples).
+| Metric                     | Mean +/- std       | Mode |
+|----------------------------|---------------------|------|
+| **Test F1 (per-hop)**      | **0.5764 +/- 0.0022** | teacher-forced |
+| Test F1 (autoregressive)   | 0.5477 +/- 0.0006   | autoregressive (no gold leakage) |
+| Test MAP                   | 0.6741 +/- 0.0003   | autoregressive |
+| Test NDCG@10               | 0.7090 +/- 0.0003   | autoregressive |
+| Hop-1 precision            | 0.8234 +/- 0.0047   | autoregressive |
+| Hop-2 precision            | 0.4378 +/- 0.0006   | autoregressive |
+| Hop-3 precision            | 0.2426 +/- 0.0026   | autoregressive |
 
-### Hop-stratified triple precision (PubMedQA test)
+### Comparison to previous default
 
-| Method | Hop 1 | Hop 2 | Hop 3 | Avg |
-|---|---:|---:|---:|---:|
-| DepthBilinear | 61.7 | 54.3 | 48.8 | 54.9 |
-| **CAFF (Full)** | **62.4** | **61.2** | **58.1** | **60.6** |
-| **Δ_ℓ** | **+0.7** | **+6.9** | **+9.3** | **+5.7** |
+| Configuration | Test F1 (per-hop) | Test F1 (autoregressive) | delta_AP vs No-DC | p-value |
+|---------------|------------------:|--------------------------:|-------------------|--------:|
+| **No-DC (current default)** | **0.5764 +/- 0.0022** | **0.5477 +/- 0.0006** | -- | -- |
+| Full CAFF (previous default) | 0.5524 +/- 0.0016 | not separately rerun | -0.0250 +/- 0.0039 | < 0.01 |
 
-> The gain at hop 1 is **near zero** by design , with no prior retained set, `z₀ = 0` and CAFF reduces exactly to DepthBilinear. Gains concentrate at hops 2 and 3, **directly validating Theorem 1**: context-agnostic filters accumulate disproportionate error at deeper hops because `I(Y_ℓ; Z_{ℓ-1} | Q, r, ℓ)` grows with depth.
-
-### Path-survival rate (PSR)
-
-A filter that maximizes edge-level F1 independently per hop can still drive multi-hop **path survival** to zero. CAFF's context conditioning correlates retention decisions *along the same path*:
-
-| Method | F1 | PSR | End-to-end Acc. |
-|---|---:|---:|---:|
-| DepthBilinear | 66.6 | 63.3 | 76.9 |
-| CAFF - NoHC3 | 68.8 | 71.2 | 78.2 |
-| **CAFF (Full)** | **70.5** | **75.7** | **79.6** |
-
-> The **+12.4-point PSR gap** between CAFF and DepthBilinear is the finite-sample manifestation of the `ε*` floor.
-
-### Context-separation diagnostic (controlled context-swap)
-
-| Method | s^(A) | s^(B) | **JSD (bits)** |
-|---|---:|---:|---:|
-| BM25 | 0.617 | 0.617 | 0.00 |
-| DPR-Bio | 0.638 | 0.638 | 0.00 |
-| BioRAG | 0.621 | 0.621 | 0.00 |
-| SubgraphRAG | 0.634 | 0.634 | 0.00 |
-| DepthBilinear | 0.620 | 0.620 | 0.00 |
-| CAFF - NoHC3 | 0.741 | 0.301 | **1.41** |
-| **CAFF (Full)** | **0.792** | **0.238** | **1.84** |
-
-> Every context-agnostic baseline yields exactly **0.00 bits** of context separation — direct empirical confirmation of CBE.
+Paired bootstrap on per-query AP with 10,000 resamples, computed per
+seed; all three 95% confidence intervals exclude zero, and p < 0.01 on
+every seed. Full benchmark in `PAPER_DISCREPANCIES.md` Section 26.
 
 ---
 
+## Ablation Study (Measured)
+
+Leave-one-out over every component the paper proposes, plus the
+strongest depth-stratified baseline, on the held-out Orphanet test set.
+Three seeds per variant; per-hop test F1 with thresholds tuned on dev.
+
+| Variant | dev_f1 | global theta=0.80 | per-hop test F1 | vs Full CAFF |
+|---------|-------:|------------------:|----------------:|-------------:|
+| **No-DC (current default)** | **0.5662** | **0.5787** | **0.5764 +/- 0.0022** | **+0.0240** |
+| Full CAFF (previous default) | 0.5099 | 0.5315 | 0.5524 +/- 0.0016 | -- |
+| No-HC3 (HC3 off) | 0.5099 | 0.5315 | 0.5524 (identical to Full) | 0.0000 |
+| No-FreqCap (frequency cap off) | 0.5099 | 0.5315 | 0.5524 (identical to Full) | 0.0000 |
+| No-DBM (DBM off) | 0.4535 | 0.4878 | 0.5063 +/- 0.0046 | -0.0461 |
+| No-CSV (CSV off) | 0.4540 | 0.4821 | 0.5054 +/- 0.0027 | -0.0470 |
+| DepthBilinear (all off) | 0.5135 | 0.5250 | 0.4966 +/- 0.0121 | -0.0558 |
+
+Take-aways:
+
+1. **CSV and DBM are the real architectural contribution.** They form a coupled pair (CSV produces `z`, DBM consumes it); removing either breaks the context-aware path and costs about 0.046 F1.
+2. **DC hurts at the paper configuration (lambda_D=0.40).** No-DC outperforms Full on every metric (dev, global theta, per-hop, autoregressive, paired bootstrap). Section 25-26 of `PAPER_DISCREPANCIES.md` records the full evidence including the code-level verification that No-DC differs from Full only in DC (loss-only, identical forward pass).
+3. **HC3 is inert.** The training-time loss produces zero gradient under the paper's setting because keys collide between teacher-forced positives and negatives; an attempted cross-query fix raised the gradient norm but did not change held-out F1 (Sections 22-23).
+4. **FreqCap is inert here.** The Orphanet+HPO+OMIM KG has only 11 relations after `min_relation_freq=50`, so the per-relation cap has nothing to act on.
 
 ---
 
-## Implementation Reality Check
+## Configurations
 
-The numbers above (`Main Results`) are reproduced from the paper with
-the configuration described in Sections 7-8 of the manuscript:
-BioLinkBERT-Large encoder, 30 epochs on a single A100-80GB, the full
-four-source merged KG (Orphanet + DisGeNET + OMIM + UMLS) with
-`|V| = 148,423` and `|E| = 2,318,941`. They represent the published
-upper bound that the method can reach when given the full compute and
-data budget.
+This repository ships nine YAML configs under `configs/`. The first
+four cover the headline plus the previous default; the next four are
+ablations; the last is for CI smoke-testing.
 
-This repository ships an implementation that any reviewer can run
-**today on consumer hardware** (CPU laptop or single 8 GB GPU) without
-DisGeNET / UMLS credentials. To make the gap explicit, this section
-reports the numbers we obtain in two settings, both validated with
-three random seeds:
+| Config file | Purpose | Trained in this repo? | Per-hop test F1 (3 seeds) |
+|-------------|---------|:---------------------:|--------------------------:|
+| `no_dc.yaml` | **Current headline** (CSV + DBM, DC off) | Yes | **0.5764 +/- 0.0022** |
+| `caff_orphanet.yaml` | Previous headline (Full CAFF) | Yes | 0.5524 +/- 0.0016 |
+| `caff_no_hc3.yaml` | Ablation (HC3 off) | Yes | = Full (HC3 inert) |
+| `no_freqcap.yaml` | Ablation (FreqCap off) | Yes | = Full (FreqCap inert) |
+| `no_csv.yaml` | Ablation (CSV off, lower bound) | Yes | 0.5054 +/- 0.0027 |
+| `no_dbm.yaml` | Ablation (DBM off, lower bound) | Yes | 0.5063 +/- 0.0046 |
+| `depthbilinear.yaml` | Baseline (all components off) | Yes | 0.4966 +/- 0.0121 |
+| `caff_smoke.yaml` | CI smoke test (tiny KG, 2 epochs, bert-base) | Yes (CI) | n/a |
+| `caff_full.yaml` | **DEPRECATED**: paper-spec config, never trained in this repo (`d=768` does not match BioLinkBERT-Large output dim 1024). Kept for reference. | **No** | n/a |
 
-1. **CPU baseline** (`bert-base-uncased`, 20K QA, 3 seeds): F1 = 0.522 +/- 0.001
-2. **GPU + BioLinkBERT-Large** (paper-spec encoder, same KG/QA): **F1 = 0.5315 +/- 0.0003**
-
-The GPU + BioLinkBERT result lifts F1 by +0.016 absolute (+3.1%
-relative) over the CPU baseline, with the tightest variance in the
-project's history (sigma = 0.0003).
-
-### Configuration as shipped
-
-| Component             | Paper setting             | Repository default                |
-|-----------------------|---------------------------|-----------------------------------|
-| Encoder               | BioLinkBERT-Large (340 M) | `bert-base-uncased` (110 M, frozen) |
-| KG sources            | Orphanet + DisGeNET + OMIM + UMLS | Orphanet + HPO + OMIM annotations  |
-| KG size `\|V\|/\|E\|/\|R\|` | 148,423 / 2,318,941 / 42 | 38,456 / 291,335 / 11             |
-| QA records            | PubMedQA + BioASQ (~2.1K) | 20,000 sampled from KG (14K/3K/3K) |
-| Hardware              | 1 x A100-80GB             | CPU (Intel/AMD, 16 GB RAM)         |
-| Epochs                | 30 with patience 5        | 10 with patience 5                |
-| Threshold `theta`     | 0.50                      | 0.80 (chosen from a dev sweep)    |
-| Seeds                 | {42, 1337, 2024}          | {42, 1337, 2024}                  |
-
-### Measured numbers on the held-out test set (3 seeds)
-
-| metric           | mean +/- std       |
-|------------------|---------------------|
-| F1               | **0.522 +/- 0.001** |
-| Precision        | 0.479 +/- 0.007     |
-| Recall           | 0.574 +/- 0.014     |
-| MAP              | 0.638 +/- 0.000     |
-| NDCG@10          | 0.681 +/- 0.000     |
-| Hop-1 precision  | 0.803 +/- 0.005     |
-| Hop-2 precision  | 0.417 +/- 0.012     |
-| Hop-3 precision  | 0.254 +/- 0.001     |
-
-Test set: 3,000 queries, 102K candidate triples, never used in
-training or threshold tuning. Variance across the three seeds is
-extremely tight (std on F1 is 0.001, std on MAP and NDCG is 0.0002).
-
-### How the gap to the paper headline is composed
-
-The paper reports filtering F1 at the upper end of 0.70 and end-to-end
-QA accuracy of 0.796. Our 0.522 is the same method run with materially
-weaker pieces. A rough decomposition of where the missing ~0.27 should
-come from, supported by the experiments documented in
-`PAPER_DISCREPANCIES.md`:
-
-| Change                                         | Expected delta on F1 |
-|------------------------------------------------|---------------------:|
-| `bert-base-uncased` -> `BioLinkBERT-Large` (MEASURED) | +0.016 (3.1%)     |
-| Add DisGeNET + UMLS gene-disease layer         | +0.05 to +0.10       |
-| Larger trainable head (current is 0.77 M)      | +0.02 to +0.05       |
-| Per-relation thresholds                        | +0.02 to +0.05       |
-| Longer training on GPU (30 epochs vs 10)       | +0.02 to +0.05       |
-
-Plausible reach with all of the above: F1 in the 0.65 - 0.75 band.
-The first row (encoder upgrade) is now empirically measured at +0.016;
-the remaining four rows are open. Closing the full distance to 0.79
-is not yet supported by an end-to-end run on this codebase, but the
-encoder upgrade alone moved F1 from 0.522 to 0.5315.
-
-### Data-scaling experiment (5K vs 20K QA records)
-
-The QA-set size matters but not as much as one might expect on this
-KG/encoder combination. Both rows below are 3-seed validated on the
-same held-out test set:
-
-| QA records | Test F1         | Test recall     | Test MAP        |
-|------------|-----------------|-----------------|-----------------|
-| 5,000      | 0.509 +/- 0.005 | 0.500 +/- 0.002 | 0.625 +/- 0.007 |
-| 20,000     | 0.522 +/- 0.001 | 0.574 +/- 0.014 | 0.638 +/- 0.000 |
-
-Quadrupling the training data buys +2.6% absolute F1, almost entirely
-through recall (+14.8%). Variance shrinks 5x. This is consistent with
-the bottleneck being model capacity (frozen 110 M encoder + 0.77 M
-trainable head), not data quantity.
-
-### GPU + BioLinkBERT-Large upgrade (Phase 5)
-
-The CPU baseline above uses `bert-base-uncased` because that fits in
-memory without a GPU. Phase 5 moved training to a single 8 GB
-consumer GPU (NVIDIA RTX 4060) and replaced the encoder with the
-paper-cited `michiyasunaga/BioLinkBERT-large` (340 M params, frozen).
-All other settings, the KG, the QA sample, the seeds, and the
-threshold are unchanged.
-
-| Configuration                | Test F1         | Test recall     | Hop-2 prec      | Variance |
-|------------------------------|-----------------|-----------------|-----------------|----------|
-| CPU + bert-base-uncased      | 0.522 +/- 0.001 | 0.574 +/- 0.014 | 0.417 +/- 0.012 | tight    |
-| GPU + bert-base-uncased      | 0.515 +/- 0.003 | 0.561 +/- 0.012 | 0.424 +/- 0.005 | tight    |
-| GPU + BioLinkBERT-Large      | **0.5315 +/- 0.0003** | **0.5791 +/- 0.0010** | **0.4430 +/- 0.0009** | tightest |
-
-Two findings stand out:
-
-1. **The biomedical encoder lifts test F1 by +0.016 absolute (+3.1%
-   relative).** The lift is concentrated in classification metrics
-   (precision, recall, per-hop precision); MAP and NDCG@10 are
-   essentially unchanged. This means BioLinkBERT shifts the score
-   distribution toward a more favorable operating point rather than
-   reordering the candidate ranking.
-
-2. **The variance collapses to sigma = 0.0003 on F1.** This is the
-   tightest reproducibility in the project's history and suggests
-   that larger biomedical-pretrained encoders produce more stable
-   CAFF behaviour on this KG.
-
-The dev-set lift was much smaller (+0.34%), so the GPU + BioLinkBERT
-gain only becomes visible on the held-out test set. Section 11 of
-`PAPER_DISCREPANCIES.md` documents the two-stage validation in full.
-
-GPU hardware overrides handled automatically by `train.py`:
-`micro_batch_size: 4, grad_accum_steps: 64, mixed_precision: fp16`
-(effective batch size 256, matching the paper). Each seed takes
-~40-50 minutes on the 8 GB RTX 4060 (vs ~80 minutes on CPU); total
-3-seed time was ~130 minutes including BioLinkBERT first-load.
-
-### Negative result kept on record: MONDO ontology integration
-
-We tried adding the MONDO Disease Ontology (26K terms, 40K is_a edges,
-17K equivalent_to xrefs to Orphanet/OMIM) to grow the KG to 66K
-nodes / 348K edges. MONDO improved ranking quality (MAP +5%, NDCG +8%)
-but reduced F1 by 7% at the existing threshold because it injected
-many borderline-confident candidates the model had not learned to
-suppress. We reverted to the Orphanet+HPO KG and kept the MONDO
-scripts (`scripts/convert_mondo_to_tsv.py`,
-`scripts/merge_mondo_into_kg.py`) for future work that addresses
-candidate filtering or per-source thresholds.
-
-### Reproducing the numbers in this section
-
-The CPU baseline (F1 = 0.522) reproduces with `bert-base-uncased`.
-For the GPU + BioLinkBERT-Large result (F1 = 0.5315), set
-`encoder_name: michiyasunaga/BioLinkBERT-large` and `d: 1024` in
-`configs/caff_orphanet.yaml` before step 4 below; the rest is
-identical. `train.py` auto-detects CUDA and applies sensible
-hardware overrides for an 8 GB GPU.
-
-```bash
-# 1. Convert raw ontologies to TSV (one-time, ~5 minutes)
-python scripts/convert_orphanet_xml_to_tsv.py
-python scripts/convert_hpo_to_tsv.py
-
-# 2. Build the merged KG v2 (Orphanet + HPO + OMIM annotations)
-python scripts/build_kg.py --orphanet data/raw/orphanet/ --out data/processed/merged_kg.tsv
-python scripts/merge_hpo_into_kg.py        # produces merged_kg_v2.tsv
-
-# 3. Sample 20,000 QA records from the KG
-python scripts/build_orphanet_qa.py \
-    --kg data/processed/merged_kg_v2.tsv \
-    --out-dir data/processed --n 20000
-
-# 4. Train three seeds (each takes ~80 min on CPU)
-for s in 42 1337 2024; do
-    python train.py --config configs/caff_orphanet.yaml --seed $s
-done
-
-# 5. Sweep thresholds on dev to find the optimum (chosen: 0.80)
-python scripts/threshold_sweep.py
-
-# 6. Evaluate each seed on the held-out test set
-for s in 42 1337 2024; do
-    python scripts/threshold_sweep.py \
-        --checkpoint runs/caff_orphanet/seed_${s}/best.pt \
-        --thresholds 0.80
-done
-```
-
-A reviewer running these commands deterministically reproduces the
-numbers in the table above. See `PAPER_DISCREPANCIES.md` for the
-ten-section running log of every experiment that informed the choices
-in this README.
-
-## Ablation Study
-
-| Variant | Acc. | F1 | ΔAcc. |
-|---|---:|---:|---:|
-| **CAFF (Full)** | **79.6** | **70.5** | — |
-| − CSV (`z_{ℓ-1} ≡ 0`) | 76.9 | 66.6 | −2.7 |
-| − DBM (`Δ_ℓ ≡ 0`) | 77.8 | 67.9 | −1.8 |
-| − `L_HC3` | 78.2 | 68.8 | −1.4 |
-| − `L_DC` | 78.9 | 69.7 | −0.7 |
-| − Frequency cap | 78.4 | 69.1 | −1.2 |
-| Mean-CSV → max-pool | 79.1 | 69.9 | −0.5 |
-| sigmoid gate → ReLU | 79.3 | 70.1 | −0.3 |
-| `ρ = 8` (half rank) | 79.0 | 69.7 | −0.6 |
-| `ρ = 32` (double rank) | 79.5 | 70.4 | −0.1 |
-
-**Take-aways.**
-1. Removing the CSV is the **largest single-component drop** , CSV is the primary CBE-elimination mechanism.
-2. HC3 contributes an independent **+1.4 pts** by maximizing the CMI bound.
-3. `ρ = 16` is near-optimal; `ρ = 32` yields only a marginal `−0.1` improvement.
+To re-run any of these, see [Training](#training).
 
 ---
 
 ## Hyperparameters
 
-| Symbol | Meaning | Default |
-|---|---|---:|
-| `d` | Embedding dimension (BioLinkBERT-Large) | 768 |
+The current headline (`no_dc.yaml`) uses:
+
+| Symbol | Meaning | Value |
+|--------|---------|------:|
+| `d` | Embedding dimension (BioLinkBERT-Large output) | 1024 |
 | `L` | Maximum BFS hop depth | 3 |
-| `ρ` | DBM rank | 16 |
-| `θ` | Retention threshold | 0.50 |
+| `rho` | DBM rank | 16 |
+| `theta` | Retention threshold (global default) | 0.80 |
 | `K_r` | Frequency cap per relation per head | 20 |
-| `γ_C` | HC3 margin | 0.25 |
-| `γ_D` | Depth-contrastive margin | 0.20 |
-| `λ_C` | HC3 loss weight | 0.35 |
-| `λ_D` | DC loss weight | 0.40 |
+| `gamma_C` | HC3 margin | 0.25 |
+| `gamma_D` | Depth-contrastive margin | 0.20 |
+| `lambda_C` | HC3 loss weight | 0.35 (loss inert at this value) |
+| `lambda_D` | DC loss weight | **0.0** (current default; paper specifies 0.40) |
+| `min_relation_freq` | Drop singleton relations at KG load | 50 |
 
-CAFF maintains accuracy within **±1.5 pts** of its best configuration over the joint robustness box
-
-```
-γ_C ∈ [0.15, 0.35],   γ_D ∈ [0.10, 0.30],   lr ∈ [2e-4, 5e-4],
-```
-
-a wider basin than reported for SubgraphRAG or BioRAG.
+The values for `gamma_C`, `lambda_C`, `gamma_D` are kept identical to the paper so the inertness of HC3 and the harmfulness of DC can be reproduced under the paper's own setting. A lambda_D sweep (whether smaller positive values rescue DC) is listed under future work.
 
 ---
 
 ## Reproducibility
 
 - All reported results are **mean across three seeds** `{42, 1337, 2024}`.
-- Standard deviations exceeding `0.3` points are noted in the paper text.
-- Statistical significance is assessed via **paired bootstrap resampling** (`B = 10,000`).
-- The frozen relation encoder (`BioLinkBERT-Large`, 340 M params) is **never updated**, confining all learnable capacity to **< 12 M parameters** (≈ 3.5% of the backbone).
-- Code, preprocessing scripts, trained checkpoints, and the merged-KG construction pipeline released under the MIT License.
+- Training is deterministic (`config.deterministic = true`); the same seed produces bit-identical results across runs on the same hardware.
+- Standard deviations are reported in every table above.
+- Hardware: NVIDIA Studio Driver 596.36, RTX 4060 Laptop 8 GB, PyTorch 2.2.1 + CUDA 11.8, Windows 11.
+- Checkpoints under `runs/<config_name>/seed_<seed>/best.pt`.
+- Per-seed benchmark JSON outputs under `results/bench_no_dc_vs_full_seed_<seed>.json`.
 
 ---
 
 ## Hardware Requirements
 
-| Resource | Specification |
-|---|---|
-| GPU | 1 × NVIDIA A100-80GB SXM4 (recommended) |
-| GPU memory | ≥ 40 GB for default batch size (256) |
-| System RAM | ≥ 64 GB (KG fits in memory) |
-| Disk | ≈ 25 GB (raw + processed data + checkpoints) |
-| Framework | PyTorch 2.0+ · CUDA 11.8 |
+| Stage | Minimum | This repo's reference | Paper's reference |
+|-------|---------|------------------------|-------------------|
+| KG build + BFS | 8 GB RAM, any CPU | i9-13900H, 32 GB | -- |
+| Training (per seed) | 8 GB consumer GPU | RTX 4060 Laptop, ~40 min | A100-80GB, ~80 min |
+| Evaluation | 8 GB consumer GPU | RTX 4060, ~2 min | -- |
+| End-to-end QA with LLM | not implemented in this repo | -- | A100 + GPT-3.5-turbo API |
 
-| Stage | Wall-clock (single A100) |
-|---|---:|
-| KG construction (one-time) | ≈ 25 min |
-| Triple annotation (one-time) | ≈ 40 min |
-| Training (single seed) | ≈ 4.5 h |
-| Training (3 seeds, full pipeline) | ≈ 13.5 h |
+CPU-only training is supported via `train.py`'s automatic hardware
+override (`micro_batch_size=8, grad_accum_steps=32`), but a CPU-only
+run with the BioLinkBERT-Large encoder is impractical (the encoder
+takes ~9 GB of CPU RAM and inference is roughly 8x slower than on the
+8 GB GPU).
 
 ---
 
-## Limitations
+## Limitations and Future Work
 
-1. **Relation-type aggregation only.** The CSV summarizes relation types; entity-type information in `S_{ℓ-1}` is currently discarded.
-2. **Fixed hop depth.** Evaluation uses `L = 3`; deeper paths are mechanically supported but require longer HC3 chains and larger triplet-mining buffers.
-3. **LLM backbone.** End-to-end QA results use GPT-3.5-turbo. Sensitivity to other backbones (LLaMA-3, Mistral-7B) is left to future work.
-4. **KG completeness.** CAFF cannot recover missing triples or correct factually incorrect edges in the source KG.
-5. **Annotation method.** Gold labels rely on shortest-path reachability and may miss clinically relevant longer paths.
-6. **Empty retained sets.** When `S_{ℓ-1} = ∅`, CAFF degrades gracefully to DepthBilinear; a soft-retention CSV variant is a natural extension.
+This repository is honest about what is **not** measured here, so a
+reader can decide whether the gaps matter for their use case.
+
+1. **No PubMedQA or BioASQ evaluation.** The paper's headline accuracy numbers (PubMedQA 79.6, BioASQ 74.3) are end-to-end QA results on those benchmarks. This repository does not include those datasets or their QA pipelines. Adapting CAFF to PubMedQA requires (a) a UMLS-linked KG that covers the PubMedQA entity space, and (b) an LLM backbone to consume the filtered triples; neither is shipped here. BioASQ evaluation is a closer target if a compatible KG can be assembled.
+
+2. **No end-to-end QA with an LLM backbone.** The paper uses GPT-3.5-turbo to produce final answers from the filtered triple set. This repository measures the **filtering layer only** (F1, MAP, NDCG@10, per-hop precision). End-to-end QA accuracy is not measured.
+
+3. **No context-swap diagnostic in code.** The paper's Appendix C diagnostic (controlled context-swap, JSD in bits) is described in the paper but is not implemented in this codebase. The architecture exposes the necessary hooks (the CSV vector `z` is a tensor that can be edited at evaluation time); adding the diagnostic is straightforward future work.
+
+4. **No path-survival-rate (PSR) metric.** The paper reports PSR on PubMedQA. This metric is not computed in the evaluator; it requires joining filter decisions back to the original BFS paths.
+
+5. **Smaller KG than the paper.** This repository uses Orphanet + HPO + OMIM (|V|=38K, |R|=11). The paper uses Orphanet + DisGeNET + OMIM + UMLS (|V|=148K, |R|=42). DisGeNET and UMLS require institutional access. The MONDO ontology was tested as a partial substitute (Section 11 of `PAPER_DISCREPANCIES.md`) and reverted because it injected borderline-confident candidates that hurt F1.
+
+6. **DC at lambda_D=0.40 is harmful here.** Whether a smaller lambda_D (e.g., 0.05 to 0.20) could rescue DC is open. The current headline simply disables DC; a lambda_D sweep is listed as the next ablation.
+
+7. **HC3 is inert here.** The cross-query variant of the negative miner (Section 23) raised the loss gradient but did not change held-out F1. A larger, more diverse KG might re-activate the loss; on this KG it does not contribute.
+
+8. **Relation-type aggregation only.** The CSV pools relation embeddings; head/tail entity types in the retained set are discarded. A typed CSV variant is plausible future work.
+
+9. **Fixed hop depth `L=3`.** Deeper paths are mechanically supported but would require longer HC3/DC chains and larger triplet-mining buffers.
+
+10. **Empty retained sets.** When `S_{ell-1}` is empty, CSV outputs `z=0` and DBM reduces to `Delta=0`, so CAFF degrades gracefully to DepthBilinear. A soft-retention variant is a natural extension.
 
 ---
 
 ## Citation
 
-If you use CAFF, the merged KG construction, or the context-swap diagnostic in your work, please cite:
+If you use this codebase or the methodology, please cite:
 
 ```bibtex
 @article{dhifallah2026caff,
@@ -840,33 +602,31 @@ If you use CAFF, the merged KG construction, or the context-swap diagnostic in y
 }
 ```
 
+The empirical results in this README (No-DC headline, leave-one-out
+ablation, paired bootstrap, HC3 inertness, DC harmfulness) are
+documented in `PAPER_DISCREPANCIES.md` Sections 22-26.
+
 ---
 
 ## License
 
-This project is released under the **MIT License**  see [`LICENSE`](LICENSE) for the full text.
+This project is released under the **MIT License**; see [`LICENSE`](LICENSE) for the full text.
 
-> The merged KG **derived from** Orphanet, DisGeNET, and OMIM is **not redistributed**; users must obtain the source data directly under each provider's terms.
+> The merged KG **derived from** Orphanet, HPO, and OMIM is **not redistributed**; users must obtain the source data directly under each provider's terms.
 
 ---
 
 ## Acknowledgements
 
-This research was conducted at the **School of Software Engineering, Dalian University of Technology (DUT)**, with support from the **CSC Type-B Scholarship**. We thank the maintainers of **Orphanet**, **DisGeNET**, **OMIM**, **PubMedQA**, **BioASQ**, **UMLS**, **SciSpacy**, and **BioLinkBERT** for making their resources publicly available.
+This research was conducted at the **School of Software Engineering, Dalian University of Technology (DUT)**, with support from the **CSC Type-B Scholarship**. We thank the maintainers of **Orphanet**, **HPO**, **OMIM**, and **BioLinkBERT** for making their resources publicly available.
 
 ---
 
 ## Contact
 
 | Role | Name | Email |
-|---|---|---|
+|------|------|-------|
 | Corresponding author | **Marwan Dhifallah** (M.Sc. student, DUT) | <marwan@mail.dlut.edu.cn> |
 | Supervisor | **Prof. Yu Liu** (Associate Professor, DUT) | <yuliu@dlut.edu.cn> |
 
 For bugs and feature requests, please open an [issue](../../issues). For research collaborations, please contact the corresponding author directly.
-
----
-
-<p align="center">
-  <i>If CAFF helps your research, a ⭐ on this repository is appreciated.</i>
-</p>
