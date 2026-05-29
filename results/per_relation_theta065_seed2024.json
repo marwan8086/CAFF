@@ -1,0 +1,122 @@
+{
+  "checkpoint": "runs\\no_dc\\seed_2024\\best.pt",
+  "mode": "autoregressive",
+  "threshold": 0.65,
+  "overall": {
+    "precision": 0.3613857273406995,
+    "recall": 0.6779925187032418,
+    "f1": 0.4714680539749634
+  },
+  "per_relation": [
+    {
+      "relation": "is_a",
+      "n_total": 75469,
+      "n_pos": 5214,
+      "n_neg": 70255,
+      "pos_rate": 0.06908796989492375,
+      "precision": 0.39510763209393346,
+      "recall": 0.7744533947065593,
+      "f1": 0.523260334326811
+    },
+    {
+      "relation": "has_phenotype",
+      "n_total": 24692,
+      "n_pos": 1146,
+      "n_neg": 23546,
+      "pos_rate": 0.04641179329337437,
+      "precision": 0.17142857142857143,
+      "recall": 0.24607329842931938,
+      "f1": 0.20207810820494446
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_in",
+      "n_total": 838,
+      "n_pos": 42,
+      "n_neg": 796,
+      "pos_rate": 0.050119331742243436,
+      "precision": 0.24175824175824176,
+      "recall": 0.5238095238095238,
+      "f1": 0.3308270676691729
+    },
+    {
+      "relation": "major_susceptibility_factor_in",
+      "n_total": 751,
+      "n_pos": 1,
+      "n_neg": 750,
+      "pos_rate": 0.0013315579227696406,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_loss_of_function_in",
+      "n_total": 253,
+      "n_pos": 7,
+      "n_neg": 246,
+      "pos_rate": 0.02766798418972332,
+      "precision": 0.2,
+      "recall": 0.42857142857142855,
+      "f1": 0.27272727272727276
+    },
+    {
+      "relation": "candidate_gene_tested_in",
+      "n_total": 171,
+      "n_pos": 0,
+      "n_neg": 171,
+      "pos_rate": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "relation": "disease_causing_somatic_mutation_s_in",
+      "n_total": 77,
+      "n_pos": 1,
+      "n_neg": 76,
+      "pos_rate": 0.012987012987012988,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "relation": "role_in_the_phenotype_of",
+      "n_total": 34,
+      "n_pos": 0,
+      "n_neg": 34,
+      "pos_rate": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "relation": "disease_causing_germline_mutation_s_gain_of_function_in",
+      "n_total": 14,
+      "n_pos": 4,
+      "n_neg": 10,
+      "pos_rate": 0.2857142857142857,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.888888888888889
+    },
+    {
+      "relation": "modifying_germline_mutation_in",
+      "n_total": 13,
+      "n_pos": 1,
+      "n_neg": 12,
+      "pos_rate": 0.07692307692307693,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666
+    },
+    {
+      "relation": "part_of_a_fusion_gene_in",
+      "n_total": 5,
+      "n_pos": 0,
+      "n_neg": 5,
+      "pos_rate": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  ]
+}
