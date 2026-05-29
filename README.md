@@ -431,6 +431,32 @@ significantly on every seed.
 
 ---
 
+### Per-relation breakdown
+
+The Orphanet test set has 11 relation types, but the positives are
+concentrated in two: `is_a` (73.8 percent) and `has_phenotype` (24.1
+percent). Splitting the headline F1 by relation reveals that CAFF
+performs very differently on the two:
+
+| relation                  | n_total | n_pos | precision | recall | F1 (mean +/- std)     |
+|---------------------------|--------:|------:|----------:|-------:|----------------------:|
+| `is_a`                    | 75,469  | 5,214 | 0.534     | 0.687  | **0.6014 +/- 0.0013** |
+| `has_phenotype`           | 24,692  | 1,146 | 0.387     | 0.033  | 0.0604 +/- 0.0097     |
+| 9 other (rare) relations  |  ~2,156 |    56 | varies    | varies | ~0 (data sparse)      |
+| **overall**               | 102,317 | 6,416 | 0.528     | 0.568  | **0.5477 +/- 0.0006** |
+
+(Autoregressive mode, theta=0.80, 3 seeds.) The 0.5477 overall F1 is
+essentially the `is_a` F1 averaged with a near-zero `has_phenotype`
+contribution. The model handles taxonomy edges very well; it learns
+`has_phenotype` (recall recovers from 0.033 at theta=0.80 to 0.685 at
+theta=0.50 on the same checkpoint) but its confidence rankings on
+phenotype attachments are weaker. Per-relation thresholds do not raise
+the aggregate F1: `has_phenotype` caps at F1 = 0.20 even at its peak
+threshold (theta=0.65), and `is_a` already dominates the average. Full
+analysis in `PAPER_DISCREPANCIES.md` Section 27.
+
+---
+
 ## Ablation Study
 
 Leave-one-out over every component, plus a depth-stratified baseline,
@@ -537,7 +563,7 @@ implemented in this release.
 1. **Lambda_D sweep.** The default disables the depth-contrastive auxiliary because it hurts at lambda_D=0.40. Whether a smaller positive value (0.05 to 0.20) helps is open.
 2. **K-fold cross-validation.** The current results use a fixed 14K/3K/3K split. A 5-fold cross-validation would tighten the variance estimates.
 3. **Theta sensitivity analysis.** The headline uses theta=0.80 from a dev sweep; reporting F1 across theta in [0.5, 0.9] would document the operating-point behavior more thoroughly.
-4. **Per-relation F1 analysis.** The KG has 11 relation types; F1 per relation would localize where CAFF helps most.
+4. **Typed CSV for semantic relations.** The per-relation breakdown above (and Section 27 of `PAPER_DISCREPANCIES.md`) shows that CAFF reaches F1 = 0.60 on `is_a` but caps at F1 = 0.20 on `has_phenotype`, even when the threshold is tuned per relation. The mean-pool CSV compresses ontological chains cleanly but discards information that matters for many-to-many semantic relations. A typed CSV that keeps head and tail entity types from the retained set is the natural next step.
 5. **External rare-disease benchmark.** Datasets such as RareBench would test CAFF's transfer behavior on data not sampled from the training KG.
 6. **End-to-end question answering with an LLM backbone.** This release measures the filtering layer only (F1, MAP, NDCG, per-hop precision). Connecting CAFF's filtered output to an LLM and measuring downstream QA accuracy is a separate engineering task.
 7. **Larger KGs and broader biomedical domains.** Datasets like DisGeNET or UMLS require institutional access and are not used here. Validating CAFF on a broader KG is future work.
