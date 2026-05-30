@@ -1,0 +1,84 @@
+{
+  "checkpoint": "runs\\no_dc\\seed_1337\\best.pt",
+  "mode": "autoregressive",
+  "threshold": 0.8,
+  "n_seen_seeds_in_train": 11361,
+  "n_queries_seen_group": 1074,
+  "n_queries_unseen_group": 1926,
+  "by_group": [
+    {
+      "group": "seen",
+      "n_total": 35722,
+      "n_pos": 2376,
+      "pos_rate": 0.06651363305526006,
+      "precision": 0.5699526474386569,
+      "recall": 0.5572390572390572,
+      "f1": 0.5635241540753351
+    },
+    {
+      "group": "unseen",
+      "n_total": 66595,
+      "n_pos": 4040,
+      "pos_rate": 0.060665215106239206,
+      "precision": 0.5205794435502414,
+      "recall": 0.5603960396039604,
+      "f1": 0.5397544403385386
+    }
+  ],
+  "by_group_hop": [
+    {
+      "group": "seen",
+      "hop": 1,
+      "n_total": 6344,
+      "n_pos": 1086,
+      "precision": 0.8497536945812808,
+      "recall": 0.6353591160220995,
+      "f1": 0.7270811380400422
+    },
+    {
+      "group": "seen",
+      "hop": 2,
+      "n_total": 13589,
+      "n_pos": 862,
+      "precision": 0.4967197750702905,
+      "recall": 0.6148491879350348,
+      "f1": 0.5495075168481078
+    },
+    {
+      "group": "seen",
+      "hop": 3,
+      "n_total": 15789,
+      "n_pos": 428,
+      "precision": 0.23423423423423423,
+      "recall": 0.24299065420560748,
+      "f1": 0.23853211009174313
+    },
+    {
+      "group": "unseen",
+      "hop": 1,
+      "n_total": 11699,
+      "n_pos": 1914,
+      "precision": 0.8176352705410822,
+      "recall": 0.6394984326018809,
+      "f1": 0.7176781002638521
+    },
+    {
+      "group": "unseen",
+      "hop": 2,
+      "n_total": 25261,
+      "n_pos": 1409,
+      "precision": 0.4069431051108968,
+      "recall": 0.5990063875088716,
+      "f1": 0.4846396784381281
+    },
+    {
+      "group": "unseen",
+      "hop": 3,
+      "n_total": 29635,
+      "n_pos": 717,
+      "precision": 0.2519280205655527,
+      "recall": 0.2733612273361227,
+      "f1": 0.26220735785953175
+    }
+  ]
+}
