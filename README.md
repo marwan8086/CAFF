@@ -431,6 +431,29 @@ significantly on every seed.
 
 ---
 
+### Generalization to novel seed entities
+
+The Orphanet test set was not constructed to share seeds with training.
+Of the 2,876 distinct seed entities in the test set, 1,840 (64.2
+percent of distinct seeds, and 64.2 percent of test queries) do not
+appear anywhere in training. Stratifying F1 by this seen / unseen
+distinction (3 seeds, theta=0.80, autoregressive):
+
+| group       | n queries | F1 (mean +/- std)     |
+|-------------|----------:|----------------------:|
+| seen seed   |     1,074 | 0.5642 +/- 0.0006     |
+| unseen seed |     1,926 | **0.5384 +/- 0.0013** |
+| **gap**     |        -- | **+0.0259 +/- 0.0018** (4.6% relative) |
+
+Recall is nearly identical between the two groups; only precision drops
+on novel seeds. The 4.6 percent gap is concentrated at hop 2 (12.0
+percent relative there); hops 1 and 3 show no measurable dependence on
+whether the seed was seen during training. Full analysis in
+`PAPER_DISCREPANCIES.md` Section 30. CAFF generalizes to novel seed
+entities within the same KG schema.
+
+---
+
 ### Per-relation breakdown
 
 The Orphanet test set has 11 relation types, but the positives are
