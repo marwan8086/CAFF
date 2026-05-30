@@ -1,3 +1,26 @@
+---
+license: mit
+language:
+  - en
+library_name: pytorch
+pipeline_tag: feature-extraction
+base_model: michiyasunaga/BioLinkBERT-large
+tags:
+  - biomedical
+  - knowledge-graph
+  - multi-hop
+  - retrieval
+  - evidence-selection
+  - kg-rag
+  - rare-disease
+  - orphanet
+  - triple-filtering
+metrics:
+  - f1
+  - precision
+  - recall
+---
+
 <!-- ============================================================ -->
 <!--  CAFF - Context-Aware Feedback Filtering                     -->
 <!--  Official repository README                                  -->
