@@ -655,6 +655,6 @@ This research was conducted at the **School of Software Engineering, Dalian Univ
 | Role | Name | Email |
 |------|------|-------|
 | Corresponding author | **Marwan Dhifallah** (M.Sc. student, DUT) | <marwan@mail.dlut.edu.cn> |
-| Supervisor | **Prof. Yu Liu** (Associate Professor, DUT) | <yuliu@dlut.edu.cn> |
+| Supervisor | **Prof. Yu Liu** (Full Professor, DUT) | <yuliu@dlut.edu.cn> |
 
 For bugs and feature requests, please open an [issue](../../issues). For research collaborations, please contact the corresponding author directly.
